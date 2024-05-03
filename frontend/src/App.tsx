@@ -10,10 +10,9 @@ export default function App() {
     <React.Fragment>
       <Switch>
         <Route path={RouteUtils.HOME_PATH} component={HomePage} />
-
         <Route path={RouteUtils.ROOM_PATH} component={RoomPage} />
         <Route>404: No such page!</Route>
       </Switch>
     </React.Fragment>
-  )
+  );
 }

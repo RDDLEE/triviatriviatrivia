@@ -11,7 +11,7 @@
     "module": "nodenext",                                /* Specify what module code is generated. */
     
     /* Emit */
-    "outDir": "./dist/backend/dist",                                  /* Specify an output folder for all emitted files. */
+    "outDir": "dist/backend/dist",                                  /* Specify an output folder for all emitted files. */
     
     /* Interop Constraints */
     "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */    
@@ -37,6 +37,9 @@
     "noPropertyAccessFromIndexSignature": true,       /* Enforces using indexed accessors for keys declared using an indexed type. */
     
     /* Completeness */    
-    "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
-  }
+    "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
+
+  },
+  "files": ["server.ts"],
+  "include": ["src", "../shared/globals"]
 }

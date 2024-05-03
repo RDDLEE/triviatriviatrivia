@@ -16,19 +16,20 @@ export default function RoomPage() {
     function onDisconnect() {
       console.log("RoomPage.onDisconnect called.");
     }
-    
+
     socket.on("connection", onConnect);
     socket.on("disconnect", onDisconnect);
 
     return () => {
       socket.off("connection", onConnect);
       socket.off("disconnect", onDisconnect);
-    }
+    };
   }, []);
 
+  // FIXME: Check if room with roomID exists.
   return (
     <React.Fragment>
       {`I am RoomPage. roomID: ${params[RouteUtils.PARAM_ROOM_ID]}.`}
     </React.Fragment>
-  )
+  );
 }

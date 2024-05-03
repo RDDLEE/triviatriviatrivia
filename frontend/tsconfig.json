@@ -34,6 +34,6 @@
     "noPropertyAccessFromIndexSignature": true,       /* Enforces using indexed accessors for keys declared using an indexed type. */
 
   },
-  "include": ["src"],
+  "include": ["src", "../shared/globals"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

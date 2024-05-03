@@ -1,2 +1,9 @@
+# Derivatives.
 node_modules
 dist
+
+# Environment Variables.
+.env
+.env.local
+.env.development
+.env.production

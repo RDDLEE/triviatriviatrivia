@@ -14,7 +14,7 @@ module.exports = {
       "warn",
       { allowConstantExport: true },
     ],
-    "quotes": ["warn", "double"],
+    "quotes": [1, "double"],
     "object-shorthand": [
       1,
       "never"
@@ -22,6 +22,27 @@ module.exports = {
     "arrow-body-style": [
       1,
       "always"
+    ],
+    "semi": [
+      1,
+      "always"
+    ],
+    "no-extra-semi": [1],
+    "no-trailing-spaces": [
+      1, 
+      {},
+    ],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "args": "all",
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
     ]
   },
 }
