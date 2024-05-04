@@ -16,7 +16,8 @@ if (PORT === undefined) {
   throw "env.PORT not specified.";
 }
 const API_PREFIX = "/api";
-const FRONTEND_INDEX_PATH = path.resolve(__dirname, "frontend", "index.html");
+const FRONTEND_DIR_PATH = path.resolve(__dirname, "frontend");
+const FRONTEND_INDEX_PATH = path.resolve(FRONTEND_DIR_PATH, "index.html");
 console.log(`Serving frontend index.html from ${FRONTEND_INDEX_PATH}.`);
 
 const app: Express = express();
@@ -33,7 +34,7 @@ const io = new Server(server, {
 app.use(helmet());
 // FIXME: Configure CORS by environment.
 app.use(cors({ origin: "*" }));
-app.use(express.static(path.resolve(__dirname, "frontend")));
+app.use(express.static(FRONTEND_DIR_PATH));
 
 // FIXME: Make map?
 const gameRooms: GameRoom[] = [];
@@ -51,10 +52,9 @@ app.post(API_PREFIX + "/room/create", (_req, res) => {
   res.json({ roomID: roomID });
 });
 
-/* app.get('*', (req, res) => {
-  console.log(`* called and req.url = ${req.url}.`);
+app.get('*', (req, res) => {
   res.sendFile(FRONTEND_INDEX_PATH);
-}); */
+});
 
 // TODO: Perhaps store all players/connections 
 // - to ensure that one player/socket can only be in one room.
