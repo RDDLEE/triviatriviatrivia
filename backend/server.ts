@@ -8,7 +8,6 @@ import cors from "cors";
 import path from "path";
 import GameRoom from "./src/game-room";
 import RoomUtils from "./src/lib/RoomUtils";
-// import { SocketEvents } from "../shared/globals";
 
 dotenv.config();
 
@@ -17,7 +16,7 @@ if (PORT === undefined) {
   throw "env.PORT not specified.";
 }
 const API_PREFIX = "/api";
-const FRONTEND_INDEX_PATH = path.resolve(__dirname, "..", "..", "frontend", "dist", "index.html");
+const FRONTEND_INDEX_PATH = path.resolve(__dirname, "frontend", "index.html");
 console.log(`Serving frontend index.html from ${FRONTEND_INDEX_PATH}.`);
 
 const app: Express = express();
@@ -33,20 +32,14 @@ const io = new Server(server, {
 
 app.use(helmet());
 // FIXME: Configure CORS by environment.
-app.use(cors({
-  origin: "*"
-}));
-app.use(express.static("dist/frontend/dist"));
+app.use(cors({ origin: "*" }));
+app.use(express.static(path.resolve(__dirname, "frontend")));
 
 // FIXME: Make map?
 const gameRooms: GameRoom[] = [];
 
 app.get(API_PREFIX + "/hello", (_req: Request, res: Response) => {
   res.send("Hello, I am hello.");
-});
-
-app.get('*', (_req, res) => {
-  res.sendFile(FRONTEND_INDEX_PATH);
 });
 
 app.post(API_PREFIX + "/room/create", (_req, res) => {
@@ -58,18 +51,13 @@ app.post(API_PREFIX + "/room/create", (_req, res) => {
   res.json({ roomID: roomID });
 });
 
-/* io.on("connection", (socket) => {
-  console.log(`io.connection called. socket.id = ${socket.id}.`);
-
-  socket.on("disconnect", (reason) => {
-    console.log(`io.connection.disconnect called and socket.id = ${socket.id}, reason = ${reason}.`);
-  });
-
-  socket.on("error", (error) => {
-    console.log(`io.connection.error called and socket.id = ${socket.id}, error = ${error}. Disconnecting socket...`);
-    socket.disconnect();
-  });
+/* app.get('*', (req, res) => {
+  console.log(`* called and req.url = ${req.url}.`);
+  res.sendFile(FRONTEND_INDEX_PATH);
 }); */
+
+// TODO: Perhaps store all players/connections 
+// - to ensure that one player/socket can only be in one room.
 
 server.listen(PORT, () => {
   console.log(`[server]: Server is running at http://localhost:${PORT}.`);

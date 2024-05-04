@@ -1,20 +1,8 @@
 import { io } from "socket.io-client";
 
-// FIXME: File likely unnecessary.
-// - Connection likely can/must only join dynamic namespace.
+// FIXME: File likely unnecessary. Only used in RoomPage.
 
-const generateSocketURL = (): string | undefined => {
-  if (import.meta.env.PROD) {
-    // "undefined" means the URL will be computed from the `window.location` object.
-    // @see: https://socket.io/how-to/use-with-react.
-    return undefined;
-  }
-  // FIXME: Make environment variable.
-  return "http://localhost:3000";
-};
-
-// @ts-expect-error: undefined is acceptable.
-const socket = io(generateSocketURL(), {
+const socket = io(import.meta.env.VITE_BASE_SERVER_URL, {
   autoConnect: false,
 });
 
