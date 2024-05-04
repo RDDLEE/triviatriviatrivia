@@ -1,0 +1,18 @@
+{
+  "name": "trivia-shared",
+  "version": "1.0.0",
+  "description": "Shared utils for trivia-backend and trivia-frontend.",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "files": ["/build"],
+  "scripts": {
+    "build": "tsc",
+    "pack": "npm pack --pack-destination ./dist",
+    "build:pack": "npm run build && npm run pack"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
+}

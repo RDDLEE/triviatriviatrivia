@@ -10,7 +10,8 @@ export default defineConfig({
     cors: false,
   },
   build: {
-    outDir: "dist",
+    // Should match package.json.
+    outDir: "../dist/frontend",
     // https://vitejs.dev/config/build-options#build-minify
     // minify: false,
   }
