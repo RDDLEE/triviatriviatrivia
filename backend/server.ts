@@ -16,7 +16,9 @@ if (PORT === undefined) {
   throw "env.PORT not specified.";
 }
 const API_PREFIX = "/api";
-const FRONTEND_DIR_PATH = path.resolve(__dirname, "frontend");
+// Frontend directory name should match frontend/package.json build outDir.
+const FRONTEND_DIR_PATH = path.resolve(__dirname, "frontend-dist");
+console.log(`Using frontend directory from ${FRONTEND_DIR_PATH}.`);
 const FRONTEND_INDEX_PATH = path.resolve(FRONTEND_DIR_PATH, "index.html");
 console.log(`Serving frontend index.html from ${FRONTEND_INDEX_PATH}.`);
 

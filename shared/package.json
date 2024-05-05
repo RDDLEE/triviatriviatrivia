@@ -1,6 +1,6 @@
 {
   "name": "trivia-shared",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Shared utils for trivia-backend and trivia-frontend.",
   "main": "build/index.js",
   "types": "build/index.d.ts",

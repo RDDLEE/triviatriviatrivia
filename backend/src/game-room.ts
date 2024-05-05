@@ -1,27 +1,24 @@
 import { Server } from "socket.io";
-import GameState from "./game-state";
+import GameController from "./game-controller";
 import RoomUtils from "./lib/RoomUtils";
 import CryptoUtils from "./lib/CryptoUtils";
 import { Player, PlayerID, PlayerVanity, SocketEvents, SocketID } from "trivia-shared";
 
 export default class GameRoom {
   private readonly roomID: string;
-
   private readonly ioServer: Server;
-
   // K: SocketID, V: Player.
   private readonly players: Map<SocketID, Player> = new Map();
-
   // TODO: Terminate old GameRooms.
+  // TODO: Create GameRoomDetails obj.
   private readonly creationTime: number;
-
-  private readonly gameState: GameState;
+  private readonly gameController: GameController;
 
   constructor(roomID: string, ioServer: Server) {
     this.roomID = roomID;
     this.ioServer = ioServer;
     this.creationTime = Date.now();
-    this.gameState = new GameState(roomID, ioServer);
+    this.gameController = new GameController(roomID, ioServer);
 
     ioServer.of(roomID).on(SocketEvents.CONNECTION, (socket) => {
       console.log(`GameRoom.connection called and socket.id = ${socket.id}.`);
@@ -38,24 +35,27 @@ export default class GameRoom {
 
       // Core player ingress.
       // FIXME: Init Player Ready params.
-      socket.on(SocketEvents.GAME_ROOM_PLAYER_INIT_READY, (vanity: PlayerVanity) => {
-        console.log(`GameRoom.GAME_ROOM_PLAYER_INIT_READY called and socket.id = ${socket.id}, vanity = ${vanity}.`);
+      socket.on(SocketEvents.GR_INIT_PLAYER_READY, (vanity: PlayerVanity) => {
+        console.log(`GameRoom.GR_INIT_PLAYER_READY called and socket.id = ${socket.id}, vanity = ${JSON.stringify(vanity)}.`);
         // FIXME: Validate vanity.
-        this.players.get(socket.id).vanity = vanity;
-        this.gameState.onNewPlayer(socket);
+        const player = this.players.get(socket.id);
+        player.vanity = vanity;
+        this.gameController.onNewPlayer(socket, playerID);
+        // FIXME: Need to emit all (GS/GR) values to the new player.
+        // FIXME: Need to emit all (GS/GR) values of the new player to all players.
         this.emit_AllPlayerVanities();
       });
 
       socket.on(SocketEvents.DISCONNECT, (reason) => {
         console.log(`GameRoom.disconnect called and socket.id = ${socket.id}, reason = ${reason}.`);
         this.players.delete(socket.id);
+        // TODO: Delete PlayerState in GS.
       });
 
       socket.on(SocketEvents.ERROR, (error) => {
         console.log(`GameRoom.error called and socket.id = ${socket.id}, error = ${error}. Disconnecting socket...`);
         socket.disconnect(true);
       });
-
     });
   };
 
@@ -64,7 +64,11 @@ export default class GameRoom {
     this.players.forEach((value: Player, key: SocketID) => {
       vanities.set(key, value.vanity);
     });
-    this.ioServer.of(this.roomID).emit(SocketEvents.GAME_ROOM_ALL_PLAYER_VANITIES, vanities);
+    this.ioServer.of(this.roomID).emit(SocketEvents.GR_UPDATE_PLAYER_VANITIES, vanities);
+  };
+
+  public readonly getPlayerIDBySocketID = (socketID: SocketID): PlayerID => {
+    return this.players.get(socketID).playerID;
   };
 
 }
