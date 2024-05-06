@@ -72,6 +72,10 @@ export default class MatchState {
     return this.round;
   };
 
+  public readonly incrementRound = (): void => {
+    this.round = this.round + 1;
+  }
+
   public readonly getQuestions = (): StandardQuestion[] => {
     return this.questions;
   };

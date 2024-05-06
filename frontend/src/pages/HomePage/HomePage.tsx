@@ -17,8 +17,12 @@ export default function HomePage() {
   // FIXME: Use MantineUI components.
   return (
     <React.Fragment>
-      <button onClick={onClick_CreateRoomButton}>Create Room</button>
-      I am HomePage.
+      <div>
+        I am HomePage.
+      </div>
+      <div>
+        <button onClick={onClick_CreateRoomButton}>Create Room</button>
+      </div>
     </React.Fragment>
   );
 }

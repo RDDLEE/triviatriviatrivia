@@ -9,12 +9,18 @@ import path from "path";
 import GameRoom from "./src/game-room";
 import RoomUtils from "./src/lib/RoomUtils";
 
+// FIXME: Check if loaded successfully.
 dotenv.config();
 
 const PORT = process.env["PORT"];
 if (PORT === undefined) {
   throw "env.PORT not specified.";
 }
+const COUNTDOWN_MULTIPLIER = process.env["COUNTDOWN_MULTIPLIER"];
+if (COUNTDOWN_MULTIPLIER === undefined) {
+  throw "env.COUNTDOWN_MULTIPLIER not specified.";
+}
+
 const API_PREFIX = "/api";
 // Frontend directory name should match frontend/package.json build outDir.
 const FRONTEND_DIR_PATH = path.resolve(__dirname, "frontend-dist");
