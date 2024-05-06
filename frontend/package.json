@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && npm run trace && vite build --outDir ../dist/frontend-dist",
+    "build": "tsc && npm run trace && vite build --outDir ../dist/frontend-dist --emptyOutDir",
     "trace": "node -e \"console.log(`outDir: ${require('path').resolve('../dist/frontend-dist')}`)\"",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -16,7 +16,7 @@
     "react-dom": "^18.2.0",
     "socket.io-client": "^4.7.5",
     "wouter": "^3.1.2",
-    "trivia-shared": "file:../shared/dist/trivia-shared-1.0.4.tgz"
+    "trivia-shared": "file:../shared/dist/trivia-shared-1.0.10.tgz"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

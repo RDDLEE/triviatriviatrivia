@@ -1,8 +1,7 @@
-import { getMatchSettingsIdentity, MatchSettings, MatchStateStates, PlayerID, Server_PlayerStats } from "trivia-shared";
+import { getMatchSettingsIdentity, MatchSettings, PlayerID, Server_PlayerStats } from "trivia-shared";
 import { StandardQuestion } from "./lib/QuestionUtils";
 
 export interface MatchStateSchema {
-  state: MatchStateStates;
   questions: StandardQuestion[];
   round: number;
   matchSettings: MatchSettings;
@@ -12,7 +11,6 @@ export interface MatchStateSchema {
 }
 
 export default class MatchState {
-  private state: MatchStateStates;
   private questions: StandardQuestion[];
   private round: number;
   private matchSettings: MatchSettings;
@@ -22,7 +20,6 @@ export default class MatchState {
 
   constructor() {
     const identity = MatchState.getMatchStateIdentity();
-    this.state = identity.state;
     this.questions = identity.questions;
     this.round = identity.round;
     this.matchSettings = identity.matchSettings;
@@ -33,7 +30,6 @@ export default class MatchState {
   // FIXME: Extract to MatchStateUtils.
   public static readonly getMatchStateIdentity = (): MatchStateSchema => {
     return {
-      state: MatchStateStates.WAITING_FOR_MATCH_START,
       questions: [],
       round: 0,
       matchHistory: [],
@@ -49,6 +45,7 @@ export default class MatchState {
       lossStreak: 0,
       numCorrect: 0,
       numIncorrect: 0,
+      numNoAnswer: 0,
     };
   };
 
@@ -58,7 +55,6 @@ export default class MatchState {
 
   public readonly onNewMatch = (matchSettings: MatchSettings): void => {
     const matchStateIdentity = MatchState.getMatchStateIdentity();
-    this.state = MatchStateStates.LOADING_QUESTIONS;
     this.questions = matchStateIdentity.questions;
     this.round = matchStateIdentity.round;
     this.matchSettings = matchSettings;
@@ -72,12 +68,12 @@ export default class MatchState {
     this.questions.push(...questions);
   };
 
-  public readonly updateMatchStateState = (newState: MatchStateStates): void => {
-    this.state = newState;
+  public readonly getRound = (): number => {
+    return this.round;
   };
 
-  public readonly getMatchStateState = (): MatchStateStates => {
-    return this.state;
+  public readonly getQuestions = (): StandardQuestion[] => {
+    return this.questions;
   };
 
 }

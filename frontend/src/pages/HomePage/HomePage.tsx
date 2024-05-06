@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "wouter";
+import { useLocation } from "wouter";
 import APIUtils from "../../lib/APIUtils";
 
 export default function HomePage() {
@@ -17,7 +17,6 @@ export default function HomePage() {
   // FIXME: Use MantineUI components.
   return (
     <React.Fragment>
-      <Link to="/123">Room 123.</Link>
       <button onClick={onClick_CreateRoomButton}>Create Room</button>
       I am HomePage.
     </React.Fragment>
