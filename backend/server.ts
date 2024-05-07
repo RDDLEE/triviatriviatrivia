@@ -8,10 +8,12 @@ import cors from "cors";
 import path from "path";
 import GameRoom from "./src/game-room";
 import RoomUtils from "./src/lib/RoomUtils";
+import { CreateRoomReturn } from "trivia-shared";
 
 // FIXME: Check if loaded successfully.
 dotenv.config();
 
+// FIXME: Extract env checking to function.
 const PORT = process.env["PORT"];
 if (PORT === undefined) {
   throw "env.PORT not specified.";
@@ -57,7 +59,8 @@ app.post(API_PREFIX + "/room/create", (_req, res) => {
   console.log(`/room/create called. roomID = ${roomID}.`);
   const newRoom = new GameRoom(roomID, io);
   gameRooms.push(newRoom);
-  res.json({ roomID: roomID });
+  // FIXME: Handle response errors/codes.
+  res.json({ roomID: roomID } satisfies CreateRoomReturn);
 });
 
 app.get('*', (req, res) => {

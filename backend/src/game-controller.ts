@@ -1,13 +1,15 @@
 import axios from "axios";
 import { Server, Socket } from "socket.io";
 import dotenv from "dotenv";
-import { GCJudgingAnswer_Payload, GCJudgingPlayers_Payload, GCPreparingMatch_Payload, GCShowingQuestion_Payload, GCWaitingForMatchStart_Payload, MatchSettings, PlayerID, SocketEvents } from "trivia-shared";
+import { GCAnswerSubmitted_Payload, GCAttemptSubmitAnswer_Payload, GCJudgingPlayers_Payload, GCPreparingMatch_Payload, GCReceivePlayerID_Payload, GCRefreshMatchState_Payload, GCReqestStartMatch_Payload, GCShowingQuestion_Payload, GCWaitingForMatchStart_Payload, MatchSettings, PlayerID, SocketEvents } from "trivia-shared";
 import OTDBUtils, { OTDBResponse, OTDBResponseCodes } from "./lib/OTDBUtils";
 import MatchState from "./match-state";
+import GameRoom from "./game-room";
 
 dotenv.config();
 
 export default class GameController {
+  private readonly gameRoom: GameRoom;
   private readonly roomID: string;
   private readonly ioServer: Server;
   private readonly matchState: MatchState;
@@ -20,27 +22,30 @@ export default class GameController {
   // Time (millis) for players to answer until answer reveal.
   private static readonly SHOWING_QUESTION_COUNTDOWN = 10 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for server to reveal answers to players.
-  private static readonly JUDGING_ANSWER_COUNTDOWN = 5 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
+  private static readonly JUDGING_ANSWERS_COUNTDOWN = 5 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for server to judge players at the end of game.
   private static readonly JUDGING_PLAYERS_COUNTDOWN = 10 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
 
-  constructor(roomID: string, ioServer: Server) {
+  constructor(gameRoom: GameRoom, roomID: string, ioServer: Server) {
+    this.gameRoom = gameRoom;
     // Could combine ioServer and roomID to the return type of SocketIO.Namespace i.e. io.of(roomID);
     this.roomID = roomID;
     this.ioServer = ioServer;
     this.matchState = new MatchState();
-    console.log(`Multiplier = ${GameController.COUNTDOWN_MULTIPLIER}. 3 * 1000 * GameController.COUNTDOWN_MULTIPLIER = ${3 * 1000 * GameController.COUNTDOWN_MULTIPLIER}. GameController.STARTING_MATCH_COUNTDOWN = ${GameController.STARTING_MATCH_COUNTDOWN}.`);
   };
 
   public readonly onNewPlayer = (socket: Socket, playerID: PlayerID): void => {
     this.matchState.addNewPlayer(playerID);
-    // TODO: Emit MatchState schema to room.
+    socket.emit(SocketEvents.GC_SERVER_RECEIVE_PLAYER_ID, { playerID: playerID } satisfies GCReceivePlayerID_Payload);
+    this.ioServer.of(this.roomID).emit(SocketEvents.GC_SERVER_REFRESH_MATCH_STATE, {
+      matchState: this.matchState.getClientMatchState(this.gameRoom),
+    } satisfies GCRefreshMatchState_Payload);
 
     // TODO: Extract function.
-    socket.on(SocketEvents.GC_CLIENT_REQUEST_START_MATCH, async (matchSettings: MatchSettings) => {
-      console.log(`GameController.GC_START_MATCH called and socket.id = ${socket.id}, matchSettings = ${JSON.stringify(matchSettings)}.`);
+    socket.on(SocketEvents.GC_CLIENT_REQUEST_START_MATCH, async (payload: GCReqestStartMatch_Payload) => {
+      console.log(`GameController.GC_START_MATCH called.`);
       this.ioServer.of(this.roomID).emit(SocketEvents.GC_SERVER_PREPARING_MATCH, {} satisfies GCPreparingMatch_Payload);
-      this.matchState.onNewMatch(matchSettings);
+      this.matchState.onNewMatch(payload.matchSettings);
       try {
         // TODO: Keep track of when server requests API calls to prevent timeouts.
         // FIXME: Settings and params.
@@ -59,9 +64,24 @@ export default class GameController {
         console.log(`GameController.GC_START_MATCH called and error = ${error}.`);
       }
     });
+
+    // TODO: Extract function.
+    socket.on(SocketEvents.GC_CLIENT_ATTEMPT_SUBMIT_ANSWER, (payload: GCAttemptSubmitAnswer_Payload) => {
+      // console.log(`GameController.GC_CLIENT_ATTEMPT_SUBMIT_ANSWER called. payload = ${JSON.stringify(payload)}.`);
+      const playerID = this.gameRoom.getPlayerIDBySocketID(socket.id);
+      const wasSuccessful = this.matchState.attemptSubmitAnswer(playerID, payload.selectedAnswerID);
+      if (wasSuccessful) {
+        this.ioServer.of(this.roomID).emit(
+          SocketEvents.GC_SERVER_ANSWER_SUBMITTED, {
+            answerState: this.matchState.getClientAnswerStateByPlayerID(playerID),
+          } satisfies GCAnswerSubmitted_Payload
+        );
+      }
+    });
   };
 
   private readonly waitForMatchStart = (): void => {
+    this.matchState.onWaitForMatchStart();
     this.ioServer.of(this.roomID).emit(
       SocketEvents.GC_SERVER_WAITING_FOR_MATCH_START,
       {} satisfies GCWaitingForMatchStart_Payload
@@ -76,7 +96,7 @@ export default class GameController {
     if (round >= 0 && round < questions.length) {
       // FIXME: When emitting and counting down, 
       // - should send a terminal time for clients to accurately display the countdown timer.
-      console.log("GameController.showQuestion called and emitting.");
+      this.matchState.onShowQuestion();
       this.ioServer.of(this.roomID).emit(
         SocketEvents.GC_SERVER_SHOWING_QUESTION,
         {
@@ -84,26 +104,28 @@ export default class GameController {
           terminationTime: Date.now() + GameController.SHOWING_QUESTION_COUNTDOWN,
         } satisfies GCShowingQuestion_Payload
       );
-      setTimeout(this.judgeAnswer, GameController.SHOWING_QUESTION_COUNTDOWN);
+      setTimeout(this.judgeAnswers, GameController.SHOWING_QUESTION_COUNTDOWN);
     } else {
       this.judgePlayers();
     }
   };
 
-  private readonly judgeAnswer = (): void => {
-    console.log("GameController.judgeAnswer called.");
+  private readonly judgeAnswers = (): void => {
+    console.log("GameController.judgeAnswers called.");
+    this.matchState.onJudgeAnswers();
     this.ioServer.of(this.roomID).emit(
-      SocketEvents.GC_SERVER_JUDGING_ANSWER,
+      SocketEvents.GC_SERVER_JUDGING_ANSWERS,
       {
-        terminationTime: Date.now() + GameController.JUDGING_ANSWER_COUNTDOWN,
-      } satisfies GCJudgingAnswer_Payload
+        terminationTime: Date.now() + GameController.JUDGING_ANSWERS_COUNTDOWN,
+      } satisfies GCJudgingPlayers_Payload
     );
-    setTimeout(this.showQuestion, GameController.JUDGING_ANSWER_COUNTDOWN);
+    setTimeout(this.showQuestion, GameController.JUDGING_ANSWERS_COUNTDOWN);
     this.matchState.incrementRound();
   };
 
   private readonly judgePlayers = (): void => {
     console.log("GameController.judgePlayers called.");
+    this.matchState.onJudgePlayers();
     this.ioServer.of(this.roomID).emit(
       SocketEvents.GC_SERVER_JUDGING_PLAYERS,
       {
@@ -112,5 +134,4 @@ export default class GameController {
     );
     setTimeout(this.waitForMatchStart, GameController.JUDGING_PLAYERS_COUNTDOWN);
   };
-
 }

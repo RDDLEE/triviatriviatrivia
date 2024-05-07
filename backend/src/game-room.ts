@@ -18,9 +18,10 @@ export default class GameRoom {
     this.roomID = roomID;
     this.ioServer = ioServer;
     this.creationTime = Date.now();
-    this.gameController = new GameController(roomID, ioServer);
+    this.gameController = new GameController(this, roomID, ioServer);
     this.players = new Map();
 
+    // FIXME: Extract to function.
     ioServer.of(roomID).on(SocketEvents.CONNECTION, (socket) => {
       console.log(`GameRoom.CONNECTION called and socket.id = ${socket.id}.`);
       // Store connected players, but defer handling until the player explicity 
@@ -33,7 +34,6 @@ export default class GameRoom {
         joinTime: joinTime,
         vanity: null,
       });
-      console.log(`GameRoom.CONNECTION called and players = ${JSON.stringify(Array.from(this.players.entries()))}.`);
 
       // Core player ingress.
       // FIXME: Init Player Ready params.
@@ -48,13 +48,13 @@ export default class GameRoom {
         this.gameController.onNewPlayer(socket, player.playerID);
         // FIXME: Need to emit all (GS/GR) values to the new player.
         // FIXME: Need to emit all (GS/GR) values of the new player to all players.
-        this.updatePlayerVanities();
+        // this.updatePlayerVanities();
       });
 
       socket.on(SocketEvents.DISCONNECT, (reason) => {
         console.log(`GameRoom.DISCONNECT called and socket.id = ${socket.id}, reason = ${reason}.`);
         this.players.delete(socket.id);
-        // TODO: Delete PlayerState in GS.
+        // TODO: Delete Player in GS.
       });
 
       socket.on(SocketEvents.ERROR, (error) => {
@@ -64,7 +64,15 @@ export default class GameRoom {
     });
   };
 
+  // TODO: Implement vanity changes.
   private readonly updatePlayerVanities = (): void => {
+    const vanities = this.makeClientPlayerVanities();
+    this.ioServer.of(this.roomID).emit(SocketEvents.GR_SERVER_UPDATE_PLAYER_VANITIES, {
+      playerVanities: vanities,
+    } satisfies GRUpdatePlayerVanities_Payload);
+  };
+
+  public readonly makeClientPlayerVanities = (): Client_PlayerVanity[] => {
     const vanities: Client_PlayerVanity[] = [];
     this.players.forEach((value: Player, _: SocketID) => {
       vanities.push({
@@ -73,10 +81,7 @@ export default class GameRoom {
         displayName: value.vanity.displayName,
       });
     });
-    console.log(`GameRoom.updatePlayerVanities called. vanities = ${JSON.stringify(vanities)}.`);
-    this.ioServer.of(this.roomID).emit(SocketEvents.GR_SERVER_UPDATE_PLAYER_VANITIES, {
-      playerVanities: vanities,
-    } satisfies GRUpdatePlayerVanities_Payload);
+    return vanities;
   };
 
   public readonly getPlayerIDBySocketID = (socketID: SocketID): PlayerID => {

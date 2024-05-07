@@ -1,4 +1,5 @@
 import axios from "axios";
+import { CreateRoomReturn } from "trivia-shared";
 
 // FIXME: Extract to shared module with backend.
 export default class APIUtils {
@@ -15,11 +16,10 @@ export default class APIUtils {
     console.log(`APIUtils.createRoom called and CREATE_ROOM_PATH = ${CREATE_ROOM_PATH}.`);
     // FIXME: Use ResponseReturn<MyReturn> or AxiosResponse.
     // FIXME: Extract return type to shared module.
-    const response = await axios.post<unknown>(CREATE_ROOM_PATH);
+    const response = await axios.post<CreateRoomReturn>(CREATE_ROOM_PATH);
     // FIXME: Handle errors.
     // FIXME: Use explicit roomID return.
-    // @ts-expect-error: Will fix later.
-    return response.data["roomID"] as string;
+    return response.data.roomID;
   };
 
 }

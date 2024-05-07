@@ -1,26 +1,27 @@
 import { createContext, useCallback, useContext, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { io, Socket } from "socket.io-client";
-import { GCReqestStartMatch_Payload, getMatchSettingsIdentity, GRUpdatePlayerVanities_Payload, MatchSettings, SocketEvents, GRJoinGame_Payload, Server_PlayerVanity } from "trivia-shared";
+import { GCReqestStartMatch_Payload, getMatchSettingsIdentity, GRUpdatePlayerVanities_Payload, MatchSettings, SocketEvents, GRJoinGame_Payload, Server_PlayerVanity, GCReceivePlayerID_Payload, GCAnswerSubmitted_Payload, GCRefreshMatchState_Payload } from "trivia-shared";
 import { MatchStateContext } from "../../components/MatchStateProvider/MatchStateProvider";
 import QuestionContainer from "../../components/QuestionContainer/QuestionContainer";
+import MatchStateUtils from "../../lib/MatchStateUtils";
+import { produce } from "immer";
 
 export const SocketContext = createContext<Socket | null>(null);
 
 export default function RoomPage() {
-  // NOTE: wouter.useParams is deliberately not used to prevent any unintentional rerenders.
-  const roomIDRef = useRef<string>(window.location.pathname);
-
   const matchStateContext = useContext(MatchStateContext);
 
-  const socketRef = useRef<Socket | null>(null);
-  if (!socketRef.current) {
-    // NOTE: Initializing here and not in useRef to prevent redudant io() calls.
-    const socket_uri = import.meta.env.VITE_BASE_SERVER_URL + roomIDRef.current;
-    console.log(`RoomPage.socketRef called and socket_uri = ${socket_uri}.`);
-    socketRef.current = io(socket_uri, { autoConnect: false });
-  }
+  const initSocket = (): Socket => {
+    const socketURI = import.meta.env.VITE_BASE_SERVER_URL + window.location.pathname;
+    console.log(`RoomPage.initSocket called and socket_uri = ${socketURI}.`);
+    return io(socketURI, { autoConnect: false });
+  };
+  const socketRef = useRef<Socket>(initSocket());
 
+  console.log(`RoomPage called and answerStates = ${JSON.stringify(matchStateContext?.playerAnswerStates)}.`);
+
+  // Extract socket callbacks to hook.
   const onConnection = useCallback((): void => {
     console.log("RoomPage.onConnection called.");
   }, []);
@@ -29,11 +30,23 @@ export default function RoomPage() {
     console.log("RoomPage.onDisconnect called.");
   }, []);
 
+  const onGCReceivePlayerID = useCallback((payload: GCReceivePlayerID_Payload) => {
+    console.log(`GameRoom.GC_SERVER_REFRESH_MATCH_STATE called and payload = ${JSON.stringify(payload)}.`);
+    matchStateContext?.setClientPlayerID(payload.playerID);
+  }, [matchStateContext]);
+
+  const onGCRefreshMatchState = useCallback((payload: GCRefreshMatchState_Payload) => {
+    console.log(`GameRoom.onGCRefreshMatchState called and payload = ${JSON.stringify(payload)}.`);
+    const matchState = payload.matchState;
+    matchStateContext?.setMatchStatus(matchState.matchStatus);
+    matchStateContext?.setRound(matchState.round);
+    matchStateContext?.setQuestion(matchState.question);
+    matchStateContext?.setPlayerVanities(matchState.playerVanities);
+    matchStateContext?.setPlayersStats(matchState.playersStats);
+    matchStateContext?.setPlayerAnswerStates(matchState.playerAnswerStates);
+  }, [matchStateContext]);
+
   const onGRUpdatePlayerVanities = useCallback((payload: GRUpdatePlayerVanities_Payload): void => {
-    console.log(`RoomPage.onGRUpdatePlayerVanities called. payload = ${JSON.stringify(payload)}.`);
-    if (!matchStateContext) {
-      console.log("RoomPage.onGRUpdatePlayerVanities called. matchState bad.");
-    }
     matchStateContext?.setPlayerVanities(payload.playerVanities);
   }, [matchStateContext]);
 
@@ -41,10 +54,27 @@ export default function RoomPage() {
     console.log(`RoomPage.onGRUpdatePlayerVanities called. payload = ${payload}.`);
   }, []);
 
+  const onAnswerSubmitted = useCallback((payload: GCAnswerSubmitted_Payload): void => {
+    // console.log(`RoomPage.onAnswerSubmitted called. payload = ${JSON.stringify(payload)}.`);
+    if (!matchStateContext) {
+      return;
+    }
+    const playerID = payload.answerState.playerID;
+    const index = MatchStateUtils.getIndexOfAnswerStateByPlayerID(matchStateContext, playerID);
+    if (index < 0) {
+      return;
+    }
+    matchStateContext.setPlayerAnswerStates(
+      produce(matchStateContext.playerAnswerStates, (draft): void => {
+        draft.splice(index, 1, { ...payload.answerState });
+      })
+    );
+  }, [matchStateContext]);
+
   // NOTE: I believe these useEffects is neccessary to control the cleanup of listeners.
   // - While useEffect is to be avoided, the lifecycle of SocketIO's Socket presents a compelling use case.
   useEffect(() => {
-    const socket = socketRef.current!;
+    const socket = socketRef.current;
     socket.connect();
     return () => {
       socket.disconnect();
@@ -52,7 +82,7 @@ export default function RoomPage() {
   }, []);
 
   useEffect(() => {
-    const socket = socketRef.current!;
+    const socket = socketRef.current;
     socket.on(SocketEvents.CONNECTION, onConnection);
     return () => {
       socket.off(SocketEvents.CONNECTION, onConnection);
@@ -60,7 +90,7 @@ export default function RoomPage() {
   }, [onConnection]);
 
   useEffect(() => {
-    const socket = socketRef.current!;
+    const socket = socketRef.current;
     socket.on(SocketEvents.DISCONNECT, onDisconnect);
     return () => {
       socket.off(SocketEvents.DISCONNECT, onDisconnect);
@@ -68,7 +98,23 @@ export default function RoomPage() {
   }, [onDisconnect]);
 
   useEffect(() => {
-    const socket = socketRef.current!;
+    const socket = socketRef.current;
+    socket.on(SocketEvents.GC_SERVER_RECEIVE_PLAYER_ID, onGCReceivePlayerID);
+    return () => {
+      socket.off(SocketEvents.GC_SERVER_RECEIVE_PLAYER_ID, onGCReceivePlayerID);
+    };
+  }, [onGCReceivePlayerID]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    socket.on(SocketEvents.GC_SERVER_REFRESH_MATCH_STATE, onGCRefreshMatchState);
+    return () => {
+      socket.off(SocketEvents.GC_SERVER_REFRESH_MATCH_STATE, onGCRefreshMatchState);
+    };
+  }, [onGCRefreshMatchState]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
     socket.on(SocketEvents.GR_SERVER_UPDATE_PLAYER_VANITIES, onGRUpdatePlayerVanities);
     return () => {
       socket.off(SocketEvents.GR_SERVER_UPDATE_PLAYER_VANITIES, onGRUpdatePlayerVanities);
@@ -76,14 +122,23 @@ export default function RoomPage() {
   }, [onGRUpdatePlayerVanities]);
 
   useEffect(() => {
-    const socket = socketRef.current!;
+    const socket = socketRef.current;
     socket.on(SocketEvents.GC_SERVER_WAITING_FOR_MATCH_START, onGCWaitingForMatchStart);
     return () => {
       socket.off(SocketEvents.GC_SERVER_WAITING_FOR_MATCH_START, onGCWaitingForMatchStart);
     };
   }, [onGCWaitingForMatchStart]);
 
+  useEffect(() => {
+    const socket = socketRef.current;
+    socket.on(SocketEvents.GC_SERVER_ANSWER_SUBMITTED, onAnswerSubmitted);
+    return () => {
+      socket.off(SocketEvents.GC_SERVER_ANSWER_SUBMITTED, onAnswerSubmitted);
+    };
+  }, [onAnswerSubmitted]);
+
   const onClick_JoinGameButton = (): void => {
+    // TODO: After joining, need server to send the player's PlayerID.
     const playerVanity: Server_PlayerVanity = {
       // TODO: Save and load from localStorage and read from prompt.
       displayName: "I am player.",
@@ -131,7 +186,7 @@ export default function RoomPage() {
         <Link to={import.meta.env.VITE_BASE_CLIENT_URL}>Home.</Link>
       </div>
       <div>
-        {`I am RoomPage. roomID: ${roomIDRef.current}.`}
+        {`I am RoomPage. roomID: ${window.location.pathname}.`}
       </div>
       <div>
         <button onClick={onClick_JoinGameButton}>Join Game</button>
