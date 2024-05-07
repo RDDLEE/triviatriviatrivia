@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { io, Socket } from "socket.io-client";
-import { GCReqestStartMatch_Payload, getMatchSettingsIdentity, GRUpdatePlayerVanities_Payload, MatchSettings, SocketEvents, GRJoinGame_Payload, Server_PlayerVanity, GCReceivePlayerID_Payload, GCAnswerSubmitted_Payload, GCRefreshMatchState_Payload } from "trivia-shared";
+import { GCReqestStartMatch_Payload, getMatchSettingsIdentity, GRUpdatePlayerVanities_Payload, MatchSettings, SocketEvents, GRJoinGame_Payload, Server_PlayerVanity, GCReceivePlayerID_Payload, GCAnswerSubmitted_Payload, GCReceiveMatchStage_Payload } from "trivia-shared";
 import { MatchStateContext } from "../../components/MatchStateProvider/MatchStateProvider";
 import QuestionContainer from "../../components/QuestionContainer/QuestionContainer";
 import MatchStateUtils from "../../lib/MatchStateUtils";
@@ -35,10 +35,10 @@ export default function RoomPage() {
     matchStateContext?.setClientPlayerID(payload.playerID);
   }, [matchStateContext]);
 
-  const onGCRefreshMatchState = useCallback((payload: GCRefreshMatchState_Payload) => {
+  const onGCReceiveMatchStage = useCallback((payload: GCReceiveMatchStage_Payload) => {
     console.log(`GameRoom.onGCRefreshMatchState called and payload = ${JSON.stringify(payload)}.`);
     const matchState = payload.matchState;
-    matchStateContext?.setMatchStatus(matchState.matchStatus);
+    matchStateContext?.setMatchStage(matchState.matchStage);
     matchStateContext?.setRound(matchState.round);
     matchStateContext?.setQuestion(matchState.question);
     matchStateContext?.setPlayerVanities(matchState.playerVanities);
@@ -107,11 +107,11 @@ export default function RoomPage() {
 
   useEffect(() => {
     const socket = socketRef.current;
-    socket.on(SocketEvents.GC_SERVER_REFRESH_MATCH_STATE, onGCRefreshMatchState);
+    socket.on(SocketEvents.GC_SERVER_RECEIVE_MATCH_STATE, onGCReceiveMatchStage);
     return () => {
-      socket.off(SocketEvents.GC_SERVER_REFRESH_MATCH_STATE, onGCRefreshMatchState);
+      socket.off(SocketEvents.GC_SERVER_RECEIVE_MATCH_STATE, onGCReceiveMatchStage);
     };
-  }, [onGCRefreshMatchState]);
+  }, [onGCReceiveMatchStage]);
 
   useEffect(() => {
     const socket = socketRef.current;
@@ -123,9 +123,9 @@ export default function RoomPage() {
 
   useEffect(() => {
     const socket = socketRef.current;
-    socket.on(SocketEvents.GC_SERVER_WAITING_FOR_MATCH_START, onGCWaitingForMatchStart);
+    socket.on(SocketEvents.GC_SERVER_STAGE_WAITING_FOR_MATCH_START, onGCWaitingForMatchStart);
     return () => {
-      socket.off(SocketEvents.GC_SERVER_WAITING_FOR_MATCH_START, onGCWaitingForMatchStart);
+      socket.off(SocketEvents.GC_SERVER_STAGE_WAITING_FOR_MATCH_START, onGCWaitingForMatchStart);
     };
   }, [onGCWaitingForMatchStart]);
 

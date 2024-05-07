@@ -17,11 +17,11 @@ export default function QuestionContainer() {
 
   useEffect(() => {
     if (socket) {
-      socket.on(SocketEvents.GC_SERVER_SHOWING_QUESTION, onShowingQuestion);
+      socket.on(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onShowingQuestion);
     }
     return () => {
       if (socket) {
-        socket.off(SocketEvents.GC_SERVER_SHOWING_QUESTION, onShowingQuestion);
+        socket.off(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onShowingQuestion);
       }
     };
   }, [onShowingQuestion, socket]);

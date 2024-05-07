@@ -4,7 +4,7 @@ import { MatchStateSchema } from "../match-state";
 export default class MatchStateUtils {
   public static readonly getMatchStateIdentity = (): MatchStateSchema => {
     return {
-      matchStatus: MatchStateStatuses.NONE,
+      matchStage: MatchStateStatuses.NONE,
       questions: [],
       round: 0,
       matchHistory: [],

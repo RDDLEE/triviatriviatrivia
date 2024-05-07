@@ -1,10 +1,10 @@
-import { Client_MatchState, Client_PlayerAnswerState, Client_PlayerStats, MatchSettings, MatchStateStatuses, PlayerID, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
+import { Client_MatchState, Client_PlayerAnswerState, Client_PlayerStats, MatchSettings, MatchStateStages, PlayerID, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
 import { StandardQuestion } from "./lib/QuestionUtils";
 import MatchStateUtils from "./lib/MatchStateUtils";
 import GameRoom from "./game-room";
 
 export interface MatchStateSchema {
-  matchStatus: MatchStateStatuses;
+  matchStage: MatchStateStages;
   questions: StandardQuestion[];
   round: number;
   matchSettings: MatchSettings;
@@ -15,7 +15,7 @@ export interface MatchStateSchema {
 }
 
 export default class MatchState {
-  private matchStatus;
+  private matchStage;
   private questions: StandardQuestion[];
   private round: number;
   private matchSettings: MatchSettings;
@@ -25,7 +25,7 @@ export default class MatchState {
 
   constructor() {
     const identity = MatchStateUtils.getMatchStateIdentity();
-    this.matchStatus = identity.matchStatus;
+    this.matchStage = identity.matchStage;
     this.questions = identity.questions;
     this.round = identity.round;
     this.matchSettings = identity.matchSettings;
@@ -41,7 +41,7 @@ export default class MatchState {
 
   public readonly onNewMatch = (matchSettings: MatchSettings): void => {
     const matchStateIdentity = MatchStateUtils.getMatchStateIdentity();
-    this.matchStatus = MatchStateStatuses.PREPARING_MATCH_START;
+    this.matchStage = MatchStateStages.PREPARING_MATCH_START;
     this.questions = matchStateIdentity.questions;
     this.round = matchStateIdentity.round;
     this.matchSettings = matchSettings;
@@ -55,11 +55,11 @@ export default class MatchState {
   };
 
   public readonly onWaitForMatchStart = (): void => {
-    this.matchStatus = MatchStateStatuses.WAITING_FOR_MATCH_START;
+    this.matchStage = MatchStateStages.WAITING_FOR_MATCH_START;
   };
 
   public readonly onShowQuestion = (): void => {
-    this.matchStatus = MatchStateStatuses.SHOWING_QUESTION;
+    this.matchStage = MatchStateStages.SHOWING_QUESTION;
     const answerStateIdentity = MatchStateUtils.getServerPlayerAnswerStateIdentity();
     this.playerAnswerStates.forEach((_, key) => {
       this.playerAnswerStates.set(key, {
@@ -72,11 +72,11 @@ export default class MatchState {
   }
 
   public readonly onJudgeAnswers = (): void => {
-    this.matchStatus = MatchStateStatuses.JUDGING_ANSWERS;
+    this.matchStage = MatchStateStages.JUDGING_ANSWERS;
   };
 
   public readonly onJudgePlayers = (): void => {
-    this.matchStatus = MatchStateStatuses.JUDING_PLAYERS;
+    this.matchStage = MatchStateStages.JUDING_PLAYERS;
   };
 
   public readonly receiveQuestions = (questions: StandardQuestion[]): void => {
@@ -145,7 +145,7 @@ export default class MatchState {
 
   public readonly getClientMatchState = (gameRoom: GameRoom): Client_MatchState => {
     return {
-      matchStatus: this.matchStatus,
+      matchStage: this.matchStage,
       playerAnswerStates: this.makeClientPlayerAnswerStates(),
       playersStats: this.makeClientPlayersStats(),
       playerVanities: gameRoom.makeClientPlayerVanities(),

@@ -1,10 +1,10 @@
 import React, { createContext, useMemo, useState } from "react";
-import { MatchStateStatuses, Client_StandardQuestion, Client_MatchState, Client_PlayerVanity, Client_PlayerStats, Client_PlayerAnswerState, PlayerID, PLAYER_ID_NONE } from "trivia-shared";
+import { MatchStateStages, Client_StandardQuestion, Client_MatchState, Client_PlayerVanity, Client_PlayerStats, Client_PlayerAnswerState, PlayerID, PLAYER_ID_NONE } from "trivia-shared";
 
 export interface MatchStateContextSchema extends Client_MatchState {
   clientPlayerID: PlayerID;
   setClientPlayerID: React.Dispatch<React.SetStateAction<string>>
-  setMatchStatus: React.Dispatch<React.SetStateAction<MatchStateStatuses>>;
+  setMatchStage: React.Dispatch<React.SetStateAction<MatchStateStages>>;
   setRound: React.Dispatch<React.SetStateAction<number>>;
   setQuestion: React.Dispatch<React.SetStateAction<Client_StandardQuestion | null>>;
   setPlayerVanities: React.Dispatch<React.SetStateAction<Client_PlayerVanity[]>>;
@@ -17,7 +17,7 @@ export const MatchStateContext = createContext<MatchStateContextSchema | null>(n
 export default function MatchStateProvider({ children }: Readonly<{ children: React.ReactNode; }>) {
   const [clientPlayerID, setClientPlayerID] = useState<PlayerID>(PLAYER_ID_NONE);
   // Could use a Reducer.
-  const [matchStatus, setMatchStatus] = useState<MatchStateStatuses>(MatchStateStatuses.NONE);
+  const [matchStage, setMatchStage] = useState<MatchStateStages>(MatchStateStages.NONE);
   // FIXME: Make const default.
   // Could use a Reducer.
   const [round, setRound] = useState<number>(0);
@@ -30,8 +30,8 @@ export default function MatchStateProvider({ children }: Readonly<{ children: Re
     return {
       clientPlayerID: clientPlayerID,
       setClientPlayerID: setClientPlayerID,
-      matchStatus: matchStatus,
-      setMatchStatus: setMatchStatus,
+      matchStage: matchStage,
+      setMatchStage: setMatchStage,
       round: round,
       setRound: setRound,
       question: question,
@@ -43,7 +43,7 @@ export default function MatchStateProvider({ children }: Readonly<{ children: Re
       playerAnswerStates: playerAnswerStates,
       setPlayerAnswerStates: setPlayerAnswerStates,
     };
-  }, [clientPlayerID, matchStatus, playerAnswerStates, playerVanities, playersStats, question, round]);
+  }, [clientPlayerID, matchStage, playerAnswerStates, playerVanities, playersStats, question, round]);
 
   return (
     <MatchStateContext.Provider value={matchState}>

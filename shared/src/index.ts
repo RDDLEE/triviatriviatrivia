@@ -21,16 +21,16 @@ export enum SocketEvents {
   // GameController Server.
   GC_SERVER_RECEIVE_PLAYER_ID = "GC::receive_player_id",
   GC_SERVER_ANSWER_SUBMITTED = "GC::answer_submitted",
-  GC_SERVER_REFRESH_MATCH_STATE = "GC::refresh_match_state",
-  // Section: Match statuses.
-  // These statuses should logically match MatchStateStatuses.
-  GC_SERVER_WAITING_FOR_MATCH_START = "GC::waiting_for_match_start",
-  GC_SERVER_PREPARING_MATCH = "GC::preparing_match",
-  GC_SERVER_STARTING_MATCH = "GC::starting_match",
-  GC_SERVER_SHOWING_QUESTION = "GC::showing_question",
-  GC_SERVER_JUDGING_ANSWERS = "GC::judging_answers",
-  GC_SERVER_JUDGING_PLAYERS = "GC::judging_players",
-  // Endsection: Match statuses.
+  GC_SERVER_RECEIVE_MATCH_STATE = "GC::receive_match_state",
+  // Section: Match stages.
+  // These stages should logically match MatchStateStages.
+  GC_SERVER_STAGE_WAITING_FOR_MATCH_START = "GC::waiting_for_match_start",
+  GC_SERVER_STAGE_PREPARING_MATCH = "GC::preparing_match",
+  GC_SERVER_STAGE_STARTING_MATCH = "GC::starting_match",
+  GC_SERVER_STAGE_SHOWING_QUESTION = "GC::showing_question",
+  GC_SERVER_STAGE_JUDGING_ANSWERS = "GC::judging_answers",
+  GC_SERVER_STAGE_JUDGING_PLAYERS = "GC::judging_players",
+  // Endsection: Match stages.
 }
 
 // SECTION: GR Event Payloads.
@@ -60,8 +60,8 @@ export interface GCAnswerSubmitted_Payload {
   answerState: Client_PlayerAnswerState;
 }
 
-// Correponds with GC_SERVER_REFRESH_MATCH_STATE.
-export interface GCRefreshMatchState_Payload {
+// Correponds with GC_SERVER_RECEIVE_MATCH_STATE.
+export interface GCReceiveMatchStage_Payload {
   matchState: Client_MatchState;
 }
 
@@ -70,9 +70,9 @@ export interface GCAttemptSubmitAnswer_Payload {
   selectedAnswerID: number;
 }
 
-export interface BaseGCTimedStatusPayload {
-  // Time when the status will transition to the next status.
-  // A time of -1 denotes that the status will last indeterminately.
+export interface BaseTimedMatchStagePayload {
+  // Time when the stage will transition to the next stage.
+  // A time of -1 denotes that the stage will last indeterminately.
   terminationTime: number;
 }
 
@@ -87,22 +87,22 @@ export interface GCPreparingMatch_Payload {
 }
 
 // Corresponds with GC_SERVER_STARTING_MATCH.
-export interface GCStartingMatch_Payload extends BaseGCTimedStatusPayload {
+export interface GCStartingMatch_Payload extends BaseTimedMatchStagePayload {
   // TODO: Attributes.
 }
 
 // Corresponds with GC_SERVER_SHOWING_QUESTION.
-export interface GCShowingQuestion_Payload extends BaseGCTimedStatusPayload {
+export interface GCShowingQuestion_Payload extends BaseTimedMatchStagePayload {
   question: Client_StandardQuestion;
 }
 
 // Corresponds with GC_SERVER_JUDGING_ANSWERS.
-export interface GCJudgingAnswers_Payload extends BaseGCTimedStatusPayload {
+export interface GCJudgingAnswers_Payload extends BaseTimedMatchStagePayload {
   // TODO: Attributes.
 }
 
 // Corresponds with GC_SERVER_JUDGING_PLAYERS.
-export interface GCJudgingPlayers_Payload extends BaseGCTimedStatusPayload {
+export interface GCJudgingPlayers_Payload extends BaseTimedMatchStagePayload {
   // TODO: Attributes.
 }
 
@@ -129,7 +129,7 @@ export interface Client_PlayerVanity extends Server_PlayerVanity {
   playerID: PlayerID;
 }
 
-export enum MatchStateStatuses {
+export enum MatchStateStages {
   // Initial not loaded state.
   NONE = -1,
   // Idle state - waiting for match start.
@@ -207,7 +207,7 @@ export interface Client_StandardAnswerCoice {
 }
 
 export interface Client_MatchState {
-  matchStatus: MatchStateStatuses;
+  matchStage: MatchStateStages;
   round: number;
   question: Client_StandardQuestion | null;
   // Consider changing the arrays to maps on the client.
