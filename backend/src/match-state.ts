@@ -40,8 +40,8 @@ export default class MatchState {
   };
 
   public readonly onNewMatch = (matchSettings: MatchSettings): void => {
-    const matchStateIdentity = MatchStateUtils.getMatchStateIdentity();
     this.matchStage = MatchStateStages.PREPARING_MATCH_START;
+    const matchStateIdentity = MatchStateUtils.getMatchStateIdentity();
     this.questions = matchStateIdentity.questions;
     this.round = matchStateIdentity.round;
     this.matchSettings = matchSettings;

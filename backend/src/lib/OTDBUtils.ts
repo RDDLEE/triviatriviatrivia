@@ -1,3 +1,4 @@
+import he from "he";
 import { StandardAnswerCoice, StandardQuestion } from "./QuestionUtils";
 
 export interface OTDBResponse {
@@ -40,7 +41,7 @@ export default class OTDBUtils {
     for (const currQ of otdbQuestions) {
       const standardAnswers = OTDBUtils.standardizeAnswers(currQ);
       standardQuestions.push({
-        prompt: currQ.question,
+        prompt: he.decode(currQ.question),
         correctAnswerID: standardAnswers.correctAnswerID,
         choices: standardAnswers.answerChoices,
       });
@@ -49,9 +50,9 @@ export default class OTDBUtils {
   }
 
   private static readonly standardizeAnswers = (question: OTDBQuestion): StandardizeAnswersReturn => {
-    const correctQ = question.correct_answer;
-    const incorrectQs = question.incorrect_answers;
-    const shuffled = [correctQ, ...incorrectQs];
+    const correctAnswer = question.correct_answer;
+    const incorrectAnswers = question.incorrect_answers;
+    const shuffled = [correctAnswer, ...incorrectAnswers];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; // Swap elements
@@ -59,13 +60,13 @@ export default class OTDBUtils {
     let correctAnswerID = -1;
     const standardAnswers: StandardAnswerCoice[] = [];
     for (let i = 0; i < shuffled.length; i++) {
-      const currQ = shuffled[i];
-      if (currQ === correctQ) {
+      const currAnswer = shuffled[i];
+      if (currAnswer === correctAnswer) {
         correctAnswerID = i;
       }
       standardAnswers.push({
         answerID: i,
-        text: currQ,
+        text: he.decode(currAnswer),
       });
     }
     // TODO: Can/should add "No Answer" for an answer choice.

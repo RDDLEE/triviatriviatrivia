@@ -45,23 +45,8 @@ export default class GameController {
     socket.on(SocketEvents.GC_CLIENT_REQUEST_START_MATCH, async (payload: GCReqestStartMatch_Payload) => {
       this.ioServer.of(this.roomID).emit(SocketEvents.GC_SERVER_STAGE_PREPARING_MATCH, {} satisfies GCPreparingMatch_Payload);
       this.matchState.onNewMatch(payload.matchSettings);
-      try {
-        // TODO: Keep track of when server requests API calls to prevent timeouts.
-        // FIXME: Settings and params.
-        const response = await axios.get<OTDBResponse>('https://opentdb.com/api.php?amount=10',
-          { timeout: 7500 }
-        );
-        // console.log(`GameController.GC_START_MATCH called and response.data = ${JSON.stringify(response.data)}.`);
-        if (response.data.response_code === OTDBResponseCodes.SUCCESS) {
-          this.matchState.receiveQuestions(OTDBUtils.standardizeQuestions(response.data.results));
-          setTimeout(this.showQuestion, GameController.STARTING_MATCH_COUNTDOWN);
-        } else {
-          // TODO: Handle failures and OTDB bad response codes.
-          console.log(`GameController.GC_START_MATCH called and response.data.response_code = ${response.data.response_code}.`);
-        }
-      } catch (error) {
-        console.log(`GameController.GC_START_MATCH called and error = ${error}.`);
-      }
+      // TODO: Implement question provider router.
+      this.fetchOpenTDBQuestions();
     });
 
     // TODO: Extract function.
@@ -134,5 +119,25 @@ export default class GameController {
       } satisfies GCJudgingPlayers_Payload
     );
     setTimeout(this.waitForMatchStart, GameController.JUDGING_PLAYERS_COUNTDOWN);
+  };
+
+  private readonly fetchOpenTDBQuestions = async (): Promise<void> => {
+    try {
+      // TODO: Keep track of when server requests API calls to prevent timeouts.
+      // FIXME: Settings and params.
+      const response = await axios.get<OTDBResponse>('https://opentdb.com/api.php?amount=10',
+        { timeout: 7500 }
+      );
+      // console.log(`GameController.fetchOpenTDBQuestions called and response.data = ${JSON.stringify(response.data)}.`);
+      if (response.data.response_code === OTDBResponseCodes.SUCCESS) {
+        this.matchState.receiveQuestions(OTDBUtils.standardizeQuestions(response.data.results));
+        setTimeout(this.showQuestion, GameController.STARTING_MATCH_COUNTDOWN);
+      } else {
+        // TODO: Handle failures and OTDB bad response codes.
+        console.log(`GameController.fetchOpenTDBQuestions called and response.data.response_code = ${response.data.response_code}.`);
+      }
+    } catch (error) {
+      console.log(`GameController.fetchOpenTDBQuestions called and error = ${error}.`);
+    }
   };
 }
