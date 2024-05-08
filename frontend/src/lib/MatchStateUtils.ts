@@ -2,8 +2,8 @@ import { Client_PlayerAnswerState, Client_PlayerVanity, PlayerID } from "trivia-
 import { MatchStateContextSchema } from "../components/MatchStateProvider/MatchStateProvider";
 
 export default class MatchStateUtils {
-  public static readonly getPlayerVanityByPlayerID = (matchStateContext: MatchStateContextSchema | null, playerID: PlayerID): Client_PlayerVanity | null => {
-    const playerVanity = matchStateContext?.playerVanities.find((vanity: Client_PlayerVanity): boolean => {
+  public static readonly getPlayerVanityByPlayerID = (matchStateContext: MatchStateContextSchema, playerID: PlayerID): Client_PlayerVanity | null => {
+    const playerVanity = matchStateContext.playerVanities.find((vanity: Client_PlayerVanity): boolean => {
       if (vanity.playerID === playerID) {
         return true;
       }

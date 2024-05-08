@@ -10,6 +10,7 @@ import { produce } from "immer";
 import { MatchStateContext } from "../../components/MatchStateProvider/MatchStateProvider";
 import QuestionContainer from "../../components/QuestionContainer/QuestionContainer";
 import MatchStateUtils from "../../lib/MatchStateUtils";
+import JudgePlayers from "../../components/JudgePlayers/JudgePlayers";
 
 export const SocketContext = createContext<Socket | null>(null);
 
@@ -186,6 +187,7 @@ export default function RoomPage() {
         <button onClick={onClick_StartGameButton}>Start Game</button>
       </div>
       <QuestionContainer />
+      <JudgePlayers />
     </SocketContext.Provider>
   );
 }

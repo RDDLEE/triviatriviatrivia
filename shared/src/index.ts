@@ -110,7 +110,7 @@ export interface GCJudgingAnswers_Payload extends BaseTimedMatchStagePayload {
 
 // Corresponds with GC_SERVER_STAGE_JUDGING_PLAYERS.
 export interface GCJudgingPlayers_Payload extends BaseTimedMatchStagePayload {
-  // TODO: Attributes.
+  playerJudgments: Client_PlayerJudgment[];
 
 }
 // END SECTION: GC Event Payloads.
@@ -234,6 +234,13 @@ export interface Client_MatchState {
   playerVanities: Client_PlayerVanity[];
   playersStats: Client_PlayerStats[];
   playerAnswerStates: Client_PlayerAnswerState[];
+}
+
+export interface Client_PlayerJudgment {
+  playerID: string;
+  // Rank starts at 1.
+  rank: number;
+  finalPlayerStats: Client_PlayerStats; 
 }
 
 // Section: REST API.

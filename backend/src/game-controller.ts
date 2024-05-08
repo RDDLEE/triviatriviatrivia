@@ -1,7 +1,11 @@
 import axios from "axios";
 import { Server, Socket } from "socket.io";
 import dotenv from "dotenv";
-import { GCAnswerSubmitted_Payload, GCAttemptSubmitAnswer_Payload, GCJudgingAnswers_Payload, GCJudgingPlayers_Payload, GCPreparingMatch_Payload, GCReceiveMatchStage_Payload, GCReceivePlayerID_Payload, GCReqestStartMatch_Payload, GCShowingQuestion_Payload, GCWaitingForMatchStart_Payload, MatchSettings, PlayerID, SocketEvents } from "trivia-shared";
+import {
+  GCAnswerSubmitted_Payload, GCAttemptSubmitAnswer_Payload, GCJudgingAnswers_Payload, GCJudgingPlayers_Payload,
+  GCPreparingMatch_Payload, GCReceiveMatchStage_Payload, GCReceivePlayerID_Payload, GCReqestStartMatch_Payload,
+  GCShowingQuestion_Payload, GCWaitingForMatchStart_Payload, MatchSettings, PlayerID, SocketEvents
+} from "trivia-shared";
 import OTDBUtils, { OTDBResponse, OTDBResponseCodes } from "./lib/OTDBUtils";
 import MatchState from "./match-state";
 import GameRoom from "./game-room";
@@ -110,12 +114,12 @@ export default class GameController {
   };
 
   private readonly judgePlayers = (): void => {
-    console.log("GameController.judgePlayers called.");
-    this.matchState.onJudgePlayers();
+    const judgments = this.matchState.onJudgePlayers();
     this.ioServer.of(this.roomID).emit(
       SocketEvents.GC_SERVER_STAGE_JUDGING_PLAYERS,
       {
         terminationTime: Date.now() + GameController.JUDGING_PLAYERS_COUNTDOWN,
+        playerJudgments: judgments,
       } satisfies GCJudgingPlayers_Payload
     );
     setTimeout(this.waitForMatchStart, GameController.JUDGING_PLAYERS_COUNTDOWN);
@@ -124,8 +128,9 @@ export default class GameController {
   private readonly fetchOpenTDBQuestions = async (): Promise<void> => {
     try {
       // TODO: Keep track of when server requests API calls to prevent timeouts.
-      // FIXME: Settings and params.
-      const response = await axios.get<OTDBResponse>('https://opentdb.com/api.php?amount=10',
+      // TODO: Settings and params.
+      const response = await axios.get<OTDBResponse>(
+        "https://opentdb.com/api.php?amount=10",
         { timeout: 7500 }
       );
       // console.log(`GameController.fetchOpenTDBQuestions called and response.data = ${JSON.stringify(response.data)}.`);
@@ -133,10 +138,11 @@ export default class GameController {
         this.matchState.receiveQuestions(OTDBUtils.standardizeQuestions(response.data.results));
         setTimeout(this.showQuestion, GameController.STARTING_MATCH_COUNTDOWN);
       } else {
-        // TODO: Handle failures and OTDB bad response codes.
+        // FIXME: Handle failures and OTDB bad response codes.
         console.log(`GameController.fetchOpenTDBQuestions called and response.data.response_code = ${response.data.response_code}.`);
       }
     } catch (error) {
+      // FIXME: Handle failures and OTDB bad response codes.
       console.log(`GameController.fetchOpenTDBQuestions called and error = ${error}.`);
     }
   };

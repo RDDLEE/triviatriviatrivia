@@ -85,5 +85,4 @@ export default class GameRoom {
   public readonly getPlayerIDBySocketID = (socketID: SocketID): PlayerID => {
     return this.players.get(socketID).playerID;
   };
-
 }

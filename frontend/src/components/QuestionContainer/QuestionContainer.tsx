@@ -15,6 +15,13 @@ export default function QuestionContainer() {
     matchStateContext?.setJudgments(null);
   }, [matchStateContext]);
 
+  useEffect(() => {
+    socket?.on(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onGCStageShowingQuestion);
+    return () => {
+      socket?.off(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onGCStageShowingQuestion);
+    };
+  }, [onGCStageShowingQuestion, socket]);
+
   const onGCStageJudingAnswers = useCallback((payload: GCJudgingAnswers_Payload): void => {
     // payload.terminationTime;
     matchStateContext?.setMatchStage(MatchStateStages.JUDGING_ANSWERS);
@@ -22,17 +29,6 @@ export default function QuestionContainer() {
     matchStateContext?.setPlayersStats(payload.playersStats);
     matchStateContext?.setJudgments(payload.judgmentResults);
   }, [matchStateContext]);
-
-  useEffect(() => {
-    if (socket) {
-      socket.on(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onGCStageShowingQuestion);
-    }
-    return () => {
-      if (socket) {
-        socket.off(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onGCStageShowingQuestion);
-      }
-    };
-  }, [onGCStageShowingQuestion, socket]);
 
   useEffect(() => {
     socket?.on(SocketEvents.GC_SERVER_STAGE_JUDGING_ANSWERS, onGCStageJudingAnswers);

@@ -1,4 +1,4 @@
-import { Client_MatchState, Client_PlayerAnswerJudgment, Client_PlayerAnswerState, Client_PlayerStats, MatchSettings, MatchStateStages, PlayerID, Server_PlayerAnswerJudgment, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
+import { Client_MatchState, Client_PlayerAnswerJudgment, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, MatchSettings, MatchStateStages, PlayerID, Server_PlayerAnswerJudgment, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
 import { StandardQuestion } from "./lib/QuestionUtils";
 import MatchStateUtils from "./lib/MatchStateUtils";
 import GameRoom from "./game-room";
@@ -86,8 +86,18 @@ export default class MatchState {
     return judgments;
   };
 
-  public readonly onJudgePlayers = (): void => {
+  public readonly onJudgePlayers = (): Client_PlayerJudgment[] => {
     this.matchStage = MatchStateStages.JUDING_PLAYERS;
+    const playerJudgments: Client_PlayerJudgment[] = [];
+    const scoreRanks = this.getPlayerScoreRanks();
+    this.playersStats.forEach((stats: Server_PlayerStats, playerID: PlayerID) => {
+      playerJudgments.push({
+        playerID: playerID,
+        rank: scoreRanks.get(playerID),
+        finalPlayerStats: this.makeClientPlayerStats(playerID),
+      });
+    });
+    return playerJudgments;
   };
 
   public readonly receiveQuestions = (questions: StandardQuestion[]): void => {
@@ -209,18 +219,23 @@ export default class MatchState {
 
   public readonly makeClientPlayersStats = (): Client_PlayerStats[] => {
     const playersStats: Client_PlayerStats[] = [];
-    this.playersStats.forEach((stats: Server_PlayerStats, playerID: PlayerID) => {
-      playersStats.push({
-        playerID: playerID,
-        score: stats.score,
-        winStreak: stats.winStreak,
-        lossStreak: stats.lossStreak,
-        numCorrect: stats.numCorrect,
-        numIncorrect: stats.numIncorrect,
-        numNoAnswer: stats.numNoAnswer,
-      });
+    this.playersStats.forEach((_: Server_PlayerStats, playerID: PlayerID) => {
+      playersStats.push(this.makeClientPlayerStats(playerID));
     });
     return playersStats;
+  };
+
+  public readonly makeClientPlayerStats = (playerID: PlayerID): Client_PlayerStats => {
+    const stats = this.playersStats.get(playerID);
+    return {
+      playerID: playerID,
+      score: stats.score,
+      winStreak: stats.winStreak,
+      lossStreak: stats.lossStreak,
+      numCorrect: stats.numCorrect,
+      numIncorrect: stats.numIncorrect,
+      numNoAnswer: stats.numNoAnswer,
+    };
   };
 
   public readonly makeClientPlayerAnswerJudgments = (judgments: Map<PlayerID, Server_PlayerAnswerJudgment>): Client_PlayerAnswerJudgment[] => {
@@ -248,13 +263,34 @@ export default class MatchState {
     };
   };
 
+  public readonly getPlayerScoreRanks = (): Map<PlayerID, number> => {
+    const scoreRanks: Map<PlayerID, number> = new Map();
+    const scoresDescending: number[] = [];
+    this.playersStats.forEach((stats: Server_PlayerStats, _: PlayerID) => {
+      scoresDescending.push(stats.score);
+    });
+    scoresDescending.sort((a, b) => { return b - a });
+    this.playersStats.forEach((stats: Server_PlayerStats, playerID: PlayerID) => {
+      const index = scoresDescending.findIndex((score: number): boolean => {
+        if (score === stats.score) {
+          return true;
+        }
+        return false;
+      });
+      // FIXME: Handle if index -1.
+      // NOTE: Rank is 1 indexed.
+      scoreRanks.set(playerID, index + 1);
+    });
+    return scoreRanks;
+  };
+
   public readonly getRound = (): number => {
     return this.round;
   };
 
   public readonly incrementRound = (): void => {
     this.round = this.round + 1;
-  }
+  };
 
   public readonly getQuestions = (): StandardQuestion[] => {
     return this.questions;
