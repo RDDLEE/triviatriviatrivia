@@ -90,7 +90,7 @@ export default class MatchState {
     this.matchStage = MatchStateStages.JUDING_PLAYERS;
     const playerJudgments: Client_PlayerJudgment[] = [];
     const scoreRanks = this.getPlayerScoreRanks();
-    this.playersStats.forEach((stats: Server_PlayerStats, playerID: PlayerID) => {
+    this.playersStats.forEach((_: Server_PlayerStats, playerID: PlayerID) => {
       playerJudgments.push({
         playerID: playerID,
         rank: scoreRanks.get(playerID),
@@ -269,7 +269,7 @@ export default class MatchState {
     this.playersStats.forEach((stats: Server_PlayerStats, _: PlayerID) => {
       scoresDescending.push(stats.score);
     });
-    scoresDescending.sort((a, b) => { return b - a });
+    scoresDescending.sort((a, b) => { return b - a; });
     this.playersStats.forEach((stats: Server_PlayerStats, playerID: PlayerID) => {
       const index = scoresDescending.findIndex((score: number): boolean => {
         if (score === stats.score) {

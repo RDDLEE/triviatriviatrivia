@@ -1,8 +1,7 @@
 import { Server } from "socket.io";
 import GameController from "./game-controller";
-import RoomUtils from "./lib/RoomUtils";
 import CryptoUtils from "./lib/CryptoUtils";
-import { Client_PlayerVanity, GRJoinGame_Payload, GRUpdatePlayerVanities_Payload, Player, PlayerID, Server_PlayerVanity, SocketEvents, SocketID } from "trivia-shared";
+import { Client_PlayerVanity, GRJoinGame_Payload, GRUpdatePlayerVanities_Payload, Player, PlayerID, SocketEvents, SocketID } from "trivia-shared";
 
 export default class GameRoom {
   private readonly roomID: string;
@@ -23,7 +22,7 @@ export default class GameRoom {
 
     // FIXME: Extract to function.
     ioServer.of(roomID).on(SocketEvents.CONNECTION, (socket) => {
-      // Store connected players, but defer handling until the player explicity 
+      // Store connected players, but defer handling until the player explicity
       // - requests to join.
       // FIXME: Check max players.
       const joinTime = Date.now();
@@ -60,7 +59,7 @@ export default class GameRoom {
         socket.disconnect(true);
       });
     });
-  };
+  }
 
   // TODO: Implement vanity changes.
   private readonly updatePlayerVanities = (): void => {

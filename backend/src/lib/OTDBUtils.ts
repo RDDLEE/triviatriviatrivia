@@ -47,7 +47,7 @@ export default class OTDBUtils {
       });
     }
     return standardQuestions;
-  }
+  };
 
   private static readonly standardizeAnswers = (question: OTDBQuestion): StandardizeAnswersReturn => {
     const correctAnswer = question.correct_answer;
@@ -74,5 +74,5 @@ export default class OTDBUtils {
       correctAnswerID: correctAnswerID,
       answerChoices: standardAnswers,
     };
-  }
+  };
 }

@@ -62,11 +62,11 @@ app.post(API_PREFIX + "/room/create", (_req, res) => {
   res.json({ roomID: roomID } satisfies CreateRoomReturn);
 });
 
-app.get('*', (req, res) => {
+app.get("*", (_req, res) => {
   res.sendFile(FRONTEND_INDEX_PATH);
 });
 
-// TODO: Perhaps store all players/connections 
+// TODO: Perhaps store all players/connections
 // - to ensure that one player/socket can only be in one room.
 
 server.listen(PORT, () => {

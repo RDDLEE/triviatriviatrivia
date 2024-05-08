@@ -10,6 +10,6 @@ export default class CryptoUtils {
   public static readonly generatePlayerID = (socketID: string, joinTime: number): PlayerID => {
     const playerID = CryptoUtils.hash(socketID).concat(joinTime.toString());
     return playerID;
-  }
+  };
 
 }

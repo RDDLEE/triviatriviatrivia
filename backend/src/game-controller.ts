@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import {
   GCAnswerSubmitted_Payload, GCAttemptSubmitAnswer_Payload, GCJudgingAnswers_Payload, GCJudgingPlayers_Payload,
   GCPreparingMatch_Payload, GCReceiveMatchStage_Payload, GCReceivePlayerID_Payload, GCReqestStartMatch_Payload,
-  GCShowingQuestion_Payload, GCWaitingForMatchStart_Payload, MatchSettings, PlayerID, SocketEvents
+  GCShowingQuestion_Payload, GCWaitingForMatchStart_Payload, PlayerID, SocketEvents
 } from "trivia-shared";
 import OTDBUtils, { OTDBResponse, OTDBResponseCodes } from "./lib/OTDBUtils";
 import MatchState from "./match-state";
@@ -21,7 +21,7 @@ export default class GameController {
   // TODO: Extract countdowns to shared.
   private static readonly COUNTDOWN_MULTIPLIER = Number(process.env["COUNTDOWN_MULTIPLIER"]);
   // TODO: IDLE to terminate countdown - Time spent waiting until forced room termination.
-  // Time (millis) from question loading until first question. 
+  // Time (millis) from question loading until first question.
   private static readonly STARTING_MATCH_COUNTDOWN = 3 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for players to answer until answer reveal.
   private static readonly SHOWING_QUESTION_COUNTDOWN = 10 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
@@ -36,7 +36,7 @@ export default class GameController {
     this.roomID = roomID;
     this.ioServer = ioServer;
     this.matchState = new MatchState();
-  };
+  }
 
   public readonly onNewPlayer = (socket: Socket, playerID: PlayerID): void => {
     this.matchState.addNewPlayer(playerID);
