@@ -21,7 +21,7 @@ export default function AnswerChoice(props: AnswerChoice_Props) {
     );
   }, [socket]);
 
-  const displayAnswer = (): JSX.Element | null => {
+  const renderAnswer = (): JSX.Element | null => {
     if (!matchStateContext) {
       return null;
     }
@@ -38,12 +38,15 @@ export default function AnswerChoice(props: AnswerChoice_Props) {
     if (answerID === selectedAnswerID) {
       backgroundColor = "blue";
     }
+    if (answerID === matchStateContext.judgments?.correctAnswerID) {
+      backgroundColor = "orange";
+    }
     return (
       <button
         key={answerID}
         onClick={() => { return onClick_AnswerChoice(answerID); }}
         style={{ backgroundColor: backgroundColor }}
-        disabled={canAnswer}
+        disabled={!canAnswer}
       >
         {answerChoice.text}
       </button>
@@ -52,7 +55,7 @@ export default function AnswerChoice(props: AnswerChoice_Props) {
 
   return (
     <div>
-      {displayAnswer()}
+      {renderAnswer()}
     </div>
   );
 }

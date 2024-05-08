@@ -1,7 +1,20 @@
-import { Client_PlayerAnswerState, PlayerID } from "trivia-shared";
+import { Client_PlayerAnswerState, Client_PlayerVanity, PlayerID } from "trivia-shared";
 import { MatchStateContextSchema } from "../components/MatchStateProvider/MatchStateProvider";
 
 export default class MatchStateUtils {
+  public static readonly getPlayerVanityByPlayerID = (matchStateContext: MatchStateContextSchema | null, playerID: PlayerID): Client_PlayerVanity | null => {
+    const playerVanity = matchStateContext?.playerVanities.find((vanity: Client_PlayerVanity): boolean => {
+      if (vanity.playerID === playerID) {
+        return true;
+      }
+      return false;
+    });
+    if (!playerVanity) {
+      return null;
+    }
+    return playerVanity;
+  };
+
   public static readonly getPlayerAnswerStateByPlayerID = (matchStateContext: MatchStateContextSchema | null, playerID: PlayerID): Client_PlayerAnswerState | null => {
     if (!matchStateContext) {
       // FIXME: Log/Throw.

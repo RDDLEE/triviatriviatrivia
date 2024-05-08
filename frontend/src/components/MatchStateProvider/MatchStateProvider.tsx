@@ -1,5 +1,5 @@
 import React, { createContext, useMemo, useState } from "react";
-import { MatchStateStages, Client_StandardQuestion, Client_MatchState, Client_PlayerVanity, Client_PlayerStats, Client_PlayerAnswerState, PlayerID, PLAYER_ID_NONE } from "trivia-shared";
+import { MatchStateStages, Client_StandardQuestion, Client_MatchState, Client_PlayerVanity, Client_PlayerStats, Client_PlayerAnswerState, PlayerID, PLAYER_ID_NONE, Client_AnswerJudgmentResults } from "trivia-shared";
 
 export interface MatchStateContextSchema extends Client_MatchState {
   clientPlayerID: PlayerID;
@@ -10,6 +10,8 @@ export interface MatchStateContextSchema extends Client_MatchState {
   setPlayerVanities: React.Dispatch<React.SetStateAction<Client_PlayerVanity[]>>;
   setPlayersStats: React.Dispatch<React.SetStateAction<Client_PlayerStats[]>>;
   setPlayerAnswerStates: React.Dispatch<React.SetStateAction<Client_PlayerAnswerState[]>>;
+  judgments: Client_AnswerJudgmentResults | null;
+  setJudgments: React.Dispatch<React.SetStateAction<Client_AnswerJudgmentResults | null>>;
 }
 
 export const MatchStateContext = createContext<MatchStateContextSchema | null>(null);
@@ -25,6 +27,7 @@ export default function MatchStateProvider({ children }: Readonly<{ children: Re
   const [playerVanities, setPlayerVanities] = useState<Client_PlayerVanity[]>([]);
   const [playersStats, setPlayersStats] = useState<Client_PlayerStats[]>([]);
   const [playerAnswerStates, setPlayerAnswerStates] = useState<Client_PlayerAnswerState[]>([]);
+  const [judgments, setJudgments] = useState<Client_AnswerJudgmentResults | null>(null);
 
   const matchState = useMemo<MatchStateContextSchema>(() => {
     return {
@@ -42,8 +45,10 @@ export default function MatchStateProvider({ children }: Readonly<{ children: Re
       setPlayersStats: setPlayersStats,
       playerAnswerStates: playerAnswerStates,
       setPlayerAnswerStates: setPlayerAnswerStates,
+      judgments: judgments,
+      setJudgments: setJudgments,
     };
-  }, [clientPlayerID, matchStage, playerAnswerStates, playerVanities, playersStats, question, round]);
+  }, [clientPlayerID, judgments, matchStage, playerAnswerStates, playerVanities, playersStats, question, round]);
 
   return (
     <MatchStateContext.Provider value={matchState}>

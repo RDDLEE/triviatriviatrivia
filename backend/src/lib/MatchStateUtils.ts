@@ -1,10 +1,10 @@
-import { ANSWER_ID_NONE, ANSWER_STATE_ANSWER_TIME_NONE, getMatchSettingsIdentity, MatchStateStatuses, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
+import { ANSWER_ID_NONE, ANSWER_STATE_ANSWER_TIME_NONE, getMatchSettingsIdentity, MatchStateStages, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
 import { MatchStateSchema } from "../match-state";
 
 export default class MatchStateUtils {
   public static readonly getMatchStateIdentity = (): MatchStateSchema => {
     return {
-      matchStage: MatchStateStatuses.NONE,
+      matchStage: MatchStateStages.NONE,
       questions: [],
       round: 0,
       matchHistory: [],

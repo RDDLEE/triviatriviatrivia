@@ -1,3 +1,19 @@
+export enum MatchStateStages {
+  // Initial not loaded state.
+  NONE = -1,
+  // Idle state - waiting for match start.
+  WAITING_FOR_MATCH_START = 0,
+  // Ephemeral state - counting down before showing first question.
+  PREPARING_MATCH_START = 1,
+  // Ephemeral state - showing question, counting down before revealing answer.
+  SHOWING_QUESTION = 2,
+  // Ephemeral state - showing answer and evaluating players, 
+  // - counting down before showing next question.
+  JUDGING_ANSWERS = 3,
+  // Ephemeral state - judging players - counting down before waiting for next match start.
+  JUDING_PLAYERS = 4,
+}
+
 export enum SocketEvents {
   CONNECTION = "connection",
   DISCONNECT = "disconnect",
@@ -26,22 +42,10 @@ export enum SocketEvents {
   // These stages should logically match MatchStateStages.
   GC_SERVER_STAGE_WAITING_FOR_MATCH_START = "GC::waiting_for_match_start",
   GC_SERVER_STAGE_PREPARING_MATCH = "GC::preparing_match",
-  GC_SERVER_STAGE_STARTING_MATCH = "GC::starting_match",
   GC_SERVER_STAGE_SHOWING_QUESTION = "GC::showing_question",
   GC_SERVER_STAGE_JUDGING_ANSWERS = "GC::judging_answers",
   GC_SERVER_STAGE_JUDGING_PLAYERS = "GC::judging_players",
   // Endsection: Match stages.
-}
-
-// SECTION: GR Event Payloads.
-// Corresponds with GR_CLIENT_JOIN_GAME.
-export interface GRJoinGame_Payload {
-  playerVanity: Server_PlayerVanity;
-}
-
-// Corresponds with GR_SERVER_UPDATE_PLAYER_VANITIES.
-export interface GRUpdatePlayerVanities_Payload {
-  playerVanities: Client_PlayerVanity[];
 }
 
 // SECTION: GC Event Payloads.
@@ -76,34 +80,50 @@ export interface BaseTimedMatchStagePayload {
   terminationTime: number;
 }
 
-// Corresponds with GC_SERVER_WAITING_FOR_MATCH_START.
+// Corresponds with GC_SERVER_STAGE_WAITING_FOR_MATCH_START.
 export interface GCWaitingForMatchStart_Payload {
   // TODO: Attributes.
 }
 
-// Corresponds with GC_SERVER_PREPARING_MATCH.
+// Corresponds with GC_SERVER_STAGE_PREPARING_MATCH.
 export interface GCPreparingMatch_Payload {
   // TODO: Attributes.
 }
 
-// Corresponds with GC_SERVER_STARTING_MATCH.
+// Corresponds with GC_SERVER_STAGE_SERVER_STARTING_MATCH.
 export interface GCStartingMatch_Payload extends BaseTimedMatchStagePayload {
   // TODO: Attributes.
 }
 
-// Corresponds with GC_SERVER_SHOWING_QUESTION.
+// Corresponds with GC_SERVER_STAGE_SHOWING_QUESTION.
 export interface GCShowingQuestion_Payload extends BaseTimedMatchStagePayload {
   question: Client_StandardQuestion;
+  playerAnswerStates: Client_PlayerAnswerState[];
 }
 
-// Corresponds with GC_SERVER_JUDGING_ANSWERS.
+// Corresponds with GC_SERVER_STAGE_JUDGING_ANSWERS.
 export interface GCJudgingAnswers_Payload extends BaseTimedMatchStagePayload {
-  // TODO: Attributes.
+  judgmentResults: Client_AnswerJudgmentResults;
+  playersStats: Client_PlayerStats[];
+  playerAnswerStates: Client_PlayerAnswerState[];
 }
 
-// Corresponds with GC_SERVER_JUDGING_PLAYERS.
+// Corresponds with GC_SERVER_STAGE_JUDGING_PLAYERS.
 export interface GCJudgingPlayers_Payload extends BaseTimedMatchStagePayload {
   // TODO: Attributes.
+
+}
+// END SECTION: GC Event Payloads.
+
+// SECTION: GR Event Payloads.
+// Corresponds with GR_CLIENT_JOIN_GAME.
+export interface GRJoinGame_Payload {
+  playerVanity: Server_PlayerVanity;
+}
+
+// Corresponds with GR_SERVER_UPDATE_PLAYER_VANITIES.
+export interface GRUpdatePlayerVanities_Payload {
+  playerVanities: Client_PlayerVanity[];
 }
 
 export type SocketID = string;
@@ -127,22 +147,6 @@ export interface Server_PlayerVanity {
 
 export interface Client_PlayerVanity extends Server_PlayerVanity {
   playerID: PlayerID;
-}
-
-export enum MatchStateStages {
-  // Initial not loaded state.
-  NONE = -1,
-  // Idle state - waiting for match start.
-  WAITING_FOR_MATCH_START = 0,
-  // Ephemeral state - counting down before showing first question.
-  PREPARING_MATCH_START = 1,
-  // Ephemeral state - showing question, counting down before revealing answer.
-  SHOWING_QUESTION = 2,
-  // Ephemeral state - showing answer and evaluating players, 
-  // - counting down before showing next question.
-  JUDGING_ANSWERS = 3,
-  // Ephemeral state - judging players - counting down before waiting for next match start.
-  JUDING_PLAYERS = 4,
 }
 
 export interface Server_PlayerStats {
@@ -181,6 +185,22 @@ export interface Client_PlayerAnswerState {
   answerTime: number;
 }
 
+export interface Server_PlayerAnswerJudgment {
+  previousScore: number;
+  didSelectAnswer: boolean;
+  wasCorrect: boolean;
+  scoreModification: number;
+}
+
+export interface Client_PlayerAnswerJudgment extends Server_PlayerAnswerJudgment {
+  playerID: PlayerID;
+}
+
+export interface Client_AnswerJudgmentResults {
+  correctAnswerID: number;
+  judgments: Client_PlayerAnswerJudgment[];
+}
+
 export enum QuestionProvider {
   OPENTDB = "OpenTDB",
 }
@@ -216,7 +236,8 @@ export interface Client_MatchState {
   playerAnswerStates: Client_PlayerAnswerState[];
 }
 
-// REST API.
+// Section: REST API.
 export interface CreateRoomReturn {
   roomID: string;
 }
+// End Section: REST API.

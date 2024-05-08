@@ -1,4 +1,4 @@
-import { Client_MatchState, Client_PlayerAnswerState, Client_PlayerStats, MatchSettings, MatchStateStages, PlayerID, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
+import { Client_MatchState, Client_PlayerAnswerJudgment, Client_PlayerAnswerState, Client_PlayerStats, MatchSettings, MatchStateStages, PlayerID, Server_PlayerAnswerJudgment, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
 import { StandardQuestion } from "./lib/QuestionUtils";
 import MatchStateUtils from "./lib/MatchStateUtils";
 import GameRoom from "./game-room";
@@ -69,10 +69,21 @@ export default class MatchState {
         selectedAnswerID: answerStateIdentity.selectedAnswerID,
       });
     });
-  }
+  };
 
-  public readonly onJudgeAnswers = (): void => {
+  public readonly onJudgeAnswers = (): Map<PlayerID, Server_PlayerAnswerJudgment> => {
     this.matchStage = MatchStateStages.JUDGING_ANSWERS;
+    this.playerAnswerStates.forEach((state: Server_PlayerAnswerState, playerID: PlayerID) => {
+      this.playerAnswerStates.set(playerID, {
+        canAnswer: false,
+        didSelectAnswer: state.didSelectAnswer,
+        selectedAnswerID: state.selectedAnswerID,
+        answerTime: state.answerTime,
+      });
+    });
+    const judgments = this.produceAnswerJudgments();
+    this.processAnswerJudgments(judgments);
+    return judgments;
   };
 
   public readonly onJudgePlayers = (): void => {
@@ -99,6 +110,75 @@ export default class MatchState {
       answerTime: Date.now(),
     });
     return true;
+  };
+
+  public readonly produceAnswerJudgments = (): Map<PlayerID, Server_PlayerAnswerJudgment> => {
+    const judgments: Map<PlayerID, Server_PlayerAnswerJudgment> = new Map();
+    const currQuestion = this.getCurrentQuestion();
+    this.playerAnswerStates.forEach((answerState: Server_PlayerAnswerState, playerID: PlayerID): void => {
+      if (answerState.didSelectAnswer) {
+        // TODO: Allow answer time bonus score.
+        if (answerState.selectedAnswerID === currQuestion.correctAnswerID) {
+          judgments.set(playerID, {
+            previousScore: this.playersStats.get(playerID).score,
+            wasCorrect: true,
+            scoreModification: 500,
+            didSelectAnswer: true,
+          });
+        } else {
+          // TODO: Allow incorrect answer pentalty.
+          judgments.set(playerID, {
+            previousScore: this.playersStats.get(playerID).score,
+            wasCorrect: false,
+            scoreModification: 0,
+            didSelectAnswer: true,
+          });
+        }
+      } else {
+        // TODO: Handle setting to consider unanswered question penalty.
+        judgments.set(playerID, {
+          previousScore: this.playersStats.get(playerID).score,
+          wasCorrect: false,
+          scoreModification: 0,
+          didSelectAnswer: false,
+        });
+      }
+    });
+    return judgments;
+  };
+
+  public readonly processAnswerJudgments = (judgments: Map<PlayerID, Server_PlayerAnswerJudgment>): void => {
+    judgments.forEach((judgment: Server_PlayerAnswerJudgment, playerID: PlayerID) => {
+      const currStat = this.playersStats.get(playerID);
+      let newWinStreak = currStat.winStreak;
+      let newLossStreak = currStat.lossStreak;
+      let newNumCorrect = currStat.numCorrect;
+      let newNumIncorrect = currStat.numIncorrect;
+      let newNumNoAnswer = currStat.numNoAnswer;
+      if (judgment.didSelectAnswer) {
+        if (judgment.wasCorrect) {
+          newWinStreak = newWinStreak + 1;
+          newLossStreak = 0;
+          newNumCorrect = newNumCorrect + 1;
+        } else {
+          newWinStreak = 0;
+          newLossStreak = newLossStreak + 1;
+          newNumIncorrect = newNumIncorrect + 1;
+        }
+      } else {
+        newWinStreak = 0;
+        newLossStreak = 0;
+        newNumNoAnswer = newNumNoAnswer + 1;
+      }
+      this.playersStats.set(playerID, {
+        score: currStat.score + judgment.scoreModification,
+        winStreak: newWinStreak,
+        lossStreak: newLossStreak,
+        numCorrect: newNumCorrect,
+        numIncorrect: newNumIncorrect,
+        numNoAnswer: newNumNoAnswer,
+      });
+    });
   };
 
   public readonly getAnswerStateByPlayerID = (playerID: PlayerID): Server_PlayerAnswerState => {
@@ -143,6 +223,20 @@ export default class MatchState {
     return playersStats;
   };
 
+  public readonly makeClientPlayerAnswerJudgments = (judgments: Map<PlayerID, Server_PlayerAnswerJudgment>): Client_PlayerAnswerJudgment[] => {
+    const result: Client_PlayerAnswerJudgment[] = [];
+    judgments.forEach((judgment: Server_PlayerAnswerJudgment, playerID: PlayerID) => {
+      result.push({
+        playerID: playerID,
+        previousScore: judgment.previousScore,
+        didSelectAnswer: judgment.didSelectAnswer,
+        wasCorrect: judgment.wasCorrect,
+        scoreModification: judgment.scoreModification,
+      });
+    });
+    return result;
+  };
+
   public readonly getClientMatchState = (gameRoom: GameRoom): Client_MatchState => {
     return {
       matchStage: this.matchStage,
@@ -150,7 +244,7 @@ export default class MatchState {
       playersStats: this.makeClientPlayersStats(),
       playerVanities: gameRoom.makeClientPlayerVanities(),
       round: this.round,
-      question: this.getQuestions[this.round],
+      question: this.getCurrentQuestion(),
     };
   };
 
@@ -166,4 +260,12 @@ export default class MatchState {
     return this.questions;
   };
 
+  public readonly getCurrentQuestion = (): StandardQuestion | null => {
+    const round = this.round;
+    const questions = this.questions;
+    if (round >= 0 && round < questions.length) {
+      return this.questions[this.round];
+    }
+    return null;
+  };
 }

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { Server, Socket } from "socket.io";
 import dotenv from "dotenv";
-import { GCAnswerSubmitted_Payload, GCAttemptSubmitAnswer_Payload, GCJudgingPlayers_Payload, GCPreparingMatch_Payload, GCReceiveMatchStage_Payload, GCReceivePlayerID_Payload, GCReqestStartMatch_Payload, GCShowingQuestion_Payload, GCWaitingForMatchStart_Payload, MatchSettings, PlayerID, SocketEvents } from "trivia-shared";
+import { GCAnswerSubmitted_Payload, GCAttemptSubmitAnswer_Payload, GCJudgingAnswers_Payload, GCJudgingPlayers_Payload, GCPreparingMatch_Payload, GCReceiveMatchStage_Payload, GCReceivePlayerID_Payload, GCReqestStartMatch_Payload, GCShowingQuestion_Payload, GCWaitingForMatchStart_Payload, MatchSettings, PlayerID, SocketEvents } from "trivia-shared";
 import OTDBUtils, { OTDBResponse, OTDBResponseCodes } from "./lib/OTDBUtils";
 import MatchState from "./match-state";
 import GameRoom from "./game-room";
@@ -43,7 +43,6 @@ export default class GameController {
 
     // TODO: Extract function.
     socket.on(SocketEvents.GC_CLIENT_REQUEST_START_MATCH, async (payload: GCReqestStartMatch_Payload) => {
-      console.log(`GameController.GC_START_MATCH called.`);
       this.ioServer.of(this.roomID).emit(SocketEvents.GC_SERVER_STAGE_PREPARING_MATCH, {} satisfies GCPreparingMatch_Payload);
       this.matchState.onNewMatch(payload.matchSettings);
       try {
@@ -90,18 +89,15 @@ export default class GameController {
 
   // TODO: Perhaps do this definitively/statefully.
   private readonly showQuestion = (): void => {
-    console.log("GameController.showQuestion called.");
-    const round = this.matchState.getRound();
-    const questions = this.matchState.getQuestions();
-    if (round >= 0 && round < questions.length) {
-      // FIXME: When emitting and counting down, 
-      // - should send a terminal time for clients to accurately display the countdown timer.
+    const question = this.matchState.getCurrentQuestion();
+    if (question) {
       this.matchState.onShowQuestion();
       this.ioServer.of(this.roomID).emit(
         SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION,
         {
-          question: questions[round],
+          question: question,
           terminationTime: Date.now() + GameController.SHOWING_QUESTION_COUNTDOWN,
+          playerAnswerStates: this.matchState.makeClientPlayerAnswerStates(),
         } satisfies GCShowingQuestion_Payload
       );
       setTimeout(this.judgeAnswers, GameController.SHOWING_QUESTION_COUNTDOWN);
@@ -111,13 +107,18 @@ export default class GameController {
   };
 
   private readonly judgeAnswers = (): void => {
-    console.log("GameController.judgeAnswers called.");
-    this.matchState.onJudgeAnswers();
+    const judgments = this.matchState.onJudgeAnswers();
     this.ioServer.of(this.roomID).emit(
       SocketEvents.GC_SERVER_STAGE_JUDGING_ANSWERS,
       {
         terminationTime: Date.now() + GameController.JUDGING_ANSWERS_COUNTDOWN,
-      } satisfies GCJudgingPlayers_Payload
+        playersStats: this.matchState.makeClientPlayersStats(),
+        judgmentResults: {
+          correctAnswerID: this.matchState.getCurrentQuestion().correctAnswerID,
+          judgments: this.matchState.makeClientPlayerAnswerJudgments(judgments),
+        },
+        playerAnswerStates: this.matchState.makeClientPlayerAnswerStates(),
+      } satisfies GCJudgingAnswers_Payload
     );
     setTimeout(this.showQuestion, GameController.JUDGING_ANSWERS_COUNTDOWN);
     this.matchState.incrementRound();

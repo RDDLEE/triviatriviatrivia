@@ -23,7 +23,6 @@ export default class GameRoom {
 
     // FIXME: Extract to function.
     ioServer.of(roomID).on(SocketEvents.CONNECTION, (socket) => {
-      console.log(`GameRoom.CONNECTION called and socket.id = ${socket.id}.`);
       // Store connected players, but defer handling until the player explicity 
       // - requests to join.
       // FIXME: Check max players.
@@ -38,7 +37,6 @@ export default class GameRoom {
       // Core player ingress.
       // FIXME: Init Player Ready params.
       socket.on(SocketEvents.GR_CLIENT_JOIN_GAME, (payload: GRJoinGame_Payload) => {
-        console.log(`GameRoom.GR_CLIENT_JOIN_GAME called and socket.id = ${socket.id}, vanity = ${JSON.stringify(payload.playerVanity)}.`);
         // FIXME: Validate vanity.
         const player = this.players.get(socket.id);
         this.players.set(socket.id, {

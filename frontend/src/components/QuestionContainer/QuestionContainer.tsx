@@ -1,32 +1,47 @@
-import { useCallback, useContext, useEffect } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
+import { GCJudgingAnswers_Payload, GCShowingQuestion_Payload, MatchStateStages, SocketEvents } from "trivia-shared";
 import { SocketContext } from "../../pages/RoomPage/RoomPage";
-import { GCShowingQuestion_Payload, SocketEvents } from "trivia-shared";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
-import React from "react";
 import AnswerChoice from "../AnswerChoice/AnswerChoice";
 
 export default function QuestionContainer() {
   const matchStateContext = useContext(MatchStateContext);
   const socket = useContext(SocketContext);
 
-  const onShowingQuestion = useCallback((payload: GCShowingQuestion_Payload): void => {
-    console.log(`QuestionContainer.onShowingQuestion called. payload = ${JSON.stringify(payload)}.`);
-    // TODO: Need to update matchStatus.
+  const onGCStageShowingQuestion = useCallback((payload: GCShowingQuestion_Payload): void => {
+    matchStateContext?.setMatchStage(MatchStateStages.SHOWING_QUESTION);
     matchStateContext?.setQuestion(payload.question);
+    matchStateContext?.setPlayerAnswerStates(payload.playerAnswerStates);
+    matchStateContext?.setJudgments(null);
+  }, [matchStateContext]);
+
+  const onGCStageJudingAnswers = useCallback((payload: GCJudgingAnswers_Payload): void => {
+    // payload.terminationTime;
+    matchStateContext?.setMatchStage(MatchStateStages.JUDGING_ANSWERS);
+    matchStateContext?.setPlayerAnswerStates(payload.playerAnswerStates);
+    matchStateContext?.setPlayersStats(payload.playersStats);
+    matchStateContext?.setJudgments(payload.judgmentResults);
   }, [matchStateContext]);
 
   useEffect(() => {
     if (socket) {
-      socket.on(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onShowingQuestion);
+      socket.on(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onGCStageShowingQuestion);
     }
     return () => {
       if (socket) {
-        socket.off(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onShowingQuestion);
+        socket.off(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onGCStageShowingQuestion);
       }
     };
-  }, [onShowingQuestion, socket]);
+  }, [onGCStageShowingQuestion, socket]);
 
-  const displayQuestion = (): JSX.Element | null => {
+  useEffect(() => {
+    socket?.on(SocketEvents.GC_SERVER_STAGE_JUDGING_ANSWERS, onGCStageJudingAnswers);
+    return () => {
+      socket?.off(SocketEvents.GC_SERVER_STAGE_JUDGING_ANSWERS, onGCStageJudingAnswers);
+    };
+  }, [onGCStageJudingAnswers, socket]);
+
+  const renderQuestion = (): JSX.Element | null => {
     if (!matchStateContext) {
       return null;
     }
@@ -52,7 +67,7 @@ export default function QuestionContainer() {
 
   return (
     <div>
-      {displayQuestion()}
+      {renderQuestion()}
     </div>
   );
 }

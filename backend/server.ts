@@ -56,7 +56,6 @@ app.get(API_PREFIX + "/hello", (_req: Request, res: Response) => {
 app.post(API_PREFIX + "/room/create", (_req, res) => {
   const roomID = RoomUtils.generateRoomID();
   // FIXME: Check if roomID is taken.
-  console.log(`/room/create called. roomID = ${roomID}.`);
   const newRoom = new GameRoom(roomID, io);
   gameRooms.push(newRoom);
   // FIXME: Handle response errors/codes.

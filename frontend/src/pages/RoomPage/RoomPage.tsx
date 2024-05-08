@@ -1,11 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useRef } from "react";
 import { Link } from "wouter";
 import { io, Socket } from "socket.io-client";
-import { GCReqestStartMatch_Payload, getMatchSettingsIdentity, GRUpdatePlayerVanities_Payload, MatchSettings, SocketEvents, GRJoinGame_Payload, Server_PlayerVanity, GCReceivePlayerID_Payload, GCAnswerSubmitted_Payload, GCReceiveMatchStage_Payload } from "trivia-shared";
+import {
+  GCReqestStartMatch_Payload, getMatchSettingsIdentity, GRUpdatePlayerVanities_Payload, MatchSettings, SocketEvents,
+  GRJoinGame_Payload, Server_PlayerVanity, GCReceivePlayerID_Payload, GCAnswerSubmitted_Payload, GCReceiveMatchStage_Payload,
+  MatchStateStages, GCWaitingForMatchStart_Payload, GCPreparingMatch_Payload
+} from "trivia-shared";
+import { produce } from "immer";
 import { MatchStateContext } from "../../components/MatchStateProvider/MatchStateProvider";
 import QuestionContainer from "../../components/QuestionContainer/QuestionContainer";
 import MatchStateUtils from "../../lib/MatchStateUtils";
-import { produce } from "immer";
 
 export const SocketContext = createContext<Socket | null>(null);
 
@@ -14,12 +18,9 @@ export default function RoomPage() {
 
   const initSocket = (): Socket => {
     const socketURI = import.meta.env.VITE_BASE_SERVER_URL + window.location.pathname;
-    console.log(`RoomPage.initSocket called and socket_uri = ${socketURI}.`);
     return io(socketURI, { autoConnect: false });
   };
   const socketRef = useRef<Socket>(initSocket());
-
-  console.log(`RoomPage called and answerStates = ${JSON.stringify(matchStateContext?.playerAnswerStates)}.`);
 
   // Extract socket callbacks to hook.
   const onConnection = useCallback((): void => {
@@ -31,12 +32,10 @@ export default function RoomPage() {
   }, []);
 
   const onGCReceivePlayerID = useCallback((payload: GCReceivePlayerID_Payload) => {
-    console.log(`GameRoom.GC_SERVER_REFRESH_MATCH_STATE called and payload = ${JSON.stringify(payload)}.`);
     matchStateContext?.setClientPlayerID(payload.playerID);
   }, [matchStateContext]);
 
   const onGCReceiveMatchStage = useCallback((payload: GCReceiveMatchStage_Payload) => {
-    console.log(`GameRoom.onGCRefreshMatchState called and payload = ${JSON.stringify(payload)}.`);
     const matchState = payload.matchState;
     matchStateContext?.setMatchStage(matchState.matchStage);
     matchStateContext?.setRound(matchState.round);
@@ -50,12 +49,15 @@ export default function RoomPage() {
     matchStateContext?.setPlayerVanities(payload.playerVanities);
   }, [matchStateContext]);
 
-  const onGCWaitingForMatchStart = useCallback((payload: GRUpdatePlayerVanities_Payload): void => {
-    console.log(`RoomPage.onGRUpdatePlayerVanities called. payload = ${payload}.`);
-  }, []);
+  const onGCStageWaitingForMatchStart = useCallback((_payload: GCWaitingForMatchStart_Payload): void => {
+    matchStateContext?.setMatchStage(MatchStateStages.WAITING_FOR_MATCH_START);
+  }, [matchStateContext]);
+
+  const onGCStagePreparingMatch = useCallback((_payload: GCPreparingMatch_Payload): void => {
+    matchStateContext?.setMatchStage(MatchStateStages.PREPARING_MATCH_START);
+  }, [matchStateContext]);
 
   const onAnswerSubmitted = useCallback((payload: GCAnswerSubmitted_Payload): void => {
-    // console.log(`RoomPage.onAnswerSubmitted called. payload = ${JSON.stringify(payload)}.`);
     if (!matchStateContext) {
       return;
     }
@@ -71,8 +73,6 @@ export default function RoomPage() {
     );
   }, [matchStateContext]);
 
-  // NOTE: I believe these useEffects is neccessary to control the cleanup of listeners.
-  // - While useEffect is to be avoided, the lifecycle of SocketIO's Socket presents a compelling use case.
   useEffect(() => {
     const socket = socketRef.current;
     socket.connect();
@@ -123,11 +123,19 @@ export default function RoomPage() {
 
   useEffect(() => {
     const socket = socketRef.current;
-    socket.on(SocketEvents.GC_SERVER_STAGE_WAITING_FOR_MATCH_START, onGCWaitingForMatchStart);
+    socket.on(SocketEvents.GC_SERVER_STAGE_WAITING_FOR_MATCH_START, onGCStageWaitingForMatchStart);
     return () => {
-      socket.off(SocketEvents.GC_SERVER_STAGE_WAITING_FOR_MATCH_START, onGCWaitingForMatchStart);
+      socket.off(SocketEvents.GC_SERVER_STAGE_WAITING_FOR_MATCH_START, onGCStageWaitingForMatchStart);
     };
-  }, [onGCWaitingForMatchStart]);
+  }, [onGCStageWaitingForMatchStart]);
+
+  useEffect(() => {
+    const socket = socketRef.current;
+    socket.on(SocketEvents.GC_SERVER_STAGE_PREPARING_MATCH, onGCStagePreparingMatch);
+    return () => {
+      socket.off(SocketEvents.GC_SERVER_STAGE_PREPARING_MATCH, onGCStagePreparingMatch);
+    };
+  }, [onGCStagePreparingMatch]);
 
   useEffect(() => {
     const socket = socketRef.current;
@@ -141,7 +149,7 @@ export default function RoomPage() {
     // TODO: After joining, need server to send the player's PlayerID.
     const playerVanity: Server_PlayerVanity = {
       // TODO: Save and load from localStorage and read from prompt.
-      displayName: "I am player.",
+      displayName: "PlaceholderName",
     };
     socketRef.current!.emit(
       SocketEvents.GR_CLIENT_JOIN_GAME,
@@ -162,23 +170,6 @@ export default function RoomPage() {
     );
   };
 
-  const displayPlayerVanities = (): JSX.Element | null => {
-    if (!matchStateContext) {
-      return null;
-    }
-    const vanities: JSX.Element[] = [];
-    for (const vanity of matchStateContext.playerVanities) {
-      vanities.push((
-        <p>{`PlayerID: ${vanity.playerID}. Name: ${vanity.displayName}.`}</p>
-      ));
-    }
-    return (
-      <div>
-        {vanities}
-      </div>
-    );
-  };
-
   // FIXME: Check if room with roomID exists.
   return (
     <SocketContext.Provider value={socketRef.current}>
@@ -194,7 +185,6 @@ export default function RoomPage() {
       <div>
         <button onClick={onClick_StartGameButton}>Start Game</button>
       </div>
-      {displayPlayerVanities()}
       <QuestionContainer />
     </SocketContext.Provider>
   );
