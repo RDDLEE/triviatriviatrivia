@@ -22,8 +22,7 @@ export default class GameRoom {
 
     // FIXME: Extract to function.
     ioServer.of(roomID).on(SocketEvents.CONNECTION, (socket) => {
-      // Store connected players, but defer handling until the player explicity
-      // - requests to join.
+      // Store connected players, but defer handling until the player explicity requests to join.
       // FIXME: Check max players.
       const joinTime = Date.now();
       const playerID = CryptoUtils.generatePlayerID(socket.id, joinTime);
@@ -34,7 +33,6 @@ export default class GameRoom {
       });
 
       // Core player ingress.
-      // FIXME: Init Player Ready params.
       socket.on(SocketEvents.GR_CLIENT_JOIN_GAME, (payload: GRJoinGame_Payload) => {
         // FIXME: Validate vanity.
         const player = this.players.get(socket.id);
@@ -43,9 +41,6 @@ export default class GameRoom {
           vanity: payload.playerVanity,
         });
         this.gameController.onNewPlayer(socket, player.playerID);
-        // FIXME: Need to emit all (GS/GR) values to the new player.
-        // FIXME: Need to emit all (GS/GR) values of the new player to all players.
-        // this.updatePlayerVanities();
       });
 
       socket.on(SocketEvents.DISCONNECT, (reason) => {

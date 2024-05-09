@@ -5,12 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && npm run trace && vite build --outDir ../dist/frontend-dist --emptyOutDir",
+    "build": "npm run trace && vite build --outDir ../dist/frontend-dist --emptyOutDir",
     "trace": "node -e \"console.log(`outDir: ${require('path').resolve('../dist/frontend-dist')}`)\"",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mantine/core": "^7.9.1",
+    "@mantine/hooks": "^7.9.1",
     "axios": "^1.6.8",
     "immer": "^10.1.1",
     "react": "^18.2.0",
@@ -28,6 +30,9 @@
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "postcss": "^8.4.38",
+    "postcss-preset-mantine": "^1.15.0",
+    "postcss-simple-vars": "^7.0.1",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   }

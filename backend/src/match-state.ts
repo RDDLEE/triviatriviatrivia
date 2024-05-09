@@ -25,7 +25,7 @@ export default class MatchState {
 
   constructor() {
     const identity = MatchStateUtils.getMatchStateIdentity();
-    this.matchStage = identity.matchStage;
+    this.matchStage = MatchStateStages.WAITING_FOR_MATCH_START;
     this.questions = identity.questions;
     this.round = identity.round;
     this.matchSettings = identity.matchSettings;

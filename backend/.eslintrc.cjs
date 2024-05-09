@@ -27,7 +27,7 @@ module.exports = {
       {},
     ],
     "@typescript-eslint/no-unused-vars": [
-      "error",
+      "warn",
       {
         "args": "all",
         "argsIgnorePattern": "^_",
@@ -37,6 +37,7 @@ module.exports = {
         "varsIgnorePattern": "^_",
         "ignoreRestSiblings": true
       }
-    ]
+    ],
+    "@typescript-eslint/no-non-null-assertion": "warn"
   },
 }

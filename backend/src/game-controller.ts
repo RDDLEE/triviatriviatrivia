@@ -50,7 +50,7 @@ export default class GameController {
       this.ioServer.of(this.roomID).emit(SocketEvents.GC_SERVER_STAGE_PREPARING_MATCH, {} satisfies GCPreparingMatch_Payload);
       this.matchState.onNewMatch(payload.matchSettings);
       // TODO: Implement question provider router.
-      this.fetchOpenTDBQuestions();
+      await this.fetchOpenTDBQuestions();
     });
 
     // TODO: Extract function.
@@ -70,6 +70,8 @@ export default class GameController {
 
   private readonly waitForMatchStart = (): void => {
     this.matchState.onWaitForMatchStart();
+    // FIXME: Should either emit the new empty matchState, or the client should
+    // - reset their own matchState.
     this.ioServer.of(this.roomID).emit(
       SocketEvents.GC_SERVER_STAGE_WAITING_FOR_MATCH_START,
       {} satisfies GCWaitingForMatchStart_Payload
@@ -122,6 +124,7 @@ export default class GameController {
         playerJudgments: judgments,
       } satisfies GCJudgingPlayers_Payload
     );
+    // FIXME: Idle on JudgePlayers screen.
     setTimeout(this.waitForMatchStart, GameController.JUDGING_PLAYERS_COUNTDOWN);
   };
 
@@ -136,6 +139,8 @@ export default class GameController {
       // console.log(`GameController.fetchOpenTDBQuestions called and response.data = ${JSON.stringify(response.data)}.`);
       if (response.data.response_code === OTDBResponseCodes.SUCCESS) {
         this.matchState.receiveQuestions(OTDBUtils.standardizeQuestions(response.data.results));
+        // FIXME: This function should return a boolean indicating success.
+        // - If true, the timer should be started outside in the caller of this fetch.
         setTimeout(this.showQuestion, GameController.STARTING_MATCH_COUNTDOWN);
       } else {
         // FIXME: Handle failures and OTDB bad response codes.

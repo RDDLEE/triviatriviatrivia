@@ -1,4 +1,4 @@
-import { Client_PlayerAnswerState, Client_PlayerVanity, PlayerID } from "trivia-shared";
+import { Client_PlayerAnswerState, Client_PlayerStats, Client_PlayerVanity, PlayerID } from "trivia-shared";
 import { MatchStateContextSchema } from "../components/MatchStateProvider/MatchStateProvider";
 
 export default class MatchStateUtils {
@@ -48,5 +48,23 @@ export default class MatchStateUtils {
     });
     // FIXME: Should check if index < 0, and log/throw.
     return index;
+  };
+
+  public static readonly getPlayerStatsByPlayerID = (matchStateContext: MatchStateContextSchema | null, playerID: PlayerID): Client_PlayerStats | null => {
+    if (!matchStateContext) {
+      // FIXME: Log/Throw.
+      return null;
+    }
+    const foundStats = matchStateContext.playersStats.find((currStats: Client_PlayerStats): boolean => {
+      if (currStats.playerID === playerID) {
+        return true;
+      }
+      return false;
+    });
+    if (!foundStats) {
+      // FIXME: Log/Throw.
+      return null;
+    }
+    return foundStats;
   };
 }

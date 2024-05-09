@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { PlayerID } from "../../../shared/src";
+import { PlayerID } from "trivia-shared";
 
 export default class CryptoUtils {
   public static readonly hash = (message: string): string => {

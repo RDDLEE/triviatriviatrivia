@@ -3,6 +3,7 @@ import { SocketContext } from "../../pages/RoomPage/RoomPage";
 import { ANSWER_ID_NONE, Client_StandardAnswerCoice, GCAttemptSubmitAnswer_Payload, SocketEvents } from "trivia-shared";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
 import MatchStateUtils from "../../lib/MatchStateUtils";
+import { Button } from "@mantine/core";
 
 export interface AnswerChoice_Props {
   answerChoice: Client_StandardAnswerCoice;
@@ -13,13 +14,24 @@ export default function AnswerChoice(props: AnswerChoice_Props) {
   const socket = useContext(SocketContext);
 
   const onClick_AnswerChoice = useCallback((answerID: number): void => {
+    if (!matchStateContext) {
+      return;
+    }
+    const clientPlayerID = matchStateContext.clientPlayerID;
+    const clientAnswerState = MatchStateUtils.getPlayerAnswerStateByPlayerID(matchStateContext, clientPlayerID);
+    if (!clientAnswerState) {
+      return;
+    }
+    if (!clientAnswerState.canAnswer) {
+      return;
+    }
     socket?.emit(
       SocketEvents.GC_CLIENT_ATTEMPT_SUBMIT_ANSWER,
       {
         selectedAnswerID: answerID,
       } satisfies GCAttemptSubmitAnswer_Payload
     );
-  }, [socket]);
+  }, [matchStateContext, socket]);
 
   const renderAnswer = (): JSX.Element | null => {
     if (!matchStateContext) {
@@ -29,33 +41,32 @@ export default function AnswerChoice(props: AnswerChoice_Props) {
     const answerID = answerChoice.answerID;
     const foundAnswerState = MatchStateUtils.getPlayerAnswerStateByPlayerID(matchStateContext, matchStateContext.clientPlayerID);
     let selectedAnswerID = ANSWER_ID_NONE;
-    let canAnswer = false;
     if (foundAnswerState) {
       selectedAnswerID = foundAnswerState.selectedAnswerID;
-      canAnswer = foundAnswerState.canAnswer;
     }
-    let backgroundColor = "white";
+    let color = "cyan";
+    let variant = "outline";
     if (answerID === selectedAnswerID) {
-      backgroundColor = "blue";
+      color = "yellow";
+      variant = "filled";
     }
-    if (answerID === matchStateContext.judgments?.correctAnswerID) {
-      backgroundColor = "orange";
+    if (answerID === matchStateContext.answerJudgments?.correctAnswerID) {
+      color = "green";
+      variant = "filled";
     }
     return (
-      <button
+      <Button
         key={answerID}
         onClick={() => { return onClick_AnswerChoice(answerID); }}
-        style={{ backgroundColor: backgroundColor }}
-        disabled={!canAnswer}
+        color={color}
+        variant={variant}
+        fullWidth={true}
+        size="xs"
       >
         {answerChoice.text}
-      </button>
+      </Button>
     );
   };
 
-  return (
-    <div>
-      {renderAnswer()}
-    </div>
-  );
+  return renderAnswer();
 }

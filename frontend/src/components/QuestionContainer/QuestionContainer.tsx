@@ -1,41 +1,10 @@
-import React, { useCallback, useContext, useEffect } from "react";
-import { GCJudgingAnswers_Payload, GCShowingQuestion_Payload, MatchStateStages, SocketEvents } from "trivia-shared";
-import { SocketContext } from "../../pages/RoomPage/RoomPage";
+import React, { useContext } from "react";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
 import AnswerChoice from "../AnswerChoice/AnswerChoice";
+import { Flex, Title } from "@mantine/core";
 
 export default function QuestionContainer() {
   const matchStateContext = useContext(MatchStateContext);
-  const socket = useContext(SocketContext);
-
-  const onGCStageShowingQuestion = useCallback((payload: GCShowingQuestion_Payload): void => {
-    matchStateContext?.setMatchStage(MatchStateStages.SHOWING_QUESTION);
-    matchStateContext?.setQuestion(payload.question);
-    matchStateContext?.setPlayerAnswerStates(payload.playerAnswerStates);
-    matchStateContext?.setJudgments(null);
-  }, [matchStateContext]);
-
-  useEffect(() => {
-    socket?.on(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onGCStageShowingQuestion);
-    return () => {
-      socket?.off(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onGCStageShowingQuestion);
-    };
-  }, [onGCStageShowingQuestion, socket]);
-
-  const onGCStageJudingAnswers = useCallback((payload: GCJudgingAnswers_Payload): void => {
-    // payload.terminationTime;
-    matchStateContext?.setMatchStage(MatchStateStages.JUDGING_ANSWERS);
-    matchStateContext?.setPlayerAnswerStates(payload.playerAnswerStates);
-    matchStateContext?.setPlayersStats(payload.playersStats);
-    matchStateContext?.setJudgments(payload.judgmentResults);
-  }, [matchStateContext]);
-
-  useEffect(() => {
-    socket?.on(SocketEvents.GC_SERVER_STAGE_JUDGING_ANSWERS, onGCStageJudingAnswers);
-    return () => {
-      socket?.off(SocketEvents.GC_SERVER_STAGE_JUDGING_ANSWERS, onGCStageJudingAnswers);
-    };
-  }, [onGCStageJudingAnswers, socket]);
 
   const renderQuestion = (): JSX.Element | null => {
     if (!matchStateContext) {
@@ -53,17 +22,32 @@ export default function QuestionContainer() {
     }
     return (
       <React.Fragment>
-        <p>
+        <Title order={5}>
           {question.prompt}
-        </p>
-        {choices}
+        </Title>
+        <Flex
+          gap="xs"
+          justify="center"
+          align="center"
+          direction="column"
+          wrap="wrap"
+          w="100%"
+        >
+          {choices}
+        </Flex>
       </React.Fragment>
     );
   };
 
   return (
-    <div>
+    <Flex
+      gap="md"
+      justify="center"
+      align="center"
+      direction="column"
+      wrap="wrap"
+    >
       {renderQuestion()}
-    </div>
+    </Flex>
   );
 }
