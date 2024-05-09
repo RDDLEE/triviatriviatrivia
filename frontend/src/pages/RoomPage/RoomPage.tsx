@@ -1,20 +1,19 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
-import { Link } from "wouter";
 import { io, Socket } from "socket.io-client";
 import { produce } from "immer";
-import { AppShell, Button, Card, Flex, Group } from "@mantine/core";
+import { Button, Card, Flex } from "@mantine/core";
 import {
   GRUpdatePlayerVanities_Payload, SocketEvents, GRJoinGame_Payload, Server_PlayerVanity, GCReceivePlayerID_Payload, GCAnswerSubmitted_Payload,
   GCReceiveMatchStage_Payload, MatchStateStages, GCWaitingForMatchStart_Payload, GCPreparingMatch_Payload, GCJudgingAnswers_Payload,
-  GCShowingQuestion_Payload,
-  GCJudgingPlayers_Payload,
+  GCShowingQuestion_Payload, GCJudgingPlayers_Payload,
 } from "trivia-shared";
 import { MatchStateContext } from "../../components/MatchStateProvider/MatchStateProvider";
 import MatchStateUtils from "../../lib/MatchStateUtils";
 import PlayerInfoBar from "../../components/PlayerInfoBar/PlayerInfoBar";
 import GameComponentRouter from "../../components/GameComponentRouter/GameComponentRouter";
+import TriviaShell from "../../components/TriviaShell/TriviaShell";
 
-
+// FIXME: Extract.
 export const SocketContext = createContext<Socket | null>(null);
 
 export default function RoomPage() {
@@ -22,6 +21,7 @@ export default function RoomPage() {
 
   const [didJoinGame, setDidJoinGame] = useState<boolean>(false);
 
+  // TODO: Extract socket to useSocket hook.
   const initSocket = (): Socket => {
     const socketURI = import.meta.env.VITE_BASE_SERVER_URL + window.location.pathname;
     return io(socketURI, { autoConnect: false });
@@ -36,7 +36,7 @@ export default function RoomPage() {
     };
   }, []);
 
-  // Extract socket callbacks to hook.
+  
   const onConnection = useCallback((): void => {
     console.log("RoomPage.onConnection called.");
   }, []);
@@ -226,49 +226,37 @@ export default function RoomPage() {
   // FIXME: Extract AppShell to component.
   return (
     <SocketContext.Provider value={socketRef.current}>
-      <AppShell
-        header={{ height: 60 }}
-        padding="md"
-      >
-        <AppShell.Header>
-          <Group justify="center">
-            <Link to={import.meta.env.VITE_BASE_CLIENT_URL}>
-              TriviaTriviaTrivia
-            </Link>
-          </Group>
-        </AppShell.Header>
-        <AppShell.Main>
-          <Flex
-            justify="flex-start"
-            align="flex-start"
-            direction="row"
-            gap="md"
-            // FIXME: Extract to class.
-            wrap="nowrap"
+      <TriviaShell>
+        <Flex
+          justify="flex-start"
+          align="flex-start"
+          direction="row"
+          gap="md"
+          // FIXME: Extract to class.
+          wrap="nowrap"
+        >
+          <Card
+            radius="md"
+            withBorder={true}
+            shadow="xl"
+            /** FIXME: Extract to class.*/
+            w="20%"
+            ml="5em"
           >
-            <Card
-              radius="md"
-              withBorder={true}
-              shadow="xl"
-              /** FIXME: Extract to class.*/
-              w="20%"
-              ml="5em"
-            >
-              <PlayerInfoBar />
-            </Card>
-            <Card
-              radius="md"
-              withBorder={true}
-              shadow="xl"
-              /** FIXME: Extract to class.*/
-              w="80%"
-              mr="5em"
-            >
-              {renderMain()}
-            </Card>
-          </Flex>
-        </AppShell.Main>
-      </AppShell>
+            <PlayerInfoBar />
+          </Card>
+          <Card
+            radius="md"
+            withBorder={true}
+            shadow="xl"
+            /** FIXME: Extract to class.*/
+            w="80%"
+            mr="5em"
+          >
+            {renderMain()}
+          </Card>
+        </Flex>
+      </TriviaShell>
     </SocketContext.Provider>
   );
 }
