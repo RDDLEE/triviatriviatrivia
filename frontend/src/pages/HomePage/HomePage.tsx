@@ -6,7 +6,7 @@ import React from "react";
 
 export default function HomePage() {
 
-  const [_location, setLocation] = useLocation();
+  const [_, setLocation] = useLocation();
 
   const onClick_CreateRoomButton = useCallback(async (): Promise<void> => {
     // FIXME: Use Tanstack Query.

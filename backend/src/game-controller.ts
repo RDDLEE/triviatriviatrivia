@@ -1,25 +1,24 @@
 import axios from "axios";
 import { Server, Socket } from "socket.io";
-import dotenv from "dotenv";
 import {
   GCAnswerSubmitted_Payload, GCAttemptSubmitAnswer_Payload, GCJudgingAnswers_Payload, GCJudgingPlayers_Payload,
   GCPreparingMatch_Payload, GCReceiveMatchStage_Payload, GCReceivePlayerID_Payload, GCReqestStartMatch_Payload,
-  GCShowingQuestion_Payload, GCWaitingForMatchStart_Payload, PlayerID, SocketEvents
+  GCShowingQuestion_Payload, PlayerID, SocketEvents
 } from "trivia-shared";
 import OTDBUtils, { OTDBResponse, OTDBResponseCodes } from "./lib/OTDBUtils";
 import MatchState from "./match-state";
 import GameRoom from "./game-room";
-
-dotenv.config();
+import EnvUtils from "./lib/EnvUtils";
 
 export default class GameController {
   private readonly gameRoom: GameRoom;
   private readonly roomID: string;
   private readonly ioServer: Server;
   private readonly matchState: MatchState;
+  private stageTimer: NodeJS.Timeout;
 
   // TODO: Extract countdowns to shared.
-  private static readonly COUNTDOWN_MULTIPLIER = Number(process.env["COUNTDOWN_MULTIPLIER"]);
+  private static readonly COUNTDOWN_MULTIPLIER = EnvUtils.getCountdownMultiplier();
   // TODO: IDLE to terminate countdown - Time spent waiting until forced room termination.
   // Time (millis) from question loading until first question.
   private static readonly STARTING_MATCH_COUNTDOWN = 3 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
@@ -27,8 +26,8 @@ export default class GameController {
   private static readonly SHOWING_QUESTION_COUNTDOWN = 10 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for server to reveal answers to players.
   private static readonly JUDGING_ANSWERS_COUNTDOWN = 5 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
-  // Time (millis) for server to judge players at the end of game.
-  private static readonly JUDGING_PLAYERS_COUNTDOWN = 10 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
+  // Time (millis) for server to wait for a new match before self-termination.
+  private static readonly IDLE_TERMINATION_COUNTDOWN = 180 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
 
   constructor(gameRoom: GameRoom, roomID: string, ioServer: Server) {
     this.gameRoom = gameRoom;
@@ -36,14 +35,13 @@ export default class GameController {
     this.roomID = roomID;
     this.ioServer = ioServer;
     this.matchState = new MatchState();
+    this.startNewTimer(this.terminateGameRoom, GameController.IDLE_TERMINATION_COUNTDOWN);
   }
 
   public readonly onNewPlayer = (socket: Socket, playerID: PlayerID): void => {
     this.matchState.addNewPlayer(playerID);
     socket.emit(SocketEvents.GC_SERVER_RECEIVE_PLAYER_ID, { playerID: playerID } satisfies GCReceivePlayerID_Payload);
-    this.ioServer.of(this.roomID).emit(SocketEvents.GC_SERVER_RECEIVE_MATCH_STATE, {
-      matchState: this.matchState.getClientMatchState(this.gameRoom),
-    } satisfies GCReceiveMatchStage_Payload);
+    this.broadcastMatchState();
 
     // TODO: Extract function.
     socket.on(SocketEvents.GC_CLIENT_REQUEST_START_MATCH, async (payload: GCReqestStartMatch_Payload) => {
@@ -68,14 +66,9 @@ export default class GameController {
     });
   };
 
-  private readonly waitForMatchStart = (): void => {
-    this.matchState.onWaitForMatchStart();
-    // FIXME: Should either emit the new empty matchState, or the client should
-    // - reset their own matchState.
-    this.ioServer.of(this.roomID).emit(
-      SocketEvents.GC_SERVER_STAGE_WAITING_FOR_MATCH_START,
-      {} satisfies GCWaitingForMatchStart_Payload
-    );
+  public readonly onRemovePlayer = (playerID: PlayerID): void => {
+    this.matchState.removePlayer(playerID);
+    this.broadcastMatchState();
   };
 
   // TODO: Perhaps do this definitively/statefully.
@@ -91,7 +84,7 @@ export default class GameController {
           playerAnswerStates: this.matchState.makeClientPlayerAnswerStates(),
         } satisfies GCShowingQuestion_Payload
       );
-      setTimeout(this.judgeAnswers, GameController.SHOWING_QUESTION_COUNTDOWN);
+      this.startNewTimer(this.judgeAnswers, GameController.SHOWING_QUESTION_COUNTDOWN);
     } else {
       this.judgePlayers();
     }
@@ -111,7 +104,7 @@ export default class GameController {
         playerAnswerStates: this.matchState.makeClientPlayerAnswerStates(),
       } satisfies GCJudgingAnswers_Payload
     );
-    setTimeout(this.showQuestion, GameController.JUDGING_ANSWERS_COUNTDOWN);
+    this.startNewTimer(this.showQuestion, GameController.JUDGING_ANSWERS_COUNTDOWN);
     this.matchState.incrementRound();
   };
 
@@ -120,12 +113,22 @@ export default class GameController {
     this.ioServer.of(this.roomID).emit(
       SocketEvents.GC_SERVER_STAGE_JUDGING_PLAYERS,
       {
-        terminationTime: Date.now() + GameController.JUDGING_PLAYERS_COUNTDOWN,
+        terminationTime: Date.now() + GameController.IDLE_TERMINATION_COUNTDOWN,
         playerJudgments: judgments,
       } satisfies GCJudgingPlayers_Payload
     );
-    // FIXME: Idle on JudgePlayers screen.
-    setTimeout(this.waitForMatchStart, GameController.JUDGING_PLAYERS_COUNTDOWN);
+    // FIXME: Idle on JudgePlayers screen until countdown.
+    this.startNewTimer(this.terminateGameRoom, GameController.IDLE_TERMINATION_COUNTDOWN);
+  };
+
+  private readonly terminateGameRoom = (): void => {
+    this.gameRoom.terminateGameRoom();
+  };
+
+  private readonly broadcastMatchState = (): void => {
+    this.ioServer.of(this.roomID).emit(SocketEvents.GC_SERVER_RECEIVE_MATCH_STATE, {
+      matchState: this.matchState.getClientMatchState(this.gameRoom),
+    } satisfies GCReceiveMatchStage_Payload);
   };
 
   private readonly fetchOpenTDBQuestions = async (): Promise<void> => {
@@ -141,7 +144,7 @@ export default class GameController {
         this.matchState.receiveQuestions(OTDBUtils.standardizeQuestions(response.data.results));
         // FIXME: This function should return a boolean indicating success.
         // - If true, the timer should be started outside in the caller of this fetch.
-        setTimeout(this.showQuestion, GameController.STARTING_MATCH_COUNTDOWN);
+        this.startNewTimer(this.showQuestion, GameController.STARTING_MATCH_COUNTDOWN);
       } else {
         // FIXME: Handle failures and OTDB bad response codes.
         console.log(`GameController.fetchOpenTDBQuestions called and response.data.response_code = ${response.data.response_code}.`);
@@ -150,5 +153,10 @@ export default class GameController {
       // FIXME: Handle failures and OTDB bad response codes.
       console.log(`GameController.fetchOpenTDBQuestions called and error = ${error}.`);
     }
+  };
+
+  private readonly startNewTimer = (callback: () => void, ms?: number): void => {
+    clearTimeout(this.stageTimer);
+    this.stageTimer = setTimeout(callback, ms);
   };
 }

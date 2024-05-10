@@ -1,19 +1,18 @@
 import { Server } from "socket.io";
 import GameController from "./game-controller";
 import CryptoUtils from "./lib/CryptoUtils";
-import { Client_PlayerVanity, GRJoinGame_Payload, GRUpdatePlayerVanities_Payload, Player, PlayerID, SocketEvents, SocketID } from "trivia-shared";
+import { Client_PlayerVanity, GRJoinGame_Payload, GRUpdatePlayerVanities_Payload, Player, PlayerID, RoomID, SocketEvents, SocketID } from "trivia-shared";
+import RoomManager from "./room-manager";
 
 export default class GameRoom {
   private readonly roomID: string;
   private readonly ioServer: Server;
-  // K: SocketID, V: Player.
   private readonly players: Map<SocketID, Player>;
   // TODO: Terminate old GameRooms.
-  // TODO: Create GameRoomDetails obj.
   private readonly creationTime: number;
   private readonly gameController: GameController;
 
-  constructor(roomID: string, ioServer: Server) {
+  constructor(roomID: RoomID, ioServer: Server) {
     this.roomID = roomID;
     this.ioServer = ioServer;
     this.creationTime = Date.now();
@@ -45,8 +44,16 @@ export default class GameRoom {
 
       socket.on(SocketEvents.DISCONNECT, (reason) => {
         console.log(`GameRoom.DISCONNECT called and socket.id = ${socket.id}, reason = ${reason}.`);
-        this.players.delete(socket.id);
-        // TODO: Delete Player in GS.
+        const player = this.players.get(socket.id);
+        if (player) {
+          this.gameController.onRemovePlayer(player.playerID);
+          this.players.delete(socket.id);
+        } else {
+          // FIXME: Log.
+        }
+        if (this.players.size < 1) {
+          this.terminateGameRoom();
+        }
       });
 
       socket.on(SocketEvents.ERROR, (error) => {
@@ -55,6 +62,15 @@ export default class GameRoom {
       });
     });
   }
+
+  public readonly terminateGameRoom = (): void => {
+    console.log(`GameRoom.terminateGameRoom called and is terminating room with roomID = ${this.roomID}.`);
+    const wasSuccessful = RoomManager.deleteRoom(this.roomID);
+    if (!wasSuccessful) {
+      // TODO: Handle failure.
+    }
+    this.ioServer.of(this.roomID).disconnectSockets(true);
+  };
 
   // TODO: Implement vanity changes.
   private readonly updatePlayerVanities = (): void => {

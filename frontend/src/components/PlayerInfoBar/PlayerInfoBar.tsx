@@ -67,7 +67,7 @@ export default function PlayerInfoBar() {
           >
             <Flex
               gap="xs"
-              justify="center"
+              justify="flex-start"
               align="center"
               direction="column"
               wrap="wrap"

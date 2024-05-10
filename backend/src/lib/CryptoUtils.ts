@@ -11,5 +11,4 @@ export default class CryptoUtils {
     const playerID = CryptoUtils.hash(socketID).concat(joinTime.toString());
     return playerID;
   };
-
 }

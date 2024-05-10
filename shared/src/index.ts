@@ -1,4 +1,17 @@
 export enum MatchStateStages {
+  /**
+   * Stage Lifecycle:
+   * Waiting for match start: 
+   *  - Waiting for player to press start match.
+   * Preparing match start: 
+   *  - Loading questions.
+   * Showing question.
+   * Judging answers.
+   * Judging players: 
+   *  - 1. Waiting for player to start next match or...
+   *  - 2. If a new match doesn't start within a certain time period, terminates GameRoom.
+   */
+
   // Initial not loaded state.
   NONE = -1,
   // Idle state - waiting for match start.
@@ -126,10 +139,10 @@ export interface GRUpdatePlayerVanities_Payload {
   playerVanities: Client_PlayerVanity[];
 }
 
-export type SocketID = string;
-
 // In theory, would be good if TypeScript could explicitly require type.
+export type SocketID = string;
 export type PlayerID = string;
+export type RoomID = string;
 
 export const PLAYER_ID_NONE = "-1";
 
@@ -239,7 +252,7 @@ export interface Client_PlayerJudgment {
   playerID: string;
   // Rank starts at 1.
   rank: number;
-  finalPlayerStats: Client_PlayerStats; 
+  finalPlayerStats: Client_PlayerStats;
 }
 
 // Section: REST API.

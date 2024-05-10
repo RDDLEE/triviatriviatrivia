@@ -86,6 +86,7 @@ export default function JudgePlayers() {
         wrap="wrap"
       >
         {judgmentsJSX}
+        {/* TODO: Start Match button/component. */}
       </Flex>
     );
   };

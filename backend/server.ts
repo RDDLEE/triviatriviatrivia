@@ -1,28 +1,17 @@
 import express, { Express, Request, Response } from "express";
-import dotenv from "dotenv";
 import helmet from "helmet";
 import { Server } from "socket.io";
 import http from "http";
 // import https from "https";
 import cors from "cors";
 import path from "path";
-import GameRoom from "./src/game-room";
-import RoomUtils from "./src/lib/RoomUtils";
 import { CreateRoomReturn } from "trivia-shared";
+import RoomManager from "./src/room-manager";
+import EnvUtils from "./src/lib/EnvUtils";
 
-// FIXME: Check if loaded successfully.
-dotenv.config();
+EnvUtils.checkEnvVars();
 
-// FIXME: Extract env checking to function.
-const PORT = process.env["PORT"];
-if (PORT === undefined) {
-  throw "env.PORT not specified.";
-}
-const COUNTDOWN_MULTIPLIER = process.env["COUNTDOWN_MULTIPLIER"];
-if (COUNTDOWN_MULTIPLIER === undefined) {
-  throw "env.COUNTDOWN_MULTIPLIER not specified.";
-}
-
+// FIXME: Extract constants to utils.
 const API_PREFIX = "/api";
 // Frontend directory name should match frontend/package.json build outDir.
 const FRONTEND_DIR_PATH = path.resolve(__dirname, "frontend-dist");
@@ -46,18 +35,12 @@ app.use(helmet());
 app.use(cors({ origin: "*" }));
 app.use(express.static(FRONTEND_DIR_PATH));
 
-// FIXME: Make map?
-const gameRooms: GameRoom[] = [];
-
 app.get(API_PREFIX + "/hello", (_req: Request, res: Response) => {
   res.send("Hello, I am hello.");
 });
 
 app.post(API_PREFIX + "/room/create", (_req, res) => {
-  const roomID = RoomUtils.generateRoomID();
-  // FIXME: Check if roomID is taken.
-  const newRoom = new GameRoom(roomID, io);
-  gameRooms.push(newRoom);
+  const roomID = RoomManager.createRoom(io);
   // FIXME: Handle response errors/codes.
   res.json({ roomID: roomID } satisfies CreateRoomReturn);
 });
@@ -69,6 +52,6 @@ app.get("*", (_req, res) => {
 // TODO: Perhaps store all players/connections
 // - to ensure that one player/socket can only be in one room.
 
-server.listen(PORT, () => {
-  console.log(`[server]: Server is running at http://localhost:${PORT}.`);
+server.listen(EnvUtils.getPort(), () => {
+  console.log(`[server]: Server is running at http://localhost:${EnvUtils.getPort()}.`);
 });

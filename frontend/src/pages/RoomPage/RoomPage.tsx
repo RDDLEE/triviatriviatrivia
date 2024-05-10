@@ -12,6 +12,7 @@ import MatchStateUtils from "../../lib/MatchStateUtils";
 import PlayerInfoBar from "../../components/PlayerInfoBar/PlayerInfoBar";
 import GameComponentRouter from "../../components/GameComponentRouter/GameComponentRouter";
 import TriviaShell from "../../components/TriviaShell/TriviaShell";
+import { useLocation } from "wouter";
 
 // FIXME: Extract.
 export const SocketContext = createContext<Socket | null>(null);
@@ -27,6 +28,8 @@ export default function RoomPage(props: RoomPageProps) {
   const matchStateContext = useContext(MatchStateContext);
 
   const [didJoinGame, setDidJoinGame] = useState<boolean>(props.didJoinGame ? props.didJoinGame : false);
+
+  const [_, setLocation] = useLocation();
 
   // TODO: Extract socket to useSocket hook.
   const initSocket = (): Socket => {
@@ -60,7 +63,8 @@ export default function RoomPage(props: RoomPageProps) {
   }, [onConnection]);
 
   const onDisconnect = useCallback((): void => {
-    console.log("RoomPage.onDisconnect called.");
+    // TODO: Display a disconnect message.
+    setLocation("/");
   }, []);
 
   useEffect(() => {

@@ -39,6 +39,11 @@ export default class MatchState {
     this.playerAnswerStates.set(playerID, MatchStateUtils.getServerPlayerAnswerStateIdentity());
   };
 
+  public readonly removePlayer = (playerID: PlayerID): void => {
+    this.playersStats.delete(playerID);
+    this.playerAnswerStates.delete(playerID);
+  };
+
   public readonly onNewMatch = (matchSettings: MatchSettings): void => {
     this.matchStage = MatchStateStages.PREPARING_MATCH_START;
     const matchStateIdentity = MatchStateUtils.getMatchStateIdentity();
@@ -52,10 +57,6 @@ export default class MatchState {
     this.playerAnswerStates.forEach((_, key) => {
       this.playerAnswerStates.set(key, MatchStateUtils.getServerPlayerAnswerStateIdentity());
     });
-  };
-
-  public readonly onWaitForMatchStart = (): void => {
-    this.matchStage = MatchStateStages.WAITING_FOR_MATCH_START;
   };
 
   public readonly onShowQuestion = (): void => {

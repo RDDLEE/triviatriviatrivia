@@ -1,3 +1,5 @@
+import { PlayerID, RoomID } from "trivia-shared";
+
 export default class RoomUtils {
   public static readonly makeAlphaNumIdentifier = (): string => {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -8,12 +10,12 @@ export default class RoomUtils {
     return id;
   };
 
-  public static readonly generateRoomID = (): string => {
+  public static readonly generateRoomID = (): RoomID => {
     const roomID = "/" + RoomUtils.makeAlphaNumIdentifier();
     return roomID;
   };
 
-  public static readonly generatePlayerID = (): string => {
+  public static readonly generatePlayerID = (): PlayerID => {
     const playerID = RoomUtils.makeAlphaNumIdentifier();
     return playerID;
   };
