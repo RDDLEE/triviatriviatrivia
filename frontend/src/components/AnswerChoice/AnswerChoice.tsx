@@ -62,6 +62,7 @@ export default function AnswerChoice(props: AnswerChoice_Props) {
         variant={variant}
         fullWidth={true}
         size="xs"
+        justify="flex-start"
       >
         {answerChoice.text}
       </Button>

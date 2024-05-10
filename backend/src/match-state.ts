@@ -1,4 +1,4 @@
-import { Client_MatchState, Client_PlayerAnswerJudgment, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, MatchSettings, MatchStateStages, PlayerID, Server_PlayerAnswerJudgment, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
+import { ANSWER_ID_NONE, Client_MatchState, Client_PlayerAnswerJudgment, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, MatchSettings, MatchStateStages, PlayerID, Server_PlayerAnswerJudgment, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
 import { StandardQuestion } from "./lib/QuestionUtils";
 import MatchStateUtils from "./lib/MatchStateUtils";
 import GameRoom from "./game-room";
@@ -97,6 +97,7 @@ export default class MatchState {
         finalPlayerStats: this.makeClientPlayerStats(playerID),
       });
     });
+    playerJudgments.sort((a, b) => { return a.rank - b.rank; });
     return playerJudgments;
   };
 
@@ -126,32 +127,37 @@ export default class MatchState {
     const judgments: Map<PlayerID, Server_PlayerAnswerJudgment> = new Map();
     const currQuestion = this.getCurrentQuestion();
     this.playerAnswerStates.forEach((answerState: Server_PlayerAnswerState, playerID: PlayerID): void => {
-      if (answerState.didSelectAnswer) {
-        // TODO: Allow answer time bonus score.
-        if (answerState.selectedAnswerID === currQuestion.correctAnswerID) {
-          judgments.set(playerID, {
-            previousScore: this.playersStats.get(playerID).score,
-            wasCorrect: true,
-            scoreModification: 500,
-            didSelectAnswer: true,
-          });
-        } else {
-          // TODO: Allow incorrect answer pentalty.
-          judgments.set(playerID, {
-            previousScore: this.playersStats.get(playerID).score,
-            wasCorrect: false,
-            scoreModification: 0,
-            didSelectAnswer: true,
-          });
-        }
-      } else {
+      if (!answerState.didSelectAnswer || answerState.selectedAnswerID === ANSWER_ID_NONE) {
         // TODO: Handle setting to consider unanswered question penalty.
         judgments.set(playerID, {
           previousScore: this.playersStats.get(playerID).score,
           wasCorrect: false,
           scoreModification: 0,
           didSelectAnswer: false,
+          selectedAnswerID: ANSWER_ID_NONE,
         });
+      } else {
+        // If selected a non-pass answer.
+        // TODO: Allow answer time bonus score.
+        if (answerState.selectedAnswerID === currQuestion.correctAnswerID) {
+          // If correct answer.
+          judgments.set(playerID, {
+            previousScore: this.playersStats.get(playerID).score,
+            wasCorrect: true,
+            scoreModification: 500,
+            didSelectAnswer: true,
+            selectedAnswerID: answerState.selectedAnswerID,
+          });
+        } else {
+          // If incorrect, non-pass answer.
+          judgments.set(playerID, {
+            previousScore: this.playersStats.get(playerID).score,
+            wasCorrect: false,
+            scoreModification: 0,
+            didSelectAnswer: true,
+            selectedAnswerID: answerState.selectedAnswerID,
+          });
+        }
       }
     });
     return judgments;
@@ -247,6 +253,7 @@ export default class MatchState {
         didSelectAnswer: judgment.didSelectAnswer,
         wasCorrect: judgment.wasCorrect,
         scoreModification: judgment.scoreModification,
+        selectedAnswerID: judgment.selectedAnswerID,
       });
     });
     return result;
@@ -263,6 +270,7 @@ export default class MatchState {
     };
   };
 
+  // FIXME: Need to account for ties.
   public readonly getPlayerScoreRanks = (): Map<PlayerID, number> => {
     const scoreRanks: Map<PlayerID, number> = new Map();
     const scoresDescending: number[] = [];

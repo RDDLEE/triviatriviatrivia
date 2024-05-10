@@ -1,4 +1,4 @@
-import { Client_PlayerAnswerState, Client_PlayerStats, Client_PlayerVanity, PlayerID } from "trivia-shared";
+import { Client_PlayerAnswerJudgment, Client_PlayerAnswerState, Client_PlayerStats, Client_PlayerVanity, PlayerID } from "trivia-shared";
 import { MatchStateContextSchema } from "../components/MatchStateProvider/MatchStateProvider";
 
 export default class MatchStateUtils {
@@ -66,5 +66,24 @@ export default class MatchStateUtils {
       return null;
     }
     return foundStats;
+  };
+
+  public static readonly getPlayerAnswerJudgmentByPlayerID = (matchStateContext: MatchStateContextSchema | null, playerID: PlayerID): Client_PlayerAnswerJudgment | null => {
+    if (!matchStateContext) {
+      return null;
+    }
+    if (!matchStateContext.answerJudgments) {
+      return null;
+    }
+    const foundJudgment = matchStateContext.answerJudgments.judgments.find((currJudgment: Client_PlayerAnswerJudgment): boolean => {
+      if (currJudgment.playerID === playerID) {
+        return true;
+      }
+      return false;
+    });
+    if (!foundJudgment) {
+      return null;
+    }
+    return foundJudgment;
   };
 }

@@ -166,8 +166,6 @@ export const ANSWER_STATE_ANSWER_TIME_NONE = -1;
 
 export const ANSWER_ID_NONE = -1;
 
-export const ANSWER_ID_NO_ANSWER = 99;
-
 export interface Server_PlayerAnswerState {
   canAnswer: boolean;
   didSelectAnswer: boolean;
@@ -190,6 +188,7 @@ export interface Server_PlayerAnswerJudgment {
   didSelectAnswer: boolean;
   wasCorrect: boolean;
   scoreModification: number;
+  selectedAnswerID: number;
 }
 
 export interface Client_PlayerAnswerJudgment extends Server_PlayerAnswerJudgment {

@@ -16,10 +16,17 @@ import TriviaShell from "../../components/TriviaShell/TriviaShell";
 // FIXME: Extract.
 export const SocketContext = createContext<Socket | null>(null);
 
-export default function RoomPage() {
+interface RoomPageProps {
+  // NOTE: Props only used to support Storybook.
+  // - There probably is a better way to do this.
+  isStoryBook?: boolean;
+  didJoinGame?: boolean;
+}
+
+export default function RoomPage(props: RoomPageProps) {
   const matchStateContext = useContext(MatchStateContext);
 
-  const [didJoinGame, setDidJoinGame] = useState<boolean>(false);
+  const [didJoinGame, setDidJoinGame] = useState<boolean>(props.didJoinGame ? props.didJoinGame : false);
 
   // TODO: Extract socket to useSocket hook.
   const initSocket = (): Socket => {
@@ -29,14 +36,17 @@ export default function RoomPage() {
   const socketRef = useRef<Socket>(initSocket());
 
   useEffect(() => {
+    if (props.isStoryBook) {
+      return;
+    }
     const socket = socketRef.current;
     socket.connect();
     return () => {
       socket.disconnect();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  
   const onConnection = useCallback((): void => {
     console.log("RoomPage.onConnection called.");
   }, []);
@@ -240,7 +250,7 @@ export default function RoomPage() {
             withBorder={true}
             shadow="xl"
             /** FIXME: Extract to class.*/
-            w="20%"
+            w="30%"
             ml="5em"
           >
             <PlayerInfoBar />
@@ -250,7 +260,7 @@ export default function RoomPage() {
             withBorder={true}
             shadow="xl"
             /** FIXME: Extract to class.*/
-            w="80%"
+            w="70%"
             mr="5em"
           >
             {renderMain()}
