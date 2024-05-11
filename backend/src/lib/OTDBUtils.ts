@@ -1,5 +1,6 @@
 import he from "he";
 import { StandardAnswerCoice, StandardQuestion } from "./QuestionUtils";
+import { AnswerID } from "trivia-shared";
 
 export interface OTDBResponse {
   response_code: OTDBResponseCodes;
@@ -31,7 +32,7 @@ export interface OTDBQuestion {
 }
 
 interface StandardizeAnswersReturn {
-  correctAnswerID: number;
+  correctAnswerID: AnswerID;
   answerChoices: StandardAnswerCoice[];
 }
 
@@ -55,12 +56,14 @@ export default class OTDBUtils {
     const shuffled = [correctAnswer, ...incorrectAnswers];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]; // Swap elements
+      // @ts-expect-error Indexes will always be inbounds.
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     let correctAnswerID = -1;
     const standardAnswers: StandardAnswerCoice[] = [];
     for (let i = 0; i < shuffled.length; i++) {
-      const currAnswer = shuffled[i];
+      // @ts-expect-error currAnswer will always be string and inbounds.
+      const currAnswer: string = shuffled[i];
       if (currAnswer === correctAnswer) {
         correctAnswerID = i;
       }

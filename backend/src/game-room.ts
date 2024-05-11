@@ -35,8 +35,12 @@ export default class GameRoom {
       socket.on(SocketEvents.GR_CLIENT_JOIN_GAME, (payload: GRJoinGame_Payload) => {
         // FIXME: Validate vanity.
         const player = this.players.get(socket.id);
+        if (!player) {
+          return;
+        }
         this.players.set(socket.id, {
-          ...player,
+          playerID: player.playerID,
+          joinTime: player.joinTime,
           vanity: payload.playerVanity,
         });
         this.gameController.onNewPlayer(socket, player.playerID);
@@ -83,6 +87,9 @@ export default class GameRoom {
   public readonly makeClientPlayerVanities = (): Client_PlayerVanity[] => {
     const vanities: Client_PlayerVanity[] = [];
     this.players.forEach((value: Player, _: SocketID) => {
+      if (!value.vanity) {
+        return;
+      }
       vanities.push({
         playerID: value.playerID,
         // TODO: Could create helper to convert from Client/Server PlayerVanities.
@@ -92,7 +99,11 @@ export default class GameRoom {
     return vanities;
   };
 
-  public readonly getPlayerIDBySocketID = (socketID: SocketID): PlayerID => {
-    return this.players.get(socketID).playerID;
+  public readonly getPlayerIDBySocketID = (socketID: SocketID): PlayerID | null => {
+    const player = this.players.get(socketID);
+    if (!player) {
+      return null;
+    }
+    return player.playerID;
   };
 }

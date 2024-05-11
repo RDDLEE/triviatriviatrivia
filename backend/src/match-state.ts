@@ -1,4 +1,4 @@
-import { ANSWER_ID_NONE, Client_MatchState, Client_PlayerAnswerJudgment, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, MatchSettings, MatchStateStages, PlayerID, Server_PlayerAnswerJudgment, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
+import { ANSWER_ID_NONE, AnswerID, Client_MatchState, Client_PlayerAnswerJudgment, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, MatchSettings, MatchStateStages, PlayerID, Server_PlayerAnswerJudgment, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
 import { StandardQuestion } from "./lib/QuestionUtils";
 import MatchStateUtils from "./lib/MatchStateUtils";
 import GameRoom from "./game-room";
@@ -19,6 +19,7 @@ export default class MatchState {
   private questions: StandardQuestion[];
   private round: number;
   private matchSettings: MatchSettings;
+  // TODO: Implement matchHistory.
   private matchHistory: unknown[];
   private readonly playersStats: Map<PlayerID, Server_PlayerStats>;
   private readonly playerAnswerStates: Map<PlayerID, Server_PlayerAnswerState>;
@@ -72,7 +73,7 @@ export default class MatchState {
     });
   };
 
-  public readonly onJudgeAnswers = (): Map<PlayerID, Server_PlayerAnswerJudgment> => {
+  public readonly onJudgeAnswers = (): Map<PlayerID, Server_PlayerAnswerJudgment> | null => {
     this.matchStage = MatchStateStages.JUDGING_ANSWERS;
     this.playerAnswerStates.forEach((state: Server_PlayerAnswerState, playerID: PlayerID) => {
       this.playerAnswerStates.set(playerID, {
@@ -83,6 +84,9 @@ export default class MatchState {
       });
     });
     const judgments = this.produceAnswerJudgments();
+    if (!judgments) {
+      return null;
+    }
     this.processAnswerJudgments(judgments);
     return judgments;
   };
@@ -92,10 +96,18 @@ export default class MatchState {
     const playerJudgments: Client_PlayerJudgment[] = [];
     const scoreRanks = this.getPlayerScoreRanks();
     this.playersStats.forEach((_: Server_PlayerStats, playerID: PlayerID) => {
+      const scoreRank = scoreRanks.get(playerID);
+      if (scoreRank === undefined) {
+        return;
+      }
+      const cPlayerStats = this.makeClientPlayerStats(playerID);
+      if (!cPlayerStats) {
+        return;
+      }
       playerJudgments.push({
         playerID: playerID,
-        rank: scoreRanks.get(playerID),
-        finalPlayerStats: this.makeClientPlayerStats(playerID),
+        rank: scoreRank,
+        finalPlayerStats: cPlayerStats,
       });
     });
     playerJudgments.sort((a, b) => { return a.rank - b.rank; });
@@ -107,8 +119,11 @@ export default class MatchState {
   };
 
   // Returns true if answer was submitted.
-  public readonly attemptSubmitAnswer = (playerID: PlayerID, selectedAnswerID: number): boolean => {
+  public readonly attemptSubmitAnswer = (playerID: PlayerID, selectedAnswerID: AnswerID): boolean => {
     const answerState = this.playerAnswerStates.get(playerID);
+    if (!answerState) {
+      return false;
+    }
     if (!answerState.canAnswer) {
       return false;
     }
@@ -124,14 +139,21 @@ export default class MatchState {
     return true;
   };
 
-  public readonly produceAnswerJudgments = (): Map<PlayerID, Server_PlayerAnswerJudgment> => {
+  public readonly produceAnswerJudgments = (): Map<PlayerID, Server_PlayerAnswerJudgment> | null => {
     const judgments: Map<PlayerID, Server_PlayerAnswerJudgment> = new Map();
     const currQuestion = this.getCurrentQuestion();
+    if (!currQuestion) {
+      return null;
+    }
     this.playerAnswerStates.forEach((answerState: Server_PlayerAnswerState, playerID: PlayerID): void => {
+      const playerStats = this.playersStats.get(playerID);
+      if (!playerStats) {
+        return;
+      }
       if (!answerState.didSelectAnswer || answerState.selectedAnswerID === ANSWER_ID_NONE) {
         // If did not answer.
         judgments.set(playerID, {
-          previousScore: this.playersStats.get(playerID).score,
+          previousScore: playerStats.score,
           wasCorrect: false,
           scoreModification: this.matchSettings.pointsOnNoAnswer,
           didSelectAnswer: false,
@@ -142,7 +164,7 @@ export default class MatchState {
           // If correct, selected a non-pass answer.
           // TODO: Allow answer time bonus score.
           judgments.set(playerID, {
-            previousScore: this.playersStats.get(playerID).score,
+            previousScore: playerStats.score,
             wasCorrect: true,
             scoreModification: this.matchSettings.pointsOnCorrect,
             didSelectAnswer: true,
@@ -151,7 +173,7 @@ export default class MatchState {
         } else {
           // If incorrect, non-pass answer.
           judgments.set(playerID, {
-            previousScore: this.playersStats.get(playerID).score,
+            previousScore: playerStats.score,
             wasCorrect: false,
             scoreModification: this.matchSettings.pointsOnIncorrect,
             didSelectAnswer: true,
@@ -166,6 +188,9 @@ export default class MatchState {
   public readonly processAnswerJudgments = (judgments: Map<PlayerID, Server_PlayerAnswerJudgment>): void => {
     judgments.forEach((judgment: Server_PlayerAnswerJudgment, playerID: PlayerID) => {
       const currStat = this.playersStats.get(playerID);
+      if (!currStat) {
+        return;
+      }
       let newWinStreak = currStat.winStreak;
       let newLossStreak = currStat.lossStreak;
       let newNumCorrect = currStat.numCorrect;
@@ -197,12 +222,20 @@ export default class MatchState {
     });
   };
 
-  public readonly getAnswerStateByPlayerID = (playerID: PlayerID): Server_PlayerAnswerState => {
-    return this.playerAnswerStates.get(playerID);
+  public readonly getAnswerStateByPlayerID = (playerID: PlayerID): Server_PlayerAnswerState | null => {
+    const answerState = this.playerAnswerStates.get(playerID);
+    if (!answerState) {
+      return null;
+    }
+    return answerState;
   };
 
-  public readonly getClientAnswerStateByPlayerID = (playerID: PlayerID): Client_PlayerAnswerState => {
-    return this.makeClientPlayerAnswerState(playerID, this.playerAnswerStates.get(playerID));
+  public readonly getClientAnswerStateByPlayerID = (playerID: PlayerID): Client_PlayerAnswerState | null => {
+    const answerState = this.getAnswerStateByPlayerID(playerID);
+    if (!answerState) {
+      return null;
+    }
+    return this.makeClientPlayerAnswerState(playerID, answerState);
   };
 
   public readonly makeClientPlayerAnswerStates = (): Client_PlayerAnswerState[] => {
@@ -226,13 +259,19 @@ export default class MatchState {
   public readonly makeClientPlayersStats = (): Client_PlayerStats[] => {
     const playersStats: Client_PlayerStats[] = [];
     this.playersStats.forEach((_: Server_PlayerStats, playerID: PlayerID) => {
-      playersStats.push(this.makeClientPlayerStats(playerID));
+      const stats = this.makeClientPlayerStats(playerID);
+      if (stats) {
+        playersStats.push(stats);
+      }
     });
     return playersStats;
   };
 
-  public readonly makeClientPlayerStats = (playerID: PlayerID): Client_PlayerStats => {
+  public readonly makeClientPlayerStats = (playerID: PlayerID): Client_PlayerStats | null => {
     const stats = this.playersStats.get(playerID);
+    if (!stats) {
+      return null;
+    }
     return {
       playerID: playerID,
       score: stats.score,
@@ -308,7 +347,11 @@ export default class MatchState {
     const round = this.round;
     const questions = this.questions;
     if (round >= 0 && round < questions.length) {
-      return this.questions[this.round];
+      const currQ = this.questions[this.round];
+      if (!currQ) {
+        return null;
+      }
+      return currQ;
     }
     return null;
   };

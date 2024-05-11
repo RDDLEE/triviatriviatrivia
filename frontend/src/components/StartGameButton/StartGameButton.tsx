@@ -19,13 +19,13 @@ export default function StartGameButton(props: StartGameButton_Props) {
         matchSettings: props.matchSettings,
       } satisfies GCReqestStartMatch_Payload
     );
-  }, [socket]);
+  }, [props.matchSettings, socket]);
 
   const getButtonText = (): string => {
-    if (props.buttonText) {
-      return props.buttonText;
+    if (props.buttonText === undefined) {
+      return "Start Game";
     }
-    return "Start Game";
+    return props.buttonText;
   };
 
   return (

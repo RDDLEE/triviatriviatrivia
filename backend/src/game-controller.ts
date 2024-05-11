@@ -15,7 +15,7 @@ export default class GameController {
   private readonly roomID: string;
   private readonly ioServer: Server;
   private readonly matchState: MatchState;
-  private stageTimer: NodeJS.Timeout;
+  private stageTimer: NodeJS.Timeout | undefined = undefined;
 
   // TODO: Extract countdowns to shared.
   private static readonly COUNTDOWN_MULTIPLIER = EnvUtils.getCountdownMultiplier();
@@ -55,11 +55,18 @@ export default class GameController {
     socket.on(SocketEvents.GC_CLIENT_ATTEMPT_SUBMIT_ANSWER, (payload: GCAttemptSubmitAnswer_Payload) => {
       // console.log(`GameController.GC_CLIENT_ATTEMPT_SUBMIT_ANSWER called. payload = ${JSON.stringify(payload)}.`);
       const playerID = this.gameRoom.getPlayerIDBySocketID(socket.id);
+      if (playerID === null) {
+        return;
+      }
       const wasSuccessful = this.matchState.attemptSubmitAnswer(playerID, payload.selectedAnswerID);
       if (wasSuccessful) {
+        const clientAnswerState = this.matchState.getClientAnswerStateByPlayerID(playerID);
+        if (!clientAnswerState) {
+          return;
+        }
         this.ioServer.of(this.roomID).emit(
           SocketEvents.GC_SERVER_ANSWER_SUBMITTED, {
-            answerState: this.matchState.getClientAnswerStateByPlayerID(playerID),
+            answerState: clientAnswerState,
           } satisfies GCAnswerSubmitted_Payload
         );
       }
@@ -92,14 +99,22 @@ export default class GameController {
 
   private readonly judgeAnswers = (): void => {
     const judgments = this.matchState.onJudgeAnswers();
+    if (!judgments) {
+      return;
+    }
+    const clientJudgments = this.matchState.makeClientPlayerAnswerJudgments(judgments);
+    const currQuestion = this.matchState.getCurrentQuestion();
+    if (!currQuestion) {
+      return;
+    }
     this.ioServer.of(this.roomID).emit(
       SocketEvents.GC_SERVER_STAGE_JUDGING_ANSWERS,
       {
         terminationTime: Date.now() + GameController.JUDGING_ANSWERS_COUNTDOWN,
         playersStats: this.matchState.makeClientPlayersStats(),
         judgmentResults: {
-          correctAnswerID: this.matchState.getCurrentQuestion().correctAnswerID,
-          judgments: this.matchState.makeClientPlayerAnswerJudgments(judgments),
+          correctAnswerID: currQuestion.correctAnswerID,
+          judgments: clientJudgments,
         },
         playerAnswerStates: this.matchState.makeClientPlayerAnswerStates(),
       } satisfies GCJudgingAnswers_Payload

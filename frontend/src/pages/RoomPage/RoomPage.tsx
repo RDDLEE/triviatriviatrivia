@@ -28,7 +28,13 @@ interface RoomPageProps {
 export default function RoomPage(props: RoomPageProps) {
   const matchStateContext = useContext(MatchStateContext);
 
-  const [didJoinGame, setDidJoinGame] = useState<boolean>(props.didJoinGame ? props.didJoinGame : false);
+  const initDidJoinGame = (): boolean => {
+    if (props.didJoinGame === undefined) {
+      return false;
+    }
+    return props.didJoinGame;
+  };
+  const [didJoinGame, setDidJoinGame] = useState<boolean>(initDidJoinGame());
 
   const [_, setLocation] = useLocation();
 
@@ -40,7 +46,7 @@ export default function RoomPage(props: RoomPageProps) {
   const socketRef = useRef<Socket>(initSocket());
 
   useEffect(() => {
-    if (props.isStoryBook) {
+    if (props.isStoryBook === true) {
       return;
     }
     const socket = socketRef.current;
@@ -66,7 +72,7 @@ export default function RoomPage(props: RoomPageProps) {
   const onDisconnect = useCallback((): void => {
     // TODO: Display a disconnect message.
     setLocation("/");
-  }, []);
+  }, [setLocation]);
 
   useEffect(() => {
     const socket = socketRef.current;

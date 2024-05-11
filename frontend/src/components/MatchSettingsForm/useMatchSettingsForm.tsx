@@ -41,6 +41,6 @@ const useMatchSettingsForm = (): useMatchSettingsForm_Return => {
     getMatchSettings: getMatchSettings,
     renderForm: renderForm,
   };
-}
+};
 
 export default useMatchSettingsForm;

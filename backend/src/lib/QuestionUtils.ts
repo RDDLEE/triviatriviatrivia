@@ -1,10 +1,12 @@
+import { AnswerID } from "trivia-shared";
+
 export interface StandardQuestion {
   prompt: string;
-  correctAnswerID: number;
+  correctAnswerID: AnswerID;
   choices: StandardAnswerCoice[];
 }
 
 export interface StandardAnswerCoice {
-  answerID: number;
+  answerID: AnswerID;
   text: string;
 }

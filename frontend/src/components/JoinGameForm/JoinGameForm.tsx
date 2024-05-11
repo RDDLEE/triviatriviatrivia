@@ -11,7 +11,7 @@ export default function JoinGameForm() {
   // FIXME: Need to extract form out to VanityForm.
   const initDisplayName = (): string => {
     const foundDisplayName = localStorage.getItem(LOCAL_STORAGE_TRIVIA_DISPLAY_NAME_KEY);
-    if (!foundDisplayName) {
+    if (foundDisplayName === null) {
       return "Player" + Date.now().toString();
     }
     return foundDisplayName;
@@ -39,7 +39,7 @@ export default function JoinGameForm() {
         playerVanity: playerVanity,
       } satisfies GRJoinGame_Payload
     );
-  }, []);
+  }, [displayName, socket]);
 
   return (
     <Flex

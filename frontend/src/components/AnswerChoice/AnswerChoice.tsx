@@ -1,6 +1,6 @@
 import { useCallback, useContext } from "react";
 import { SocketContext } from "../../pages/RoomPage/RoomPage";
-import { ANSWER_ID_NONE, Client_StandardAnswerCoice, GCAttemptSubmitAnswer_Payload, SocketEvents } from "trivia-shared";
+import { ANSWER_ID_NONE, AnswerID, Client_StandardAnswerCoice, GCAttemptSubmitAnswer_Payload, SocketEvents } from "trivia-shared";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
 import MatchStateUtils from "../../lib/MatchStateUtils";
 import { Button } from "@mantine/core";
@@ -13,7 +13,7 @@ export default function AnswerChoice(props: AnswerChoice_Props) {
   const matchStateContext = useContext(MatchStateContext);
   const socket = useContext(SocketContext);
 
-  const onClick_AnswerChoice = useCallback((answerID: number): void => {
+  const onClick_AnswerChoice = useCallback((answerID: AnswerID): void => {
     if (!matchStateContext) {
       return;
     }

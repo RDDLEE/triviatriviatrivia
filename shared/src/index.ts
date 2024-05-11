@@ -84,7 +84,7 @@ export interface GCReceiveMatchStage_Payload {
 
 // Corresponds with GC_CLIENT_ATTEMPT_SUBMIT_ANSWER.
 export interface GCAttemptSubmitAnswer_Payload {
-  selectedAnswerID: number;
+  selectedAnswerID: AnswerID;
 }
 
 export interface BaseTimedMatchStagePayload {
@@ -143,6 +143,7 @@ export interface GRUpdatePlayerVanities_Payload {
 export type SocketID = string;
 export type PlayerID = string;
 export type RoomID = string;
+export type AnswerID = number;
 
 export const PLAYER_ID_NONE = "-1";
 
@@ -182,7 +183,7 @@ export const ANSWER_ID_NONE = -1;
 export interface Server_PlayerAnswerState {
   canAnswer: boolean;
   didSelectAnswer: boolean;
-  selectedAnswerID: number;
+  selectedAnswerID: AnswerID;
   // Time (millis) of when the answer was registered (by the server).
   answerTime: number;
 }
@@ -192,7 +193,7 @@ export interface Client_PlayerAnswerState {
   canAnswer: boolean;
   didSelectAnswer: boolean;
   // Broadcasting selectedAnswerID presents an opportunity for cheating.
-  selectedAnswerID: number;
+  selectedAnswerID: AnswerID;
   answerTime: number;
 }
 
@@ -201,7 +202,7 @@ export interface Server_PlayerAnswerJudgment {
   didSelectAnswer: boolean;
   wasCorrect: boolean;
   scoreModification: number;
-  selectedAnswerID: number;
+  selectedAnswerID: AnswerID;
 }
 
 export interface Client_PlayerAnswerJudgment extends Server_PlayerAnswerJudgment {
@@ -209,7 +210,7 @@ export interface Client_PlayerAnswerJudgment extends Server_PlayerAnswerJudgment
 }
 
 export interface Client_AnswerJudgmentResults {
-  correctAnswerID: number;
+  correctAnswerID: AnswerID;
   judgments: Client_PlayerAnswerJudgment[];
 }
 
@@ -255,7 +256,7 @@ export interface Client_StandardQuestion {
 }
 
 export interface Client_StandardAnswerCoice {
-  answerID: number;
+  answerID: AnswerID;
   text: string;
 }
 

@@ -7,8 +7,11 @@ module.exports = {
     "plugin:react-hooks/recommended",
     "plugin:storybook/recommended"
   ],
-  ignorePatterns: ["dist", ".eslintrc.cjs", "postcss.config.cjs"],
+  ignorePatterns: ["dist", ".eslintrc.cjs", "postcss.config.cjs", "vite.config.ts"],
   parser: "@typescript-eslint/parser",
+  parserOptions: {
+    project: ['./tsconfig.json'],
+  },
   plugins: ["react-refresh"],
   rules: {
     "react-refresh/only-export-components": [
@@ -30,7 +33,7 @@ module.exports = {
     ],
     "no-extra-semi": [1],
     "no-trailing-spaces": [
-      1, 
+      1,
       {},
     ],
     "@typescript-eslint/no-unused-vars": [
@@ -45,6 +48,10 @@ module.exports = {
         "ignoreRestSiblings": true
       }
     ],
-    "@typescript-eslint/no-non-null-assertion": "warn"
+    "@typescript-eslint/no-non-null-assertion": "warn",
+    "@typescript-eslint/strict-boolean-expressions": ["warn", {
+      allowString: true,
+      allowNumber: true,
+    }]
   },
 }

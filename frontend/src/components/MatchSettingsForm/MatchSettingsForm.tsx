@@ -19,15 +19,15 @@ export default function MatchSettingsForm(props: MatchSettingsForm_Props) {
 
   const onChange_PointsOnCorrectInput = useCallback((value: string | number): void => {
     props.setPointsOnCorrect(Number(value));
-  }, []);
+  }, [props]);
 
   const onChange_PointsOnIncorrectInput = useCallback((value: string | number): void => {
     props.setPointsOnIncorrect(Number(value));
-  }, []);
+  }, [props]);
 
   const onChange_PointsOnNoAnswerInput = useCallback((value: string | number): void => {
     props.setPointsOnNoAnswer(Number(value));
-  }, []);
+  }, [props]);
 
   return (
     <Flex

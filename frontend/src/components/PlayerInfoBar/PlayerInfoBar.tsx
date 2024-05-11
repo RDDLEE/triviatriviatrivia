@@ -1,9 +1,10 @@
 import { useContext } from "react";
-import { Badge, Card, Flex, Text } from "@mantine/core";
+import { Card, Flex, Text } from "@mantine/core";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
 import MatchStateUtils from "../../lib/MatchStateUtils";
 import StyleUtils from "../../lib/StyleUtils";
 import { MatchStateStages, PlayerID } from "trivia-shared";
+import AnswerBadge from "../AnswerBadge/AnswerBadge";
 
 export default function PlayerInfoBar() {
   const matchStateContext = useContext(MatchStateContext);
@@ -19,7 +20,7 @@ export default function PlayerInfoBar() {
       }
       if (answerState.didSelectAnswer) {
         return (
-          <Badge size="xl" circle color="lime" />
+          <AnswerBadge key={answerState.playerID} isRevealed={false}/>
         );
       }
       return null;
@@ -32,9 +33,7 @@ export default function PlayerInfoBar() {
         return null;
       }
       return (
-        <Badge size="xl" circle >
-          {playerAnswerJudgment.selectedAnswerID}
-        </Badge>
+        <AnswerBadge key={playerAnswerJudgment.playerID} isRevealed={true} selectedAnswerID={playerAnswerJudgment.selectedAnswerID} />
       );
     }
     return null;
