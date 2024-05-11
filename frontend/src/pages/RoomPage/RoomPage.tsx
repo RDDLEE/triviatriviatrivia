@@ -1,9 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { produce } from "immer";
-import { Button, Card, Flex } from "@mantine/core";
+import { Box, Card, Flex } from "@mantine/core";
 import {
-  GRUpdatePlayerVanities_Payload, SocketEvents, GRJoinGame_Payload, Server_PlayerVanity, GCReceivePlayerID_Payload, GCAnswerSubmitted_Payload,
+  GRUpdatePlayerVanities_Payload, SocketEvents, GCReceivePlayerID_Payload, GCAnswerSubmitted_Payload,
   GCReceiveMatchStage_Payload, MatchStateStages, GCWaitingForMatchStart_Payload, GCPreparingMatch_Payload, GCJudgingAnswers_Payload,
   GCShowingQuestion_Payload, GCJudgingPlayers_Payload,
 } from "trivia-shared";
@@ -13,6 +13,7 @@ import PlayerInfoBar from "../../components/PlayerInfoBar/PlayerInfoBar";
 import GameComponentRouter from "../../components/GameComponentRouter/GameComponentRouter";
 import TriviaShell from "../../components/TriviaShell/TriviaShell";
 import { useLocation } from "wouter";
+import JoinGameForm from "../../components/JoinGameForm/JoinGameForm";
 
 // FIXME: Extract.
 export const SocketContext = createContext<Socket | null>(null);
@@ -209,27 +210,10 @@ export default function RoomPage(props: RoomPageProps) {
     };
   }, [onAnswerSubmitted]);
 
-  const onClick_JoinGameButton = useCallback((): void => {
-    // TODO: After joining, need server to send the player's PlayerID.
-    const playerVanity: Server_PlayerVanity = {
-      // TODO: Save and load from localStorage and read from prompt.
-      displayName: "PlaceholderName",
-    };
-    socketRef.current.emit(
-      SocketEvents.GR_CLIENT_JOIN_GAME,
-      {
-        playerVanity: playerVanity,
-      } satisfies GRJoinGame_Payload
-    );
-  }, []);
-
   const renderMain = (): JSX.Element => {
     if (!didJoinGame) {
-      // TODO: Join game modal.
       return (
-        <Button variant="filled" size="xs" onClick={onClick_JoinGameButton}>
-          Join Game
-        </Button>
+        <JoinGameForm />
       );
     }
     return (
@@ -249,16 +233,13 @@ export default function RoomPage(props: RoomPageProps) {
           // FIXME: Extract to class.
           wrap="nowrap"
         >
-          <Card
-            radius="md"
-            withBorder={true}
-            shadow="xl"
+          <Box
             /** FIXME: Extract to class.*/
             w="30%"
             ml="5em"
           >
             <PlayerInfoBar />
-          </Card>
+          </Box>
           <Card
             radius="md"
             withBorder={true}

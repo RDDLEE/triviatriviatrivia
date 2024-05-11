@@ -129,23 +129,22 @@ export default class MatchState {
     const currQuestion = this.getCurrentQuestion();
     this.playerAnswerStates.forEach((answerState: Server_PlayerAnswerState, playerID: PlayerID): void => {
       if (!answerState.didSelectAnswer || answerState.selectedAnswerID === ANSWER_ID_NONE) {
-        // TODO: Handle setting to consider unanswered question penalty.
+        // If did not answer.
         judgments.set(playerID, {
           previousScore: this.playersStats.get(playerID).score,
           wasCorrect: false,
-          scoreModification: 0,
+          scoreModification: this.matchSettings.pointsOnNoAnswer,
           didSelectAnswer: false,
           selectedAnswerID: ANSWER_ID_NONE,
         });
       } else {
-        // If selected a non-pass answer.
-        // TODO: Allow answer time bonus score.
         if (answerState.selectedAnswerID === currQuestion.correctAnswerID) {
-          // If correct answer.
+          // If correct, selected a non-pass answer.
+          // TODO: Allow answer time bonus score.
           judgments.set(playerID, {
             previousScore: this.playersStats.get(playerID).score,
             wasCorrect: true,
-            scoreModification: 500,
+            scoreModification: this.matchSettings.pointsOnCorrect,
             didSelectAnswer: true,
             selectedAnswerID: answerState.selectedAnswerID,
           });
@@ -154,7 +153,7 @@ export default class MatchState {
           judgments.set(playerID, {
             previousScore: this.playersStats.get(playerID).score,
             wasCorrect: false,
-            scoreModification: 0,
+            scoreModification: this.matchSettings.pointsOnIncorrect,
             didSelectAnswer: true,
             selectedAnswerID: answerState.selectedAnswerID,
           });

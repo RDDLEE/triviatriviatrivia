@@ -66,6 +66,19 @@ export const ShowingQuestion: Story = {
   },
 };
 
+export const ShowingQuestionSelected: Story = {
+  args: {
+    isStoryBook: true,
+    didJoinGame: true,
+    // @ts-expect-error
+    matchStage: MatchStateStages.SHOWING_QUESTION,
+    playerVanities: [{ playerID: "0", displayName: "Player-0" }, { playerID: "1", displayName: "Player-1" }, { playerID: "2", displayName: "Player-2" }] satisfies Client_PlayerVanity[],
+    question: question,
+    playerAnswerStates: [{ playerID: "0", canAnswer: false, didSelectAnswer: true, answerTime: Date.now(), selectedAnswerID: 1 }] satisfies Client_PlayerAnswerState[],
+    answerJudgments: null satisfies Client_AnswerJudgmentResults | null,
+  },
+};
+
 export const JudgingAnswers: Story = {
   args: {
     isStoryBook: true,

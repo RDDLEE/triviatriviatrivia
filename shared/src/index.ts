@@ -217,13 +217,34 @@ export enum QuestionProvider {
   OPENTDB = "OpenTDB",
 }
 
+export const MATCH_SETTINGS_POINTS_ON_CORRECT_DEFAULT = 500;
+export const MATCH_SETTINGS_POINTS_ON_CORRECT_MIN = 1;
+export const MATCH_SETTINGS_POINTS_ON_CORRECT_MAX = 10000;
+export const MATCH_SETTINGS_POINTS_ON_INCORRECT_DEFAULT = 0;
+export const MATCH_SETTINGS_POINTS_ON_INCORRECT_MIN = -10000;
+export const MATCH_SETTINGS_POINTS_ON_INCORRECT_MAX = 0;
+export const MATCH_SETTINGS_POINTS_ON_NO_ANSWER_DEFAULT = 0;
+export const MATCH_SETTINGS_POINTS_ON_NO_ANSWER_MIN = -10000;
+export const MATCH_SETTINGS_POINTS_ON_NO_ANSWER_MAX = 0;
+
 export interface MatchSettings {
   questionProvider: QuestionProvider;
+  // pointsOnCorrect: Should always be positive.
+  pointsOnCorrect: number;
+  // pointsOnIncorrect: Should be 0 or less.
+  pointsOnIncorrect: number;
+  // pointsOnNoAnswer: Should be 0 or less.
+  pointsOnNoAnswer: number;
+  // TODO: Win streak/Loss streak bonus.
+  // TODO: Time based score bonus.
 }
 
 export const getMatchSettingsIdentity = (): MatchSettings => {
   return {
     questionProvider: QuestionProvider.OPENTDB,
+    pointsOnCorrect: MATCH_SETTINGS_POINTS_ON_CORRECT_DEFAULT,
+    pointsOnIncorrect: MATCH_SETTINGS_POINTS_ON_INCORRECT_DEFAULT,
+    pointsOnNoAnswer: MATCH_SETTINGS_POINTS_ON_NO_ANSWER_DEFAULT,
   };
 };
 

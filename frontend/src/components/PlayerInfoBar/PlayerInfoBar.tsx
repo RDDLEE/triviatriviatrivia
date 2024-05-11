@@ -57,6 +57,10 @@ export default function PlayerInfoBar() {
           key={vanity.playerID}
           withBorder={true}
           w="100%"
+          pl="md"
+          pr="md"
+          pt={0}
+          pb={0}
         >
           <Flex
             gap="xs"
@@ -66,16 +70,16 @@ export default function PlayerInfoBar() {
             wrap="wrap"
           >
             <Flex
-              gap="xs"
+              gap={0}
               justify="flex-start"
-              align="center"
+              align="flex-start"
               direction="column"
               wrap="wrap"
             >
-              <Text size="md" fw={StyleUtils.DISPLAY_NAME_FONT_WEIGHT}>
+              <Text size="xl" fw={StyleUtils.DISPLAY_NAME_FONT_WEIGHT}>
                 {displayName}
               </Text>
-              <Text size="md" fw={StyleUtils.SCORE_FONT_WEIGHT} c={StyleUtils.getColorOfScore(score)}>
+              <Text size="xl" fw={StyleUtils.SCORE_FONT_WEIGHT} c={StyleUtils.getColorOfScore(score)}>
                 {score}
               </Text>
             </Flex>

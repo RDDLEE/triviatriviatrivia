@@ -1,25 +1,13 @@
-import { useCallback, useContext } from "react";
-import { Button, Text } from "@mantine/core";
-import { GCReqestStartMatch_Payload, getMatchSettingsIdentity, MatchSettings, MatchStateStages, SocketEvents } from "trivia-shared";
+import { useContext } from "react";
+import { MatchStateStages } from "trivia-shared";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
-import { SocketContext } from "../../pages/RoomPage/RoomPage";
 import QuestionContainer from "../QuestionContainer/QuestionContainer";
 import JudgePlayers from "../JudgePlayers/JudgePlayers";
+import WaitingForMatchStart from "../WaitingForMatchStart/WaitingForMatchStart";
+import PreparingMatchStart from "../PreparingMatchStart/PreparingMatchStart";
 
 export default function GameComponentRouter() {
   const matchStateContext = useContext(MatchStateContext);
-  const socket = useContext(SocketContext);
-
-  const onClick_StartGameButton = useCallback((): void => {
-    // TODO: Allow user to configure matchSettings.
-    const matchSettings: MatchSettings = getMatchSettingsIdentity();
-    socket?.emit(
-      SocketEvents.GC_CLIENT_REQUEST_START_MATCH,
-      {
-        matchSettings: matchSettings,
-      } satisfies GCReqestStartMatch_Payload
-    );
-  }, [socket]);
 
   const renderComponent = (): JSX.Element | null => {
     if (!matchStateContext) {
@@ -31,13 +19,11 @@ export default function GameComponentRouter() {
         return null;
       case MatchStateStages.WAITING_FOR_MATCH_START:
         return (
-          // TODO: Extract to component. Add preliminary match settings form.
-          <Button variant="filled" size="xs" onClick={onClick_StartGameButton}>Start Game</Button>
+          <WaitingForMatchStart />
         );
       case MatchStateStages.PREPARING_MATCH_START:
         return (
-          // TODO: Loading spinner.
-          <Text>Loading...</Text>
+          <PreparingMatchStart />
         );
       case MatchStateStages.SHOWING_QUESTION:
       case MatchStateStages.JUDGING_ANSWERS:

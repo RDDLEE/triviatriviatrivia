@@ -42,8 +42,8 @@ export default function QuestionContainer() {
   return (
     <Flex
       gap="md"
-      justify="center"
-      align="center"
+      justify="flex-start"
+      align="flex-start"
       direction="column"
       wrap="wrap"
     >

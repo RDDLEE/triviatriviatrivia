@@ -3,6 +3,7 @@ import { Text, Flex, Title, Card } from "@mantine/core";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
 import MatchStateUtils from "../../lib/MatchStateUtils";
 import StyleUtils from "../../lib/StyleUtils";
+import StartGameButton from "../StartGameButton/StartGameButton";
 
 export default function JudgePlayers() {
   const matchStateContext = useContext(MatchStateContext);
@@ -44,6 +45,8 @@ export default function JudgePlayers() {
           shadow="xl"
           pl="xl"
           pr="xl"
+          pt="xs"
+          pb="xs"
         >
           {/* TODO: Width, maxwidth, overflow scroll. */}
           <Flex
@@ -56,9 +59,9 @@ export default function JudgePlayers() {
             maw="500px"
           >
             {/* TODO: Rank colors. */}
-            <Text fz="2.5em" fw={700}>{getOrdinalSuffixOfNum(rank)}</Text>
+            <Text fz="xl" fw={700}>{getOrdinalSuffixOfNum(rank)}</Text>
             <Flex
-              gap="xs"
+              gap={0}
               justify="flex-start"
               align="flex-start"
               direction="column"
@@ -86,7 +89,6 @@ export default function JudgePlayers() {
         wrap="wrap"
       >
         {judgmentsJSX}
-        {/* TODO: Start Match button/component. */}
       </Flex>
     );
   };
@@ -99,8 +101,18 @@ export default function JudgePlayers() {
       direction="column"
       wrap="wrap"
     >
-      <Title>Results: </Title>
+      <Title order={1}>Results: </Title>
       {renderPlayerJudgments()}
+      <Flex
+        gap={0}
+        justify="center"
+        align="center"
+        direction="column"
+        wrap="wrap"
+        w="100%"
+      >
+        <StartGameButton buttonText="Start New Game" />
+      </Flex>
     </Flex>
   );
 }
