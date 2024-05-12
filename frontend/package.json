@@ -4,8 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "npm run trace && vite build --outDir ../dist/frontend-dist --emptyOutDir",
+    "dev": "vite --mode development",
+    "build:staging": "npm run trace && vite build --mode staging --outDir ../dist/frontend-dist --emptyOutDir",
+    "build:prod": "npm run trace && vite build --mode production --outDir ../dist/frontend-dist --emptyOutDir",
     "trace": "node -e \"console.log(`outDir: ${require('path').resolve('../dist/frontend-dist')}`)\"",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
@@ -47,5 +48,8 @@
     "storybook": "^8.0.10",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "4.9.5"
   }
 }

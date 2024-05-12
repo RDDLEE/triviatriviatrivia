@@ -12,11 +12,24 @@ import MatchStateUtils from "../../lib/MatchStateUtils";
 import PlayerInfoBar from "../../components/PlayerInfoBar/PlayerInfoBar";
 import GameComponentRouter from "../../components/GameComponentRouter/GameComponentRouter";
 import TriviaShell from "../../components/TriviaShell/TriviaShell";
-import { useLocation } from "wouter";
+import { RouteComponentProps, useLocation } from "wouter";
 import JoinGameForm from "../../components/JoinGameForm/JoinGameForm";
+import { useDisclosure } from "@mantine/hooks";
+import MatchSettingsModalButton from "../../components/MatchSettingsModalButton/MatchSettingsModalButton";
+import MatchSettingsModal from "../../components/MatchSettingsModal/MatchSettingsModal";
 
 // FIXME: Extract.
 export const SocketContext = createContext<Socket | null>(null);
+
+// FIXME: Extract.
+export interface MatchSettingsModalContextSchema {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+  toggle: () => void;
+}
+
+export const MatchSettingsModalContext = createContext<MatchSettingsModalContextSchema | null>(null);
 
 interface RoomPageProps {
   // NOTE: Props only used to support Storybook.
@@ -25,7 +38,7 @@ interface RoomPageProps {
   didJoinGame?: boolean;
 }
 
-export default function RoomPage(props: RoomPageProps) {
+export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
   const matchStateContext = useContext(MatchStateContext);
 
   const initDidJoinGame = (): boolean => {
@@ -38,9 +51,12 @@ export default function RoomPage(props: RoomPageProps) {
 
   const [_, setLocation] = useLocation();
 
+  // NOTE: Could save match settings to localStorage.
+  const [isSettingsModalOpened, settingsModalCallbacks] = useDisclosure(false);
+
   // TODO: Extract socket to useSocket hook.
   const initSocket = (): Socket => {
-    const socketURI = import.meta.env.VITE_BASE_SERVER_URL + window.location.pathname;
+    const socketURI = window.location.pathname;
     return io(socketURI, { autoConnect: false });
   };
   const socketRef = useRef<Socket>(initSocket());
@@ -149,7 +165,7 @@ export default function RoomPage(props: RoomPageProps) {
     };
   }, [onGCStageJudgingPlayers]);
 
-  const onGCReceivePlayerID = useCallback((payload: GCReceivePlayerID_Payload) => {
+  const onGCReceivePlayerID = useCallback((payload: GCReceivePlayerID_Payload): void => {
     setDidJoinGame(true);
     matchStateContext?.setClientPlayerID(payload.playerID);
   }, [matchStateContext]);
@@ -162,14 +178,17 @@ export default function RoomPage(props: RoomPageProps) {
     };
   }, [onGCReceivePlayerID]);
 
-  const onGCReceiveMatchStage = useCallback((payload: GCReceiveMatchStage_Payload) => {
+  const onGCReceiveMatchStage = useCallback((payload: GCReceiveMatchStage_Payload): void => {
+    if (!matchStateContext) {
+      return;
+    }
     const matchState = payload.matchState;
-    matchStateContext?.setMatchStage(matchState.matchStage);
-    matchStateContext?.setRound(matchState.round);
-    matchStateContext?.setQuestion(matchState.question);
-    matchStateContext?.setPlayerVanities(matchState.playerVanities);
-    matchStateContext?.setPlayersStats(matchState.playersStats);
-    matchStateContext?.setPlayerAnswerStates(matchState.playerAnswerStates);
+    matchStateContext.setMatchStage(matchState.matchStage);
+    matchStateContext.setRound(matchState.round);
+    matchStateContext.setQuestion(matchState.question);
+    matchStateContext.setPlayerVanities(matchState.playerVanities);
+    matchStateContext.setPlayersStats(matchState.playersStats);
+    matchStateContext.setPlayerAnswerStates(matchState.playerAnswerStates);
   }, [matchStateContext]);
 
   useEffect(() => {
@@ -227,6 +246,18 @@ export default function RoomPage(props: RoomPageProps) {
     );
   };
 
+  const renderMatchSettingsModalButton = (): JSX.Element | null => {
+    if (matchStateContext === null) {
+      return null;
+    }
+    if (matchStateContext.matchStage === MatchStateStages.SHOWING_QUESTION || matchStateContext.matchStage === MatchStateStages.JUDGING_ANSWERS || matchStateContext.matchStage === MatchStateStages.JUDING_PLAYERS) {
+      return (
+        <MatchSettingsModalButton withIcon={true} />
+      );
+    }
+    return null;
+  };
+
   // FIXME: Extract AppShell to component.
   return (
     <SocketContext.Provider value={socketRef.current}>
@@ -239,25 +270,34 @@ export default function RoomPage(props: RoomPageProps) {
           // FIXME: Extract to class.
           wrap="nowrap"
         >
-          <Box
-            /** FIXME: Extract to class.*/
-            w="30%"
-            ml="5em"
-          >
-            <PlayerInfoBar />
-          </Box>
-          <Card
-            radius="md"
-            withBorder={true}
-            shadow="xl"
-            /** FIXME: Extract to class.*/
-            w="70%"
-            mr="5em"
-          >
-            {renderMain()}
-          </Card>
+          <MatchSettingsModalContext.Provider value={{
+            isOpen: isSettingsModalOpened,
+            close: settingsModalCallbacks.close,
+            open: settingsModalCallbacks.open,
+            toggle: settingsModalCallbacks.toggle,
+          }}>
+            <Box
+              /** FIXME: Extract to class.*/
+              w="30%"
+              ml="5em"
+            >
+              {renderMatchSettingsModalButton()}
+              <MatchSettingsModal />
+              <PlayerInfoBar />
+            </Box>
+            <Card
+              radius="md"
+              withBorder={true}
+              shadow="xl"
+              /** FIXME: Extract to class.*/
+              w="70%"
+              mr="5em"
+            >
+              {renderMain()}
+            </Card>
+          </MatchSettingsModalContext.Provider>
         </Flex>
       </TriviaShell>
-    </SocketContext.Provider>
+    </SocketContext.Provider >
   );
 }

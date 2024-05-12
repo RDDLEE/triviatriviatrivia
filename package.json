@@ -1,0 +1,21 @@
+{
+  "name": "triviatriviatrivia",
+  "version": "1.0.0",
+  "description": "Hello, I am TriviaTriviaTrivia.",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "setup": "mkdir -p dist/frontend-dist",
+    "preinstall": "npm run setup",
+    "install": "cd frontend && npm install --include=dev && cd ../backend && npm install --include=dev",
+    "build:staging": "cd frontend && npm run build:staging && cd ../backend && npm run build",
+    "build:prod": "cd frontend && npm run build:prod && cd ../backend && npm run build",
+    "build": "npm run build:prod",
+    "start:staging": "cd backend && npm run start:staging",
+    "start:prod": "cd backend && npm run start:prod",
+    "start": "npm run start:prod"
+  },
+  "author": "",
+  "license": "ISC"
+}

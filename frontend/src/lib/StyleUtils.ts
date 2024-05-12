@@ -1,17 +1,24 @@
 import { ANSWER_ID_NONE, AnswerID } from "trivia-shared";
 
 export default class StyleUtils {
+  public static readonly THEME_CONFIG = {
+    titleColor: "#FFE3E0",
+    textColor: "#FFE3E0",
+  };
+
   public static readonly DISPLAY_NAME_FONT_WEIGHT = 700;
   public static readonly SCORE_FONT_WEIGHT = 700;
 
-  public static readonly POSITIVE_SCORE_COLOR = "green";
-  public static readonly NEGATIVE_SCORE_COLOR = "red";
+  public static readonly DEFAULT_ACTION_BUTTON_COLOR = "green.7";
+
+  public static readonly POSITIVE_SCORE_COLOR = "green.7";
+  public static readonly NEGATIVE_SCORE_COLOR = "red.7";
 
   private static readonly ANSWER_ID_NONE_COLOR = "dark.7";
   public static readonly ANSWER_SELECTED_UNREVEALED_COLOR = "lime.7";
   private static readonly ANSWER_ID_NOT_FOUND_COLOR = "gray.7";
 
-  private static readonly ANSWER_ID_NONE_TEXT = "NA";
+  private static readonly ANSWER_ID_NONE_TEXT = "~";
 
   public static readonly convertAnswerIDToText = (answerID: AnswerID): string => {
     if (answerID === ANSWER_ID_NONE) {
@@ -36,8 +43,8 @@ export default class StyleUtils {
     return foundColor;
   };
 
-  public static readonly getColorOfScore = (score: number): "green" | "red" => {
-    let scoreColor: "green" | "red" = StyleUtils.POSITIVE_SCORE_COLOR;
+  public static readonly getColorOfScore = (score: number): "green.7" | "red.7" => {
+    let scoreColor: "green.7" | "red.7" = StyleUtils.POSITIVE_SCORE_COLOR;
     if (score < 0) {
       scoreColor = StyleUtils.NEGATIVE_SCORE_COLOR;
     }

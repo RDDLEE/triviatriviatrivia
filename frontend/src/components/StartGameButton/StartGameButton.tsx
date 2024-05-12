@@ -1,36 +1,30 @@
 import { useCallback, useContext } from "react";
 import { Button } from "@mantine/core";
 import { GCReqestStartMatch_Payload, MatchSettings, SocketEvents } from "trivia-shared";
-import { SocketContext } from "../../pages/RoomPage/RoomPage";
+import { MatchSettingsModalContext, SocketContext } from "../../pages/RoomPage/RoomPage";
+import StyleUtils from "../../lib/StyleUtils";
 
 export interface StartGameButton_Props {
   matchSettings: MatchSettings;
-  buttonText?: string;
 }
 
 export default function StartGameButton(props: StartGameButton_Props) {
   const socket = useContext(SocketContext);
+  const settingsModalContext = useContext(MatchSettingsModalContext);
 
   const onClick_StartGameButton = useCallback((): void => {
-    // TODO: Allow user to configure matchSettings.
+    settingsModalContext?.close();
     socket?.emit(
       SocketEvents.GC_CLIENT_REQUEST_START_MATCH,
       {
         matchSettings: props.matchSettings,
       } satisfies GCReqestStartMatch_Payload
     );
-  }, [props.matchSettings, socket]);
-
-  const getButtonText = (): string => {
-    if (props.buttonText === undefined) {
-      return "Start Game";
-    }
-    return props.buttonText;
-  };
+  }, [props.matchSettings, settingsModalContext, socket]);
 
   return (
-    <Button variant="filled" size="xs" onClick={onClick_StartGameButton}>
-      {getButtonText()}
+    <Button variant="filled" size="xs" onClick={onClick_StartGameButton} color={StyleUtils.DEFAULT_ACTION_BUTTON_COLOR}>
+      Start Game
     </Button>
   );
 }

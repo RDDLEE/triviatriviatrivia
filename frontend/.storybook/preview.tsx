@@ -7,6 +7,7 @@ import { MatchStateStages } from "trivia-shared";
 import "./../src/App.css";
 import { MatchStateContext, MatchStateContextSchema } from "./../src/components/MatchStateProvider/MatchStateProvider";
 import { SocketContext } from "./../src/pages/RoomPage/RoomPage";
+import theme from "./../src/theme/theme";
 
 
 const preview: Preview = {
@@ -44,7 +45,7 @@ const preview: Preview = {
         setPlayerJudgments: () => {},
       }
       return (
-        <MantineProvider defaultColorScheme="dark">
+        <MantineProvider defaultColorScheme="dark" theme={theme}>
           <MatchStateContext.Provider value={matchState}>
             <SocketContext.Provider value={io({ autoConnect: false })}>
               <Story />

@@ -9,8 +9,6 @@ import { CreateRoomReturn } from "trivia-shared";
 import RoomManager from "./src/room-manager";
 import EnvUtils from "./src/lib/EnvUtils";
 
-EnvUtils.checkEnvVars();
-
 // FIXME: Extract constants to utils.
 const API_PREFIX = "/api";
 // Frontend directory name should match frontend/package.json build outDir.
