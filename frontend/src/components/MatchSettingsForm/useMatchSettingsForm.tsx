@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { MATCH_SETTINGS_POINTS_ON_CORRECT_DEFAULT, MATCH_SETTINGS_POINTS_ON_INCORRECT_DEFAULT, MATCH_SETTINGS_POINTS_ON_NO_ANSWER_DEFAULT, MatchSettings, QuestionProvider } from "trivia-shared";
 import MatchSettingsForm from "./MatchSettingsForm";
+import { Flex } from "@mantine/core";
+import StartGameButton from "../StartGameButton/StartGameButton";
 
 export interface useMatchSettingsForm_Return {
-  getMatchSettings: () => MatchSettings;
   renderForm: () => JSX.Element;
 }
 
@@ -26,19 +27,27 @@ const useMatchSettingsForm = (): useMatchSettingsForm_Return => {
 
   const renderForm = (): JSX.Element => {
     return (
-      <MatchSettingsForm
-        pointsOnCorrect={pointsOnCorrect}
-        setPointsOnCorrect={setPointsOnCorrect}
-        pointsOnIncorrect={pointsOnIncorrect}
-        setPointsOnIncorrect={setPointsOnIncorrect}
-        pointsOnNoAnswer={pointsOnNoAnswer}
-        setPointsOnNoAnswer={setPointsOnNoAnswer}
-      />
+      <Flex
+        justify="center"
+        align="center"
+        direction="column"
+        gap="xs"
+      >
+        <MatchSettingsForm
+          pointsOnCorrect={pointsOnCorrect}
+          setPointsOnCorrect={setPointsOnCorrect}
+          pointsOnIncorrect={pointsOnIncorrect}
+          setPointsOnIncorrect={setPointsOnIncorrect}
+          pointsOnNoAnswer={pointsOnNoAnswer}
+          setPointsOnNoAnswer={setPointsOnNoAnswer}
+        />
+        {/* TODO: Could add a reset to defaults button. */}
+        <StartGameButton matchSettings={getMatchSettings()} />
+      </Flex>
     );
   };
 
   return {
-    getMatchSettings: getMatchSettings,
     renderForm: renderForm,
   };
 };

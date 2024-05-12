@@ -2,6 +2,7 @@ import { Button, Flex, TextInput } from "@mantine/core";
 import { useContext, useCallback, useState } from "react";
 import { Server_PlayerVanity, SocketEvents, GRJoinGame_Payload } from "trivia-shared";
 import { SocketContext } from "../../pages/RoomPage/RoomPage";
+import StyleUtils from "../../lib/StyleUtils";
 
 export default function JoinGameForm() {
   const socket = useContext(SocketContext);
@@ -56,6 +57,7 @@ export default function JoinGameForm() {
         value={displayName}
         onChange={onChange_DisplayNameInput}
         w="100%"
+        styles={{ label: { color: StyleUtils.THEME_CONFIG.textColor } }}
       />
       <Flex
         justify="center"
@@ -64,7 +66,7 @@ export default function JoinGameForm() {
         gap="xs"
         w="100%"
       >
-        <Button variant="filled" size="xs" onClick={onClick_JoinGameButton}>
+        <Button variant="filled" size="xs" onClick={onClick_JoinGameButton} color={StyleUtils.DEFAULT_ACTION_BUTTON_COLOR}>
           Join Game
         </Button>
       </Flex>

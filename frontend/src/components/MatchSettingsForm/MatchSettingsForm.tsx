@@ -4,6 +4,7 @@ import {
   MATCH_SETTINGS_POINTS_ON_CORRECT_MAX, MATCH_SETTINGS_POINTS_ON_CORRECT_MIN, MATCH_SETTINGS_POINTS_ON_INCORRECT_MAX,
   MATCH_SETTINGS_POINTS_ON_INCORRECT_MIN, MATCH_SETTINGS_POINTS_ON_NO_ANSWER_MAX, MATCH_SETTINGS_POINTS_ON_NO_ANSWER_MIN
 } from "trivia-shared";
+import StyleUtils from "../../lib/StyleUtils";
 
 // TODO: Question Provider.
 export interface MatchSettingsForm_Props {
@@ -16,7 +17,6 @@ export interface MatchSettingsForm_Props {
 }
 
 export default function MatchSettingsForm(props: MatchSettingsForm_Props) {
-
   const onChange_PointsOnCorrectInput = useCallback((value: string | number): void => {
     props.setPointsOnCorrect(Number(value));
   }, [props]);
@@ -50,6 +50,7 @@ export default function MatchSettingsForm(props: MatchSettingsForm_Props) {
         allowLeadingZeros={false}
         allowNegative={false}
         w="100%"
+        styles={{ label: { color: StyleUtils.THEME_CONFIG.textColor } }}
       />
       <NumberInput
         label="Points awarded on incorrect answers."
@@ -62,6 +63,7 @@ export default function MatchSettingsForm(props: MatchSettingsForm_Props) {
         allowDecimal={false}
         allowLeadingZeros={false}
         w="100%"
+        styles={{ label: { color: StyleUtils.THEME_CONFIG.textColor } }}
       />
       <NumberInput
         label="Points awarded on no response."
@@ -74,6 +76,7 @@ export default function MatchSettingsForm(props: MatchSettingsForm_Props) {
         allowDecimal={false}
         allowLeadingZeros={false}
         w="100%"
+        styles={{ label: { color: StyleUtils.THEME_CONFIG.textColor } }}
       />
     </Flex>
   );

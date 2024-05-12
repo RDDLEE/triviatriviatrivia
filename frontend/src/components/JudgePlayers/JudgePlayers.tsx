@@ -3,7 +3,7 @@ import { Text, Flex, Title, Card } from "@mantine/core";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
 import MatchStateUtils from "../../lib/MatchStateUtils";
 import StyleUtils from "../../lib/StyleUtils";
-import StartGameButton from "../StartGameButton/StartGameButton";
+import MatchSettingsModalButton from "../MatchSettingsModalButton/MatchSettingsModalButton";
 
 export default function JudgePlayers() {
   const matchStateContext = useContext(MatchStateContext);
@@ -47,6 +47,7 @@ export default function JudgePlayers() {
           pr="xl"
           pt="xs"
           pb="xs"
+          w="100%"
         >
           {/* TODO: Width, maxwidth, overflow scroll. */}
           <Flex
@@ -55,8 +56,7 @@ export default function JudgePlayers() {
             align="center"
             direction="row"
             wrap="wrap"
-            w="500px"
-            maw="500px"
+            w="100%"
           >
             {/* TODO: Rank colors. */}
             <Text fz="xl" fw={700}>{getOrdinalSuffixOfNum(rank)}</Text>
@@ -87,6 +87,7 @@ export default function JudgePlayers() {
         align="flex-start"
         direction="column"
         wrap="wrap"
+        w="100%"
       >
         {judgmentsJSX}
       </Flex>
@@ -111,7 +112,7 @@ export default function JudgePlayers() {
         wrap="wrap"
         w="100%"
       >
-        <StartGameButton buttonText="Start New Game" />
+        <MatchSettingsModalButton buttonText="Start New Game" variant="filled" />
       </Flex>
     </Flex>
   );

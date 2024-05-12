@@ -52,6 +52,14 @@ module.exports = {
     "@typescript-eslint/strict-boolean-expressions": ["warn", {
       allowString: true,
       allowNumber: true,
-    }]
+    }],
+    "comma-dangle": ["warn", {
+      "arrays": "only-multiline",
+      "objects": "only-multiline",
+      "imports": "only-multiline",
+      "exports": "only-multiline",
+      "functions": "only-multiline"
+    }],
+    "eqeqeq": ["warn", "always"]
   },
 }

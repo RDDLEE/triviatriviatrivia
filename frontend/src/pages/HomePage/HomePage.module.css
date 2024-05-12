@@ -1,0 +1,24 @@
+.home-page-header-background {
+  background: linear-gradient(45deg, var(--mantine-color-blue-7) 0%, var(--mantine-color-cyan-4) 100%);
+  background-size: 1000%, 1000%;
+  animation: gradient-transpose 15s ease infinite;
+}
+
+.sub-detail-item {
+  padding-bottom: 1em;
+  @media (min-width: $mantine-breakpoint-md) {
+    padding-bottom: 0;
+  }
+}
+
+@keyframes gradient-transpose {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}

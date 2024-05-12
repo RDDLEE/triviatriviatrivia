@@ -18,7 +18,7 @@ export default function TriviaShell({ children }: Readonly<{ children: React.Rea
           pl="md"
         >
           <Link to={import.meta.env.VITE_BASE_CLIENT_URL} asChild>
-            <Anchor underline="never" c="green" size="lg">
+            <Anchor underline="never" c="white" size="lg" fw={700}>
               TriviaTriviaTrivia
             </Anchor>
           </Link>

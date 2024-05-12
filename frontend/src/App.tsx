@@ -6,11 +6,12 @@ import "./App.css";
 import RoomPage from "./pages/RoomPage/RoomPage";
 import RouteUtils from "./lib/RouteUtils";
 import MatchStateProvider from "./components/MatchStateProvider/MatchStateProvider";
+import theme from "./theme/theme";
 
 
 export default function App() {
   return (
-    <MantineProvider defaultColorScheme="dark">
+    <MantineProvider defaultColorScheme="dark" theme={theme}>
       <Switch>
         <Route path={RouteUtils.HOME_PATH} component={HomePage} />
         <MatchStateProvider>
