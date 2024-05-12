@@ -17,6 +17,7 @@ import JoinGameForm from "../../components/JoinGameForm/JoinGameForm";
 import { useDisclosure } from "@mantine/hooks";
 import MatchSettingsModalButton from "../../components/MatchSettingsModalButton/MatchSettingsModalButton";
 import MatchSettingsModal from "../../components/MatchSettingsModal/MatchSettingsModal";
+import EnvUtils from "../../lib/EnvUtils";
 
 // FIXME: Extract.
 export const SocketContext = createContext<Socket | null>(null);
@@ -56,7 +57,7 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
 
   // TODO: Extract socket to useSocket hook.
   const initSocket = (): Socket => {
-    const socketURI = import.meta.env.VITE_BASE_SERVER_URL + window.location.pathname;
+    const socketURI = EnvUtils.BASE_SERVER_URL + window.location.pathname;
     return io(socketURI, { autoConnect: false });
   };
   const socketRef = useRef<Socket>(initSocket());

@@ -1,5 +1,6 @@
 import { Anchor, AppShell, Flex } from "@mantine/core";
 import { Link } from "wouter";
+import EnvUtils from "../../lib/EnvUtils";
 
 export default function TriviaShell({ children }: Readonly<{ children: React.ReactNode; }>) {
   return (
@@ -17,7 +18,7 @@ export default function TriviaShell({ children }: Readonly<{ children: React.Rea
           h="100%"
           pl="md"
         >
-          <Link to={import.meta.env.VITE_BASE_CLIENT_URL} asChild>
+          <Link to={EnvUtils.BASE_CLIENT_URL} asChild>
             <Anchor underline="never" c="white" size="lg" fw={700}>
               TriviaTriviaTrivia
             </Anchor>

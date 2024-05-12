@@ -1,9 +1,9 @@
 import axios from "axios";
 import { CreateRoomReturn } from "trivia-shared";
+import EnvUtils from "./EnvUtils";
 
-// FIXME: Extract to shared module with backend.
 export default class APIUtils {
-  public static readonly BASE_PATH = import.meta.env.VITE_BASE_SERVER_URL;
+  public static readonly BASE_PATH = EnvUtils.BASE_SERVER_URL;
 
   // FIXME: Extract to shared module.
   private static readonly API_PREFIX = "/api";
