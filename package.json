@@ -6,6 +6,7 @@
     "node": "20.x"
   },
   "scripts": {
+    "setup": "cd shared && mkdir dist",
     "install": "cd shared && npm install --include=dev && npm run build:pack && cd ../frontend && npm install --include=dev && cd ../backend && npm install --include=dev",
     "build:staging": "cd frontend && npm run build:staging && cd ../backend && npm run build",
     "build:prod": "cd frontend && npm run build:prod && cd ../backend && npm run build",
