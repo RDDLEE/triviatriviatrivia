@@ -2,7 +2,6 @@ import express, { Express, Request, Response } from "express";
 import helmet from "helmet";
 import { Server } from "socket.io";
 import http from "http";
-// import https from "https";
 import cors from "cors";
 import path from "path";
 import { CreateRoomReturn } from "trivia-shared";

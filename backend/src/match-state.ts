@@ -1,10 +1,11 @@
-import { ANSWER_ID_NONE, AnswerID, Client_MatchState, Client_PlayerAnswerJudgment, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, MatchSettings, MatchStateStages, PlayerID, Server_PlayerAnswerJudgment, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
+import { ANSWER_ID_NONE, AnswerID, Client_MatchState, Client_PlayerAnswerJudgment, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, MatchSettings, MatchStageTimeFrame, MatchStateStages, PlayerID, Server_PlayerAnswerJudgment, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
 import { StandardQuestion } from "./lib/QuestionUtils";
 import MatchStateUtils from "./lib/MatchStateUtils";
 import GameRoom from "./game-room";
 
 export interface MatchStateSchema {
   matchStage: MatchStateStages;
+  matchStageTimeFrame: MatchStageTimeFrame;
   questions: StandardQuestion[];
   round: number;
   matchSettings: MatchSettings;
@@ -16,6 +17,7 @@ export interface MatchStateSchema {
 
 export default class MatchState {
   private matchStage;
+  private matchStageTimeFrame: MatchStageTimeFrame;
   private questions: StandardQuestion[];
   private round: number;
   private matchSettings: MatchSettings;
@@ -25,8 +27,9 @@ export default class MatchState {
   private readonly playerAnswerStates: Map<PlayerID, Server_PlayerAnswerState>;
 
   constructor() {
-    const identity = MatchStateUtils.getMatchStateIdentity();
     this.matchStage = MatchStateStages.WAITING_FOR_MATCH_START;
+    const identity = MatchStateUtils.getMatchStateIdentity();
+    this.matchStageTimeFrame = identity.matchStageTimeFrame;
     this.questions = identity.questions;
     this.round = identity.round;
     this.matchSettings = identity.matchSettings;
@@ -47,11 +50,12 @@ export default class MatchState {
 
   public readonly onNewMatch = (matchSettings: MatchSettings): void => {
     this.matchStage = MatchStateStages.PREPARING_MATCH_START;
-    const matchStateIdentity = MatchStateUtils.getMatchStateIdentity();
-    this.questions = matchStateIdentity.questions;
-    this.round = matchStateIdentity.round;
+    const identity = MatchStateUtils.getMatchStateIdentity();
+    this.matchStageTimeFrame = identity.matchStageTimeFrame;
+    this.questions = identity.questions;
+    this.round = identity.round;
     this.matchSettings = matchSettings;
-    this.matchHistory = matchStateIdentity.matchHistory;
+    this.matchHistory = identity.matchHistory;
     this.playersStats.forEach((_, key) => {
       this.playersStats.set(key, MatchStateUtils.getServerPlayerStatsIdentity());
     });
@@ -60,8 +64,9 @@ export default class MatchState {
     });
   };
 
-  public readonly onShowQuestion = (): void => {
+  public readonly onShowQuestion = (matchStageTimeFrame: MatchStageTimeFrame): void => {
     this.matchStage = MatchStateStages.SHOWING_QUESTION;
+    this.matchStageTimeFrame = matchStageTimeFrame;
     const answerStateIdentity = MatchStateUtils.getServerPlayerAnswerStateIdentity();
     this.playerAnswerStates.forEach((_, key) => {
       this.playerAnswerStates.set(key, {
@@ -73,8 +78,9 @@ export default class MatchState {
     });
   };
 
-  public readonly onJudgeAnswers = (): Map<PlayerID, Server_PlayerAnswerJudgment> | null => {
+  public readonly onJudgeAnswers = (matchStageTimeFrame: MatchStageTimeFrame): Map<PlayerID, Server_PlayerAnswerJudgment> | null => {
     this.matchStage = MatchStateStages.JUDGING_ANSWERS;
+    this.matchStageTimeFrame = matchStageTimeFrame;
     this.playerAnswerStates.forEach((state: Server_PlayerAnswerState, playerID: PlayerID) => {
       this.playerAnswerStates.set(playerID, {
         canAnswer: false,
@@ -91,8 +97,9 @@ export default class MatchState {
     return judgments;
   };
 
-  public readonly onJudgePlayers = (): Client_PlayerJudgment[] => {
+  public readonly onJudgePlayers = (matchStageTimeFrame: MatchStageTimeFrame): Client_PlayerJudgment[] => {
     this.matchStage = MatchStateStages.JUDING_PLAYERS;
+    this.matchStageTimeFrame = matchStageTimeFrame;
     const playerJudgments: Client_PlayerJudgment[] = [];
     const scoreRanks = this.getPlayerScoreRanks();
     this.playersStats.forEach((_: Server_PlayerStats, playerID: PlayerID) => {
@@ -301,6 +308,7 @@ export default class MatchState {
   public readonly getClientMatchState = (gameRoom: GameRoom): Client_MatchState => {
     return {
       matchStage: this.matchStage,
+      matchStageTimeFrame: this.matchStageTimeFrame,
       playerAnswerStates: this.makeClientPlayerAnswerStates(),
       playersStats: this.makeClientPlayersStats(),
       playerVanities: gameRoom.makeClientPlayerVanities(),

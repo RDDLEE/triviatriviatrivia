@@ -46,8 +46,8 @@ export default class GameRoom {
         this.gameController.onNewPlayer(socket, player.playerID);
       });
 
-      socket.on(SocketEvents.DISCONNECT, (reason) => {
-        console.log(`GameRoom.DISCONNECT called and socket.id = ${socket.id}, reason = ${reason}.`);
+      socket.on(SocketEvents.DISCONNECT, (_reason) => {
+        // console.log(`GameRoom.DISCONNECT called and socket.id = ${socket.id}, reason = ${reason}.`);
         const player = this.players.get(socket.id);
         if (player) {
           this.gameController.onRemovePlayer(player.playerID);
