@@ -14,17 +14,25 @@ export default class StyleUtils {
   public static readonly POSITIVE_SCORE_COLOR = "green.7";
   public static readonly NEGATIVE_SCORE_COLOR = "red.7";
 
-  private static readonly ANSWER_ID_NONE_COLOR = "dark.7";
+  private static readonly ANSWER_ID_NONE_COLOR = "white.7";
   public static readonly ANSWER_SELECTED_UNREVEALED_COLOR = "lime.7";
   private static readonly ANSWER_ID_NOT_FOUND_COLOR = "gray.7";
 
   private static readonly ANSWER_ID_NONE_TEXT = "~";
 
+  public static readonly ANSWER_CORRECT_COLOR = "green.7";
+  public static readonly ANSWER_INCORRECT_COLOR = "red.7";
+  public static readonly ANSWER_NOT_SELECTED_COLOR = "dark.6";
+
+  public static readonly ANSWER_CHOICE_UNSELECTED_COLOR = "cyan.7";
+  public static readonly ANSWER_CHOICE_SELECTED_COLOR = "cyan.7";
+  public static readonly ANSWER_CHOICE_CORRECT_COLOR = "green.7";
+
   public static readonly convertAnswerIDToText = (answerID: AnswerID): string => {
     if (answerID === ANSWER_ID_NONE) {
       return StyleUtils.ANSWER_ID_NONE_TEXT;
     }
-    return answerID.toString();
+    return (answerID + 1).toString();
   };
 
   private static readonly answerColorMap: Map<AnswerID, string> = new Map([
@@ -38,6 +46,7 @@ export default class StyleUtils {
   public static readonly getAnswerColor = (answerID: AnswerID): string => {
     const foundColor = StyleUtils.answerColorMap.get(answerID);
     if (foundColor === undefined) {
+      // This is just to handle questions with more than 4 answers.
       return StyleUtils.ANSWER_ID_NOT_FOUND_COLOR;
     }
     return foundColor;

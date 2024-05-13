@@ -2,6 +2,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { Box, Progress } from "@mantine/core";
 import { useInterval } from "@mantine/hooks";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
+import { MatchStateStages } from "trivia-shared";
 
 export default function MatchStageProgress() {
   const matchStateContext = useContext(MatchStateContext);
@@ -53,13 +54,23 @@ export default function MatchStageProgress() {
     return "red.7";
   };
 
+  const getProgressValue = (): number => {
+    if (matchStateContext === null) {
+      return 0;
+    }
+    if (matchStateContext.matchStage === MatchStateStages.JUDGING_ANSWERS) {
+      return 0;
+    }
+    return timeRemainingPercent;
+  };
+
   return (
     <Box w="100%">
       <Progress
         color={getProgressColor()}
         size="sm"
         radius="xs"
-        value={timeRemainingPercent}
+        value={getProgressValue()}
         transitionDuration={INTERVAL_PERIOD}
       />
     </Box>
