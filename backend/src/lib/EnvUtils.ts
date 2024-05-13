@@ -10,18 +10,19 @@ export default class EnvUtils {
 
   public static readonly getPort = (): string => {
     if (EnvUtils.PORT === undefined) {
-      throw "env.PORT not specified.";
+      return "3000";
     }
     return EnvUtils.PORT;
   };
 
   public static readonly getCountdownMultiplier = (): number => {
     if (EnvUtils.COUNTDOWN_MULTIPLIER === undefined) {
-      throw "env.COUNTDOWN_MULTIPLIER not specified.";
+      return 1;
     }
     const countdownMultiplier = Number(EnvUtils.COUNTDOWN_MULTIPLIER);
     if (countdownMultiplier <= 0) {
-      throw "countdownMultiplier <= 0.";
+      console.warn(`COUNTDOWN_MULTIPLIER <= 0. Given value ${EnvUtils.COUNTDOWN_MULTIPLIER}. Defaulting to 1.`);
+      return 1;
     }
     return Number(EnvUtils.COUNTDOWN_MULTIPLIER);
   };
