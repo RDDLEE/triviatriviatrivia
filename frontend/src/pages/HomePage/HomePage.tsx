@@ -147,8 +147,8 @@ export default function HomePage() {
       <Flex
         gap={0}
         justify="center"
-        align="baseline"
-        direction="row"
+        align="center"
+        direction="column"
         wrap="wrap"
         pt="xl"
         pb="xl"
