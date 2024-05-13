@@ -101,7 +101,11 @@ export const JudgingAnswers: Story = {
     playerVanities: [{ playerID: "0", displayName: "Player-0" }, { playerID: "1", displayName: "Player-1" }, { playerID: "2", displayName: "Player-2" }] satisfies Client_PlayerVanity[],
     question: question,
     playerAnswerStates: [{ playerID: "0", canAnswer: false, didSelectAnswer: true, answerTime: Date.now(), selectedAnswerID: 0 }] satisfies Client_PlayerAnswerState[],
-    answerJudgments: { correctAnswerID: 0, judgments: [{ playerID: "0", didSelectAnswer: true, previousScore: 500, scoreModification: 500, wasCorrect: true, selectedAnswerID: 0 }] } satisfies Client_AnswerJudgmentResults | null,
+    answerJudgments: { correctAnswerID: 1, judgments: [
+      { playerID: "0", didSelectAnswer: true, previousScore: 500, scoreModification: 500, wasCorrect: false, selectedAnswerID: 0 },
+      { playerID: "1", didSelectAnswer: true, previousScore: 500, scoreModification: 500, wasCorrect: true, selectedAnswerID: 1 },
+      { playerID: "2", didSelectAnswer: false, previousScore: 500, scoreModification: 500, wasCorrect: false, selectedAnswerID: ANSWER_ID_NONE },
+    ] } satisfies Client_AnswerJudgmentResults | null,
   },
 };
 

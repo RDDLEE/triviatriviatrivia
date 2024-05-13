@@ -5,6 +5,7 @@ import MatchStateUtils from "../../lib/MatchStateUtils";
 import StyleUtils from "../../lib/StyleUtils";
 import { MatchStateStages, PlayerID } from "trivia-shared";
 import AnswerBadge from "../AnswerBadge/AnswerBadge";
+import ScoreDisplay from "../ScoreDisplay/ScoreDisplay";
 
 export default function PlayerInfoBar() {
   const matchStateContext = useContext(MatchStateContext);
@@ -20,7 +21,7 @@ export default function PlayerInfoBar() {
       }
       if (answerState.didSelectAnswer) {
         return (
-          <AnswerBadge key={answerState.playerID} isRevealed={false}/>
+          <AnswerBadge key={answerState.playerID} isRevealed={false} />
         );
       }
       return null;
@@ -33,10 +34,36 @@ export default function PlayerInfoBar() {
         return null;
       }
       return (
-        <AnswerBadge key={playerAnswerJudgment.playerID} isRevealed={true} selectedAnswerID={playerAnswerJudgment.selectedAnswerID} />
+        <AnswerBadge
+          key={playerAnswerJudgment.playerID}
+          isRevealed={true}
+          selectedAnswerID={playerAnswerJudgment.selectedAnswerID}
+        />
       );
     }
     return null;
+  };
+
+  const getVanityBackgroundColor = (playerID: PlayerID): string | undefined => {
+    if (!matchStateContext) {
+      return undefined;
+    }
+    if (matchStateContext.matchStage !== MatchStateStages.JUDGING_ANSWERS) {
+      return undefined;
+    }
+    const playerAnswerJudgment = MatchStateUtils.getPlayerAnswerJudgmentByPlayerID(matchStateContext, playerID);
+    if (!playerAnswerJudgment) {
+      return undefined;
+    }
+    let backgroundColor = StyleUtils.ANSWER_NOT_SELECTED_COLOR;
+    if (playerAnswerJudgment.didSelectAnswer) {
+      if (playerAnswerJudgment.wasCorrect) {
+        backgroundColor = StyleUtils.ANSWER_CORRECT_COLOR;
+      } else {
+        backgroundColor = StyleUtils.ANSWER_INCORRECT_COLOR;
+      }
+    }
+    return backgroundColor;
   };
 
   const renderPlayerVanities = (): JSX.Element[] | null => {
@@ -45,12 +72,14 @@ export default function PlayerInfoBar() {
     }
     const vanities: JSX.Element[] = [];
     for (const vanity of matchStateContext.playerVanities) {
+      // TODO: Should probably extract to PlayerVanity.tsx.
       const playerStats = MatchStateUtils.getPlayerStatsByPlayerID(matchStateContext, vanity.playerID);
       const displayName = vanity.displayName;
       let score = 0;
       if (playerStats) {
         score = playerStats.score;
       }
+      const backgroundColor = getVanityBackgroundColor(vanity.playerID);
       vanities.push((
         <Card
           key={vanity.playerID}
@@ -58,8 +87,9 @@ export default function PlayerInfoBar() {
           w="100%"
           pl="md"
           pr="md"
-          pt={0}
-          pb={0}
+          pt="xs"
+          pb="xs"
+          bg={backgroundColor}
         >
           <Flex
             gap="xs"
@@ -75,12 +105,11 @@ export default function PlayerInfoBar() {
               direction="column"
               wrap="wrap"
             >
-              <Text size="xl" fw={StyleUtils.DISPLAY_NAME_FONT_WEIGHT}>
+              {/* TODO: Add scoreModifier when revealing answers. */}
+              <Text size="xl" fw={StyleUtils.DISPLAY_NAME_FONT_WEIGHT} lh="xs">
                 {displayName}
               </Text>
-              <Text size="xl" fw={StyleUtils.SCORE_FONT_WEIGHT} c={StyleUtils.getColorOfScore(score)}>
-                {score}
-              </Text>
+              <ScoreDisplay score={score} />
             </Flex>
             <Flex
               gap="xs"

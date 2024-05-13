@@ -1,29 +1,26 @@
 import { Badge } from "@mantine/core";
-import { AnswerID } from "trivia-shared";
 import StyleUtils from "../../lib/StyleUtils";
+import AnswerKBD from "../AnswerKBD/AnswerKBD";
 
 export interface AnswerBadge_Props {
   isRevealed: boolean;
-  selectedAnswerID?: AnswerID;
+  selectedAnswerID?: number;
 }
 
 export default function AnswerBadge(props: AnswerBadge_Props) {
-
   const renderUnrevealedBadge = (): JSX.Element => {
     return (
       <Badge size="md" circle color={StyleUtils.ANSWER_SELECTED_UNREVEALED_COLOR} />
     );
   };
 
-  const renderRevealedBadge = (): JSX.Element | null=> {
+  const renderRevealedBadge = (): JSX.Element | null => {
     const selectedAnswerID = props.selectedAnswerID;
     if (selectedAnswerID === undefined) {
       return null;
     }
     return (
-      <Badge size="md" circle color={StyleUtils.getAnswerColor(selectedAnswerID)}>
-        {StyleUtils.convertAnswerIDToText(selectedAnswerID)}
-      </Badge>
+      <AnswerKBD key={selectedAnswerID} answerID={selectedAnswerID} />
     );
   };
 

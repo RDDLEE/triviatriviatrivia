@@ -1,37 +1,18 @@
-import { useCallback, useContext } from "react";
-import { SocketContext } from "../../pages/RoomPage/RoomPage";
-import { ANSWER_ID_NONE, AnswerID, Client_StandardAnswerCoice, GCAttemptSubmitAnswer_Payload, SocketEvents } from "trivia-shared";
+import { useContext } from "react";
+import { ANSWER_ID_NONE, AnswerID, Client_StandardAnswerCoice } from "trivia-shared";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
 import MatchStateUtils from "../../lib/MatchStateUtils";
-import { Button } from "@mantine/core";
+import { Button, Flex } from "@mantine/core";
+import AnswerKBD from "../AnswerKBD/AnswerKBD";
+import StyleUtils from "../../lib/StyleUtils";
 
 export interface AnswerChoice_Props {
+  onClick_AnswerChoice: (answerID: AnswerID) => void;
   answerChoice: Client_StandardAnswerCoice;
 }
 
 export default function AnswerChoice(props: AnswerChoice_Props) {
   const matchStateContext = useContext(MatchStateContext);
-  const socket = useContext(SocketContext);
-
-  const onClick_AnswerChoice = useCallback((answerID: AnswerID): void => {
-    if (!matchStateContext) {
-      return;
-    }
-    const clientPlayerID = matchStateContext.clientPlayerID;
-    const clientAnswerState = MatchStateUtils.getPlayerAnswerStateByPlayerID(matchStateContext, clientPlayerID);
-    if (!clientAnswerState) {
-      return;
-    }
-    if (!clientAnswerState.canAnswer) {
-      return;
-    }
-    socket?.emit(
-      SocketEvents.GC_CLIENT_ATTEMPT_SUBMIT_ANSWER,
-      {
-        selectedAnswerID: answerID,
-      } satisfies GCAttemptSubmitAnswer_Payload
-    );
-  }, [matchStateContext, socket]);
 
   const renderAnswer = (): JSX.Element | null => {
     if (!matchStateContext) {
@@ -44,28 +25,38 @@ export default function AnswerChoice(props: AnswerChoice_Props) {
     if (foundAnswerState) {
       selectedAnswerID = foundAnswerState.selectedAnswerID;
     }
-    let color = "cyan";
-    let variant = "outline";
+    let color = StyleUtils.ANSWER_CHOICE_UNSELECTED_COLOR;
+    let variant = "default";
     if (answerID === selectedAnswerID) {
-      color = "yellow";
-      variant = "filled";
+      color = StyleUtils.ANSWER_CHOICE_SELECTED_COLOR;
+      variant = "light";
     }
     if (answerID === matchStateContext.answerJudgments?.correctAnswerID) {
-      color = "green";
+      color = StyleUtils.ANSWER_CHOICE_CORRECT_COLOR;
       variant = "filled";
     }
     return (
-      <Button
-        key={answerID}
-        onClick={() => { return onClick_AnswerChoice(answerID); }}
-        color={color}
-        variant={variant}
-        fullWidth={true}
-        size="xs"
+      <Flex
+        gap="xs"
         justify="flex-start"
+        align="flex-start"
+        direction="row"
+        wrap="nowrap"
+        w="100%"
       >
-        {answerChoice.text}
-      </Button>
+        <AnswerKBD key={answerID} answerID={answerID} />
+        <Button
+          key={answerID}
+          onClick={() => { return props.onClick_AnswerChoice(answerID); }}
+          color={color}
+          variant={variant}
+          fullWidth={true}
+          size="xs"
+          justify="flex-start"
+        >
+          {answerChoice.text}
+        </Button>
+      </Flex>
     );
   };
 

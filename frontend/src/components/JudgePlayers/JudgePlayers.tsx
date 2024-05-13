@@ -5,6 +5,7 @@ import MatchStateUtils from "../../lib/MatchStateUtils";
 import StyleUtils from "../../lib/StyleUtils";
 import MatchSettingsModalButton from "../MatchSettingsModalButton/MatchSettingsModalButton";
 import MatchStageProgress from "../MatchStageProgress/MatchStageProgress";
+import ScoreDisplay from "../ScoreDisplay/ScoreDisplay";
 
 export default function JudgePlayers() {
   const matchStateContext = useContext(MatchStateContext);
@@ -73,9 +74,7 @@ export default function JudgePlayers() {
               <Text size="xl" fw={StyleUtils.DISPLAY_NAME_FONT_WEIGHT}>
                 {displayName}
               </Text>
-              <Text size="xl" c={StyleUtils.getColorOfScore(finalScore)} fw={StyleUtils.SCORE_FONT_WEIGHT}>
-                {finalScore}
-              </Text>
+              <ScoreDisplay score={finalScore} />
             </Flex>
           </Flex>
         </Card>

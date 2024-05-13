@@ -1,4 +1,4 @@
-import { Flex, Loader } from "@mantine/core";
+import { Flex, Loader, Text } from "@mantine/core";
 
 export default function WaitingForMatchStart() {
   return (
@@ -7,10 +7,13 @@ export default function WaitingForMatchStart() {
       gap="xs"
       justify="center"
       align="center"
-      direction="row"
+      direction="column"
       wrap="wrap"
     >
       <Loader color="blue" size="xl" type="bars" />
+      <Text>
+        Starting Game...
+      </Text>
     </Flex>
   );
 }
