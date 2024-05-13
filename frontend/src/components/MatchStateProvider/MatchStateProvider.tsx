@@ -2,12 +2,16 @@ import React, { createContext, useMemo, useState } from "react";
 import {
   MatchStateStages, Client_StandardQuestion, Client_MatchState, Client_PlayerVanity, Client_PlayerStats,
   Client_PlayerAnswerState, PlayerID, PLAYER_ID_NONE, Client_AnswerJudgmentResults, Client_PlayerJudgment,
+  MatchStageTimeFrame,
+  MATCH_STAGE_TERMINATION_TIME_INDEFINITE,
+  MATCH_STAGE_COUNTDOWN_TIME_INDEFINITE,
 } from "trivia-shared";
 
 export interface MatchStateContextSchema extends Client_MatchState {
   clientPlayerID: PlayerID;
   setClientPlayerID: React.Dispatch<React.SetStateAction<string>>
   setMatchStage: React.Dispatch<React.SetStateAction<MatchStateStages>>;
+  setMatchStageTimeFrame: React.Dispatch<React.SetStateAction<MatchStageTimeFrame>>;
   setRound: React.Dispatch<React.SetStateAction<number>>;
   setQuestion: React.Dispatch<React.SetStateAction<Client_StandardQuestion | null>>;
   setPlayerVanities: React.Dispatch<React.SetStateAction<Client_PlayerVanity[]>>;
@@ -25,6 +29,10 @@ export default function MatchStateProvider({ children }: Readonly<{ children: Re
   const [clientPlayerID, setClientPlayerID] = useState<PlayerID>(PLAYER_ID_NONE);
   // Could use a Reducer.
   const [matchStage, setMatchStage] = useState<MatchStateStages>(MatchStateStages.NONE);
+  const [matchStageTimeFrame, setMatchStageTimeFrame] = useState<MatchStageTimeFrame>({
+    terminationTime: MATCH_STAGE_TERMINATION_TIME_INDEFINITE,
+    countdownTime: MATCH_STAGE_COUNTDOWN_TIME_INDEFINITE
+  });
   // FIXME: Make const default.
   // Could use a Reducer.
   const [round, setRound] = useState<number>(0);
@@ -41,6 +49,8 @@ export default function MatchStateProvider({ children }: Readonly<{ children: Re
       setClientPlayerID: setClientPlayerID,
       matchStage: matchStage,
       setMatchStage: setMatchStage,
+      matchStageTimeFrame: matchStageTimeFrame,
+      setMatchStageTimeFrame: setMatchStageTimeFrame,
       round: round,
       setRound: setRound,
       question: question,
@@ -56,7 +66,10 @@ export default function MatchStateProvider({ children }: Readonly<{ children: Re
       playerJudgments: playerJudgments,
       setPlayerJudgments: setPlayerJudgments,
     };
-  }, [clientPlayerID, matchStage, round, question, playerVanities, playersStats, playerAnswerStates, answerJudgments, playerJudgments]);
+  }, [
+    clientPlayerID, matchStage, matchStageTimeFrame, round, question,
+    playerVanities, playersStats, playerAnswerStates, answerJudgments, playerJudgments
+  ]);
 
   return (
     <MatchStateContext.Provider value={matchState}>

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { io, Socket } from "socket.io-client";
 import { produce } from "immer";
 import { Box, Card, Flex } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import {
   GRUpdatePlayerVanities_Payload, SocketEvents, GCReceivePlayerID_Payload, GCAnswerSubmitted_Payload,
   GCReceiveMatchStage_Payload, MatchStateStages, GCWaitingForMatchStart_Payload, GCPreparingMatch_Payload, GCJudgingAnswers_Payload,
@@ -14,7 +15,6 @@ import GameComponentRouter from "../../components/GameComponentRouter/GameCompon
 import TriviaShell from "../../components/TriviaShell/TriviaShell";
 import { RouteComponentProps, useLocation } from "wouter";
 import JoinGameForm from "../../components/JoinGameForm/JoinGameForm";
-import { useDisclosure } from "@mantine/hooks";
 import MatchSettingsModalButton from "../../components/MatchSettingsModalButton/MatchSettingsModalButton";
 import MatchSettingsModal from "../../components/MatchSettingsModal/MatchSettingsModal";
 
@@ -73,17 +73,17 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const onConnection = useCallback((): void => {
-    console.log("RoomPage.onConnection called.");
+  const onConnect = useCallback((): void => {
+    // TODO: Show symbol to denote connection.
   }, []);
 
   useEffect(() => {
     const socket = socketRef.current;
-    socket.on(SocketEvents.CONNECTION, onConnection);
+    socket.on(SocketEvents.CONNECT, onConnect);
     return () => {
-      socket.off(SocketEvents.CONNECTION, onConnection);
+      socket.off(SocketEvents.CONNECT, onConnect);
     };
-  }, [onConnection]);
+  }, [onConnect]);
 
   const onDisconnect = useCallback((): void => {
     // TODO: Display a disconnect message.
@@ -98,8 +98,9 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
     };
   }, [onDisconnect]);
 
-  const onGCStageWaitingForMatchStart = useCallback((_payload: GCWaitingForMatchStart_Payload): void => {
+  const onGCStageWaitingForMatchStart = useCallback((payload: GCWaitingForMatchStart_Payload): void => {
     matchStateContext?.setMatchStage(MatchStateStages.WAITING_FOR_MATCH_START);
+    matchStateContext?.setMatchStageTimeFrame(payload.matchStageTimeFrame);
   }, [matchStateContext]);
 
   useEffect(() => {
@@ -110,8 +111,9 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
     };
   }, [onGCStageWaitingForMatchStart]);
 
-  const onGCStagePreparingMatch = useCallback((_payload: GCPreparingMatch_Payload): void => {
+  const onGCStagePreparingMatch = useCallback((payload: GCPreparingMatch_Payload): void => {
     matchStateContext?.setMatchStage(MatchStateStages.PREPARING_MATCH_START);
+    matchStateContext?.setMatchStageTimeFrame(payload.matchStageTimeFrame);
   }, [matchStateContext]);
 
   useEffect(() => {
@@ -124,6 +126,7 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
 
   const onGCStageShowingQuestion = useCallback((payload: GCShowingQuestion_Payload): void => {
     matchStateContext?.setMatchStage(MatchStateStages.SHOWING_QUESTION);
+    matchStateContext?.setMatchStageTimeFrame(payload.matchStageTimeFrame);
     matchStateContext?.setQuestion(payload.question);
     matchStateContext?.setPlayerAnswerStates(payload.playerAnswerStates);
     matchStateContext?.setAnswerJudgments(null);
@@ -139,6 +142,7 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
 
   const onGCStageJudingAnswers = useCallback((payload: GCJudgingAnswers_Payload): void => {
     matchStateContext?.setMatchStage(MatchStateStages.JUDGING_ANSWERS);
+    matchStateContext?.setMatchStageTimeFrame(payload.matchStageTimeFrame);
     matchStateContext?.setPlayerAnswerStates(payload.playerAnswerStates);
     matchStateContext?.setPlayersStats(payload.playersStats);
     matchStateContext?.setAnswerJudgments(payload.judgmentResults);
@@ -154,6 +158,7 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
 
   const onGCStageJudgingPlayers = useCallback((payload: GCJudgingPlayers_Payload): void => {
     matchStateContext?.setMatchStage(MatchStateStages.JUDING_PLAYERS);
+    matchStateContext?.setMatchStageTimeFrame(payload.matchStageTimeFrame);
     matchStateContext?.setPlayerJudgments(payload.playerJudgments);
   }, [matchStateContext]);
 

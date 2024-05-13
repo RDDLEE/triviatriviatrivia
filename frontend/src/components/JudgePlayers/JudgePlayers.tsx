@@ -4,6 +4,7 @@ import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
 import MatchStateUtils from "../../lib/MatchStateUtils";
 import StyleUtils from "../../lib/StyleUtils";
 import MatchSettingsModalButton from "../MatchSettingsModalButton/MatchSettingsModalButton";
+import MatchStageProgress from "../MatchStageProgress/MatchStageProgress";
 
 export default function JudgePlayers() {
   const matchStateContext = useContext(MatchStateContext);
@@ -113,6 +114,7 @@ export default function JudgePlayers() {
         w="100%"
       >
         <MatchSettingsModalButton buttonText="Start New Game" variant="filled" />
+        <MatchStageProgress />
       </Flex>
     </Flex>
   );

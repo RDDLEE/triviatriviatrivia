@@ -21,7 +21,7 @@ export default function HomePage() {
 
   const [triviaIndex, setTriviaIndex] = useState<number>(0);
   const interval = useInterval(() => {
-    return setTriviaIndex((prevIndex) => {
+    setTriviaIndex((prevIndex) => {
       if (prevIndex === 2) {
         return 0;
       }
@@ -35,8 +35,7 @@ export default function HomePage() {
   useEffect(() => {
     interval.start();
     return interval.stop;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [interval]);
 
   const features: featureItem[] = [
     {

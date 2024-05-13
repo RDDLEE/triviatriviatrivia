@@ -29,6 +29,7 @@ export enum MatchStateStages {
 
 export enum SocketEvents {
   CONNECTION = "connection",
+  CONNECT = "connect",
   DISCONNECT = "disconnect",
   ERROR = "error",
 
@@ -87,42 +88,51 @@ export interface GCAttemptSubmitAnswer_Payload {
   selectedAnswerID: AnswerID;
 }
 
-export interface BaseTimedMatchStagePayload {
+export const MATCH_STAGE_TERMINATION_TIME_INDEFINITE = -1;
+export const MATCH_STAGE_COUNTDOWN_TIME_INDEFINITE = -1;
+
+export interface MatchStageTimeFrame {
   // Time when the stage will transition to the next stage.
   // A time of -1 denotes that the stage will last indeterminately.
   terminationTime: number;
+  // The full countdown time in millis.
+  countdownTime: number;
+}
+
+export interface MatchStage {
+  matchStageTimeFrame: MatchStageTimeFrame;
 }
 
 // Corresponds with GC_SERVER_STAGE_WAITING_FOR_MATCH_START.
-export interface GCWaitingForMatchStart_Payload {
+export interface GCWaitingForMatchStart_Payload extends MatchStage {
   // TODO: Attributes.
 }
 
 // Corresponds with GC_SERVER_STAGE_PREPARING_MATCH.
-export interface GCPreparingMatch_Payload {
+export interface GCPreparingMatch_Payload extends MatchStage {
   // TODO: Attributes.
 }
 
 // Corresponds with GC_SERVER_STAGE_SERVER_STARTING_MATCH.
-export interface GCStartingMatch_Payload extends BaseTimedMatchStagePayload {
+export interface GCStartingMatch_Payload extends MatchStage {
   // TODO: Attributes.
 }
 
 // Corresponds with GC_SERVER_STAGE_SHOWING_QUESTION.
-export interface GCShowingQuestion_Payload extends BaseTimedMatchStagePayload {
+export interface GCShowingQuestion_Payload extends MatchStage {
   question: Client_StandardQuestion;
   playerAnswerStates: Client_PlayerAnswerState[];
 }
 
 // Corresponds with GC_SERVER_STAGE_JUDGING_ANSWERS.
-export interface GCJudgingAnswers_Payload extends BaseTimedMatchStagePayload {
+export interface GCJudgingAnswers_Payload extends MatchStage {
   judgmentResults: Client_AnswerJudgmentResults;
   playersStats: Client_PlayerStats[];
   playerAnswerStates: Client_PlayerAnswerState[];
 }
 
 // Corresponds with GC_SERVER_STAGE_JUDGING_PLAYERS.
-export interface GCJudgingPlayers_Payload extends BaseTimedMatchStagePayload {
+export interface GCJudgingPlayers_Payload extends MatchStage {
   playerJudgments: Client_PlayerJudgment[];
 
 }
@@ -262,6 +272,7 @@ export interface Client_StandardAnswerCoice {
 
 export interface Client_MatchState {
   matchStage: MatchStateStages;
+  matchStageTimeFrame: MatchStageTimeFrame;
   round: number;
   question: Client_StandardQuestion | null;
   // Consider changing the arrays to maps on the client.
