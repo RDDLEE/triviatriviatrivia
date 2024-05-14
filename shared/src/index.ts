@@ -120,6 +120,8 @@ export interface GCStartingMatch_Payload extends MatchStage {
 
 // Corresponds with GC_SERVER_STAGE_SHOWING_QUESTION.
 export interface GCShowingQuestion_Payload extends MatchStage {
+  totalQuestionCount: number;
+  round: number;
   question: Client_StandardQuestion;
   playerAnswerStates: Client_PlayerAnswerState[];
 }
@@ -274,6 +276,7 @@ export interface Client_MatchState {
   matchStage: MatchStateStages;
   matchStageTimeFrame: MatchStageTimeFrame;
   round: number;
+  totalQuestionCount: number;
   question: Client_StandardQuestion | null;
   // Consider changing the arrays to maps on the client.
   playerVanities: Client_PlayerVanity[];

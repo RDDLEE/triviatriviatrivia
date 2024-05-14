@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from "react";
 import { Box, Button, Text, Flex, Title, StyleProp, DefaultMantineColor, MantineGradient, Anchor } from "@mantine/core";
 import { useLocation } from "wouter";
-import APIUtils from "../../lib/APIUtils";
-import slidersLogo from "./../../assets/sliders.svg";
-import databaseLogo from "./../../assets/database.svg";
-import friendsLogo from "./../../assets/users.svg";
-import classes from "./HomePage.module.css";
 import { useInterval } from "@mantine/hooks";
+import APIUtils from "../../lib/APIUtils";
+import slidersIcon from "./../../assets/sliders.svg";
+import databaseIcon from "./../../assets/database.svg";
+import friendsIcon from "./../../assets/users.svg";
+import heartIcon from "./../../assets/heart.svg";
+import classes from "./HomePage.module.css";
 import StyleUtils from "../../lib/StyleUtils";
 
 interface featureItem {
@@ -39,19 +40,19 @@ export default function HomePage() {
 
   const features: featureItem[] = [
     {
-      icon: friendsLogo,
+      icon: friendsIcon,
       iconAlt: "friends",
       caption: "Play with Friends",
       description: "Play with your friends in real time. Just create a room, and share the link!"
     },
     {
-      icon: databaseLogo,
+      icon: databaseIcon,
       iconAlt: "database",
       caption: "Over 5,000 Questions",
       description: "Over 5,000 trivia questions spanning a variety of categories."
     },
     {
-      icon: slidersLogo,
+      icon: slidersIcon,
       iconAlt: "slliders",
       caption: "Customizable Settings",
       description: "Customize your trivia game to specify the number of questions, points, and more!"
@@ -84,7 +85,7 @@ export default function HomePage() {
 
   const renderTriviaTitle = (): JSX.Element => {
     return (
-      <Title order={1} c={DEFAULT_FONT_COLOR}>
+      <Title className={classes["trivia-title"]} order={1} c={DEFAULT_FONT_COLOR}>
         {renderTriviaText(0, "violet", "cyan")}
         {renderTriviaText(1, "red", "grape")}
         {renderTriviaText(2, "green", "yellow")}
@@ -149,19 +150,26 @@ export default function HomePage() {
         align="center"
         direction="column"
         wrap="wrap"
-        pt="xl"
         pb="xl"
+        pl="md"
+        pr="md"
       >
-        <Text>
-          Special thanks to the individuals at Open Trivia Database for providing the trivia questions.
-        </Text>
-        <Text>
-          {/* eslint-disable-next-line quotes */}
-          {`Open Trivia DB is created and maintained by the good folks at `}
-          <Anchor href="https://www.pixeltailgames.com/" target="_blank" underline="always">
-            PIXELTAIL GAMES LLC
-          </Anchor>.
-        </Text>
+        <Box mb="xs">
+          <img src={heartIcon} alt="heart" />
+        </Box>
+
+        <Box>
+          <Text ta="center">
+            Special thanks to the individuals at Open Trivia Database for providing the trivia questions.
+          </Text>
+          <Text ta="center">
+            {/* eslint-disable-next-line quotes */}
+            {`Open Trivia DB is created and maintained by the good folks at `}
+            <Anchor href="https://www.pixeltailgames.com/" target="_blank" underline="always">
+              PIXELTAIL GAMES LLC
+            </Anchor>.
+          </Text>
+        </Box>
       </Flex>
     );
   };
@@ -178,7 +186,7 @@ export default function HomePage() {
         h="100vh"
       >
         {renderTriviaTitle()}
-        <Text c={HEADER_CONTENT_FONT_COLOR}>
+        <Text c={HEADER_CONTENT_FONT_COLOR} ta="center" pl="xs" pr="xs">
           Play Trivia by yourself or with your friends!
         </Text>
         <Box>

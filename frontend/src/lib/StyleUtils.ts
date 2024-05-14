@@ -1,3 +1,4 @@
+import { MantineGradient } from "@mantine/core";
 import { ANSWER_ID_NONE, AnswerID } from "trivia-shared";
 
 export default class StyleUtils {
@@ -14,7 +15,7 @@ export default class StyleUtils {
   public static readonly POSITIVE_SCORE_COLOR = "green.7";
   public static readonly NEGATIVE_SCORE_COLOR = "red.7";
 
-  private static readonly ANSWER_ID_NONE_COLOR = "white.7";
+  private static readonly ANSWER_ID_NONE_COLOR = "white";
   public static readonly ANSWER_SELECTED_UNREVEALED_COLOR = "lime.7";
   private static readonly ANSWER_ID_NOT_FOUND_COLOR = "gray.7";
 
@@ -58,5 +59,35 @@ export default class StyleUtils {
       scoreColor = StyleUtils.NEGATIVE_SCORE_COLOR;
     }
     return scoreColor;
+  };
+
+  public static readonly getRankGradient = (rank: number): MantineGradient  => {
+    const degree = 90;
+    if (rank === 1) {
+      return {
+        from: "#ffdf00",
+        to: "#b8860b",
+        deg: degree,
+      };
+    }
+    if (rank === 2) {
+      return {
+        from: "#e3e3e3",
+        to: "#a8a9ad",
+        deg: degree,
+      };
+    }
+    if (rank === 3) {
+      return {
+        from: "#cd7f31",
+        to: "#6e3a06",
+        deg: degree,
+      };
+    }
+    return {
+      from: "#6a7a79",
+      to: "#2b3638",
+      deg: degree,
+    };
   };
 }

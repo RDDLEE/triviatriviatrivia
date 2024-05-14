@@ -13,6 +13,7 @@ export interface MatchStateContextSchema extends Client_MatchState {
   setMatchStage: React.Dispatch<React.SetStateAction<MatchStateStages>>;
   setMatchStageTimeFrame: React.Dispatch<React.SetStateAction<MatchStageTimeFrame>>;
   setRound: React.Dispatch<React.SetStateAction<number>>;
+  setTotalQuestionCount: React.Dispatch<React.SetStateAction<number>>;
   setQuestion: React.Dispatch<React.SetStateAction<Client_StandardQuestion | null>>;
   setPlayerVanities: React.Dispatch<React.SetStateAction<Client_PlayerVanity[]>>;
   setPlayersStats: React.Dispatch<React.SetStateAction<Client_PlayerStats[]>>;
@@ -36,6 +37,7 @@ export default function MatchStateProvider({ children }: Readonly<{ children: Re
   // FIXME: Make const default.
   // Could use a Reducer.
   const [round, setRound] = useState<number>(0);
+  const [totalQuestionCount, setTotalQuestionCount] = useState<number>(0);
   const [question, setQuestion] = useState<Client_StandardQuestion | null>(null);
   const [playerVanities, setPlayerVanities] = useState<Client_PlayerVanity[]>([]);
   const [playersStats, setPlayersStats] = useState<Client_PlayerStats[]>([]);
@@ -53,6 +55,8 @@ export default function MatchStateProvider({ children }: Readonly<{ children: Re
       setMatchStageTimeFrame: setMatchStageTimeFrame,
       round: round,
       setRound: setRound,
+      totalQuestionCount: totalQuestionCount,
+      setTotalQuestionCount: setTotalQuestionCount,
       question: question,
       setQuestion: setQuestion,
       playerVanities: playerVanities,
@@ -66,10 +70,7 @@ export default function MatchStateProvider({ children }: Readonly<{ children: Re
       playerJudgments: playerJudgments,
       setPlayerJudgments: setPlayerJudgments,
     };
-  }, [
-    clientPlayerID, matchStage, matchStageTimeFrame, round, question,
-    playerVanities, playersStats, playerAnswerStates, answerJudgments, playerJudgments
-  ]);
+  }, [clientPlayerID, matchStage, matchStageTimeFrame, round, totalQuestionCount, question, playerVanities, playersStats, playerAnswerStates, answerJudgments, playerJudgments]);
 
   return (
     <MatchStateContext.Provider value={matchState}>
