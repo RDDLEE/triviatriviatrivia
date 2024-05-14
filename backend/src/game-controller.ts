@@ -99,6 +99,8 @@ export default class GameController {
       this.ioServer.of(this.roomID).emit(
         SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION,
         {
+          round: this.matchState.getRound(),
+          totalQuestionCount: this.matchState.getQuestionCount(),
           question: question,
           playerAnswerStates: this.matchState.makeClientPlayerAnswerStates(),
           matchStageTimeFrame: timeFrame,

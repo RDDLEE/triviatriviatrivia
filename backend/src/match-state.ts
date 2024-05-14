@@ -313,6 +313,7 @@ export default class MatchState {
       playersStats: this.makeClientPlayersStats(),
       playerVanities: gameRoom.makeClientPlayerVanities(),
       round: this.round,
+      totalQuestionCount: this.getQuestionCount(),
       question: this.getCurrentQuestion(),
     };
   };
@@ -349,6 +350,11 @@ export default class MatchState {
 
   public readonly getQuestions = (): StandardQuestion[] => {
     return this.questions;
+  };
+
+  // This is essentially the same as getTotalRounds.
+  public readonly getQuestionCount = (): number => {
+    return this.questions.length;
   };
 
   public readonly getCurrentQuestion = (): StandardQuestion | null => {

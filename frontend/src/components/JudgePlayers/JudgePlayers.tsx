@@ -60,8 +60,9 @@ export default function JudgePlayers() {
             wrap="wrap"
             w="100%"
           >
-            {/* TODO: Rank colors. */}
-            <Text fz="xl" fw={700}>{getOrdinalSuffixOfNum(rank)}</Text>
+            <Text fz="xl" fw={1000} variant="gradient" gradient={StyleUtils.getRankGradient(rank)}>
+              {getOrdinalSuffixOfNum(rank)}
+            </Text>
             <Flex
               gap={0}
               justify="flex-start"
@@ -71,7 +72,7 @@ export default function JudgePlayers() {
               ml="md"
             >
               {/* TODO: Could include other stats. */}
-              <Text size="xl" fw={StyleUtils.DISPLAY_NAME_FONT_WEIGHT}>
+              <Text size="xl" fw={StyleUtils.DISPLAY_NAME_FONT_WEIGHT} variant="gradient" gradient={StyleUtils.getRankGradient(rank)}>
                 {displayName}
               </Text>
               <ScoreDisplay score={finalScore} />

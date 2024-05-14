@@ -8,6 +8,7 @@ import {
   GCReceiveMatchStage_Payload, MatchStateStages, GCWaitingForMatchStart_Payload, GCPreparingMatch_Payload, GCJudgingAnswers_Payload,
   GCShowingQuestion_Payload, GCJudgingPlayers_Payload,
 } from "trivia-shared";
+import classes from "./RoomPage.module.css";
 import { MatchStateContext } from "../../components/MatchStateProvider/MatchStateProvider";
 import MatchStateUtils from "../../lib/MatchStateUtils";
 import PlayerInfoBar from "../../components/PlayerInfoBar/PlayerInfoBar";
@@ -126,6 +127,8 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
 
   const onGCStageShowingQuestion = useCallback((payload: GCShowingQuestion_Payload): void => {
     matchStateContext?.setMatchStage(MatchStateStages.SHOWING_QUESTION);
+    matchStateContext?.setRound(payload.round);
+    matchStateContext?.setTotalQuestionCount(payload.totalQuestionCount);
     matchStateContext?.setMatchStageTimeFrame(payload.matchStageTimeFrame);
     matchStateContext?.setQuestion(payload.question);
     matchStateContext?.setPlayerAnswerStates(payload.playerAnswerStates);
@@ -263,17 +266,14 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
     return null;
   };
 
-  // FIXME: Extract AppShell to component.
   return (
     <SocketContext.Provider value={socketRef.current}>
       <TriviaShell>
         <Flex
+          className={classes["core-container"]}
           justify="flex-start"
           align="flex-start"
-          direction="row"
           gap="md"
-          // FIXME: Extract to class.
-          wrap="nowrap"
         >
           <MatchSettingsModalContext.Provider value={{
             isOpen: isSettingsModalOpened,
@@ -282,21 +282,17 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
             toggle: settingsModalCallbacks.toggle,
           }}>
             <Box
-              /** FIXME: Extract to class.*/
-              w="30%"
-              ml="5em"
+              className={classes["left-section"]}
             >
               {renderMatchSettingsModalButton()}
               <MatchSettingsModal />
               <PlayerInfoBar />
             </Box>
             <Card
+              className={classes["right-section"]}
               radius="md"
               withBorder={true}
               shadow="xl"
-              /** FIXME: Extract to class.*/
-              w="70%"
-              mr="5em"
             >
               {renderMain()}
             </Card>

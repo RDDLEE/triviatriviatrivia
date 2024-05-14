@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect } from "react";
-import { Flex, Title } from "@mantine/core";
+import { Flex, Title, Text } from "@mantine/core";
 import { AnswerID, Client_StandardAnswerCoice, GCAttemptSubmitAnswer_Payload, SocketEvents } from "trivia-shared";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
 import AnswerChoice from "../AnswerChoice/AnswerChoice";
@@ -110,6 +110,18 @@ export default function QuestionContainer() {
         direction="column"
         wrap="wrap"
       >
+        <Flex
+          gap={0}
+          justify="flex-end"
+          align="flex-start"
+          direction="row"
+          wrap="wrap"
+          w="100%"
+        >
+          <Text size="xs" c="dimmed">
+            {`Round ${matchStateContext.round} of ${matchStateContext.totalQuestionCount}`}
+          </Text>
+        </Flex>
         <Title order={5}>
           {question.prompt}
         </Title>

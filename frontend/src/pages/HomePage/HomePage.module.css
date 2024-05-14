@@ -4,6 +4,13 @@
   animation: gradient-transpose 15s ease infinite;
 }
 
+.trivia-title {
+	font-size: var(--mantine-h2-font-size);
+	@media (min-width: $mantine-breakpoint-xs) {
+    font-size: var(--mantine-h1-font-size);
+  }
+}
+
 .sub-detail-item {
   padding-bottom: 1em;
   @media (min-width: $mantine-breakpoint-md) {

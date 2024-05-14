@@ -19,6 +19,7 @@ const preview: Preview = {
       }
       const matchStageTimeFrame = storyContext.args["matchStageTimeFrame"];
       const round = storyContext.args["round"];
+      const totalQuestionCount = storyContext.args["totalQuestionCount"];
       const question = storyContext.args["question"];
       const playerVanities = storyContext.args["playerVanities"];
       const playersStats = storyContext.args["playersStats"];
@@ -30,6 +31,7 @@ const preview: Preview = {
         matchStage: matchStage,
         matchStageTimeFrame: matchStageTimeFrame ? matchStageTimeFrame : { terminationTime: MATCH_STAGE_TERMINATION_TIME_INDEFINITE, countdownTime: MATCH_STAGE_COUNTDOWN_TIME_INDEFINITE },
         round: round ? round : 0,
+        totalQuestionCount: totalQuestionCount ? totalQuestionCount : 0,
         question: question ? question : null,
         playerVanities: playerVanities ? playerVanities : [],
         playersStats: playersStats ? playersStats : [],
@@ -40,6 +42,7 @@ const preview: Preview = {
         setMatchStage: () => { },
         setMatchStageTimeFrame: () => { },
         setRound: () => { },
+        setTotalQuestionCount: () => { },
         setQuestion: () => { },
         setPlayerVanities: () => { },
         setPlayersStats: () => { },

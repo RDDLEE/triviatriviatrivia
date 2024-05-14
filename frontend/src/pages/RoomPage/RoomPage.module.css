@@ -1,0 +1,46 @@
+:root {
+  --core-margin-def: 0;
+  --core-margin-md: 10%;
+  --core-margin-lg: 15%;
+  --core-margin-xl: 22.5%;
+}
+
+.core-container {
+  flex-direction: column-reverse;
+  flex-wrap: wrap;
+  margin-left: var(--core-margin-def);
+  margin-right: var(--core-margin-def);
+
+  @media (min-width: $mantine-breakpoint-sm) {
+    flex-wrap: nowrap;
+    flex-direction: row;
+  }
+  @media (min-width: $mantine-breakpoint-md) {
+    margin-left: var(--core-margin-md);
+    margin-right: var(--core-margin-md);
+  }
+  @media (min-width: $mantine-breakpoint-lg) {
+    margin-left: var(--core-margin-lg);
+    margin-right: var(--core-margin-lg);
+  }
+  @media (min-width: $mantine-breakpoint-xl) {
+    margin-left: var(--core-margin-xl);
+    margin-right: var(--core-margin-xl);
+  }
+}
+
+.left-section {
+  width: 100%;
+
+  @media (min-width: $mantine-breakpoint-sm) {
+    width: 30%;
+  }
+}
+
+.right-section {
+  width: 100%;
+
+  @media (min-width: $mantine-breakpoint-sm) {
+    width: 70%;
+  }
+}
