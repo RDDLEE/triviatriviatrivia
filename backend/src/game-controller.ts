@@ -134,7 +134,6 @@ export default class GameController {
           correctAnswerID: currQuestion.correctAnswerID,
           judgments: clientJudgments,
         },
-        playerAnswerStates: this.matchState.makeClientPlayerAnswerStates(),
         matchStageTimeFrame: timeFrame,
       } satisfies GCJudgingAnswers_Payload
     );

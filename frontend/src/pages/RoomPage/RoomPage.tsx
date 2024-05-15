@@ -146,7 +146,7 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
   const onGCStageJudingAnswers = useCallback((payload: GCJudgingAnswers_Payload): void => {
     matchStateContext?.setMatchStage(MatchStateStages.JUDGING_ANSWERS);
     matchStateContext?.setMatchStageTimeFrame(payload.matchStageTimeFrame);
-    matchStateContext?.setPlayerAnswerStates(payload.playerAnswerStates);
+    matchStateContext?.setPlayerAnswerStates([]);
     matchStateContext?.setPlayersStats(payload.playersStats);
     matchStateContext?.setAnswerJudgments(payload.judgmentResults);
   }, [matchStateContext]);
