@@ -1,6 +1,6 @@
 import { useCallback, useContext, useEffect } from "react";
 import { Flex, Title, Text } from "@mantine/core";
-import { AnswerID, Client_StandardAnswerCoice, GCAttemptSubmitAnswer_Payload, SocketEvents } from "trivia-shared";
+import { AnswerID, Client_StandardAnswerCoice, GCAttemptSubmitAnswer_Payload, MatchStateStages, SocketEvents } from "trivia-shared";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
 import AnswerChoice from "../AnswerChoice/AnswerChoice";
 import MatchStageProgress from "../MatchStageProgress/MatchStageProgress";
@@ -14,6 +14,9 @@ export default function QuestionContainer() {
 
   const attemptSubmitAnswer = useCallback((answerID: AnswerID): void => {
     if (!matchStateContext) {
+      return;
+    }
+    if (matchStateContext.matchStage !== MatchStateStages.SHOWING_QUESTION) {
       return;
     }
     const clientPlayerID = matchStateContext.clientPlayerID;

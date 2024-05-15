@@ -130,7 +130,6 @@ export interface GCShowingQuestion_Payload extends MatchStage {
 export interface GCJudgingAnswers_Payload extends MatchStage {
   judgmentResults: Client_AnswerJudgmentResults;
   playersStats: Client_PlayerStats[];
-  playerAnswerStates: Client_PlayerAnswerState[];
 }
 
 // Corresponds with GC_SERVER_STAGE_JUDGING_PLAYERS.
