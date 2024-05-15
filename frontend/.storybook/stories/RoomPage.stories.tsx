@@ -66,6 +66,8 @@ export const ShowingQuestion: Story = {
     isStoryBook: true,
     didJoinGame: true,
     // @ts-expect-error
+    round: 0,
+    totalQuestionCount: 10,
     matchStage: MatchStateStages.SHOWING_QUESTION,
     matchStageTimeFrame: { terminationTime: Date.now() + SHOWING_QUESTION_COUNTDOWN_TIME, countdownTime: SHOWING_QUESTION_COUNTDOWN_TIME } satisfies MatchStageTimeFrame,
     playerVanities: [{ playerID: "0", displayName: "Player-0" }, { playerID: "1", displayName: "Player-1" }, { playerID: "2", displayName: "Player-2" }] satisfies Client_PlayerVanity[],
