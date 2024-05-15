@@ -24,7 +24,7 @@ export default function MatchSettingsModalButton(props: MatchSettingsModalButton
   const getButtonVariant = (): string => {
     const buttonVariant = props.variant;
     if (buttonVariant === undefined) {
-      return "subtle";
+      return "light";
     }
     return buttonVariant;
   };

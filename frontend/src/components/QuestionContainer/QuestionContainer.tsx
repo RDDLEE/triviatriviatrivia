@@ -119,7 +119,7 @@ export default function QuestionContainer() {
           w="100%"
         >
           <Text size="xs" c="dimmed">
-            {`Round ${matchStateContext.round} of ${matchStateContext.totalQuestionCount}`}
+            {`Round ${matchStateContext.round + 1} of ${matchStateContext.totalQuestionCount}`}
           </Text>
         </Flex>
         <Title order={5}>

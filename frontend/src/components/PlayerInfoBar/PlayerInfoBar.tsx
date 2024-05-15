@@ -90,6 +90,7 @@ export default function PlayerInfoBar() {
           pt="xs"
           pb="xs"
           bg={backgroundColor}
+          shadow="xl"
         >
           <Flex
             gap="xs"
