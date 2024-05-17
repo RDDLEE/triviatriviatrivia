@@ -3,7 +3,7 @@ import { Server, Socket } from "socket.io";
 import {
   GCAnswerSubmitted_Payload, GCAttemptSubmitAnswer_Payload, GCJudgingAnswers_Payload, GCJudgingPlayers_Payload,
   GCPreparingMatch_Payload, GCReceiveMatchStage_Payload, GCReceivePlayerID_Payload, GCReqestStartMatch_Payload,
-  GCShowingQuestion_Payload, PlayerID, SocketEvents
+  GCShowingQuestion_Payload, OTDB_CATEGORY_ANY_ID, PlayerID, ProviderSettings, SocketEvents
 } from "trivia-shared";
 import OTDBUtils, { OTDBResponse, OTDBResponseCodes } from "./lib/OTDBUtils";
 import MatchState from "./match-state";
@@ -24,7 +24,7 @@ export default class GameController {
   // Time (millis) after question loading until first question. Not particularly necessary.
   private static readonly STARTING_MATCH_COUNTDOWN = 1 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for players to answer until answer reveal.
-  private static readonly SHOWING_QUESTION_COUNTDOWN = 10 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
+  private static readonly SHOWING_QUESTION_COUNTDOWN = 15 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for server to reveal answers to players.
   private static readonly JUDGING_ANSWERS_COUNTDOWN = 5 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for server to wait for a new match before self-termination.
@@ -52,7 +52,7 @@ export default class GameController {
       this.matchState.onNewMatch(payload.matchSettings);
       this.broadcastMatchState();
       // TODO: Implement question provider router.
-      const wasSuccessful = await this.fetchOpenTDBQuestions();
+      const wasSuccessful = await this.fetchOpenTDBQuestions(payload.matchSettings.providerSettings);
       if (wasSuccessful) {
         this.startNewTimer(this.showQuestion, GameController.STARTING_MATCH_COUNTDOWN);
       } else {
@@ -168,12 +168,16 @@ export default class GameController {
     } satisfies GCReceiveMatchStage_Payload);
   };
 
-  private readonly fetchOpenTDBQuestions = async (): Promise<boolean> => {
+  private readonly fetchOpenTDBQuestions = async (providerSettings?: ProviderSettings | undefined): Promise<boolean> => {
+    let category = providerSettings?.category;
+    if (category === undefined || category === OTDB_CATEGORY_ANY_ID) {
+      category = "any";
+    }
     try {
       // TODO: Keep track of when server requests API calls to prevent timeouts.
       // TODO: Settings and params.
       const response = await axios.get<OTDBResponse>(
-        "https://opentdb.com/api.php?amount=10",
+        `https://opentdb.com/api.php?amount=10&category=${category}`,
         { timeout: 7500 }
       );
       // console.log(`GameController.fetchOpenTDBQuestions called and response.data = ${JSON.stringify(response.data)}.`);
