@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import MatchSettingsForm from '../../src/components/MatchSettingsForm/MatchSettingsForm';
-import { MATCH_SETTINGS_POINTS_ON_CORRECT_DEFAULT, MATCH_SETTINGS_POINTS_ON_INCORRECT_DEFAULT, MATCH_SETTINGS_POINTS_ON_NO_ANSWER_DEFAULT } from 'trivia-shared';
+import { MATCH_SETTINGS_POINTS_ON_CORRECT_DEFAULT, MATCH_SETTINGS_POINTS_ON_INCORRECT_DEFAULT, MATCH_SETTINGS_POINTS_ON_NO_ANSWER_DEFAULT, OTDB_CATEGORY_ANY_ID, QuestionProvider } from 'trivia-shared';
 
 const meta = {
   title: 'Trivia/MatchSettingsForm',
@@ -18,9 +18,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
+    questionProvider: QuestionProvider.OPENTDB,
+    category: OTDB_CATEGORY_ANY_ID,
     pointsOnCorrect: MATCH_SETTINGS_POINTS_ON_CORRECT_DEFAULT,
     pointsOnIncorrect: MATCH_SETTINGS_POINTS_ON_INCORRECT_DEFAULT,
     pointsOnNoAnswer: MATCH_SETTINGS_POINTS_ON_NO_ANSWER_DEFAULT,
+    setCategory: () => { },
     setPointsOnCorrect: () => { },
     setPointsOnIncorrect: () => { },
     setPointsOnNoAnswer: () => { },

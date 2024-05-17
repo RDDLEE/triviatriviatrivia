@@ -51,7 +51,7 @@ export default function JudgePlayers() {
           pb="xs"
           w="100%"
         >
-          {/* TODO: Width, maxwidth, overflow scroll. */}
+          {/* TODO: maxwidth, overflow scroll. */}
           <Flex
             gap="xs"
             justify="flex-start"

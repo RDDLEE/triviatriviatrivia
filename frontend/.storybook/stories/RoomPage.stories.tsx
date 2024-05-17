@@ -41,7 +41,7 @@ const question: Client_StandardQuestion | null = {
 };
 
 const promoQuestion: Client_StandardQuestion | null = {
-  prompt: "Which of the following is NOT a capital city?.",
+  prompt: "Which of the following is NOT a capital city?",
   choices: [
     { answerID: 0, text: "Cairo" },
     { answerID: 1, text: "Sydney" },
