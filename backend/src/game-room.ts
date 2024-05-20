@@ -10,13 +10,16 @@ export default class GameRoom {
   private readonly players: Map<SocketID, Player>;
   // TODO: Terminate old GameRooms.
   private readonly creationTime: number;
+  private isTerminating: boolean;
   private gameController: GameController | null;
 
   constructor(roomID: RoomID, ioServer: Server) {
+    console.log(`Creating GameRoom with roomID: ${roomID}.`);
     this.roomID = roomID;
     this.ioServer = ioServer;
     this.creationTime = Date.now();
     this.gameController = new GameController(this, roomID, ioServer);
+    this.isTerminating = false;
     this.players = new Map();
 
     // FIXME: Extract to function.
@@ -73,7 +76,11 @@ export default class GameRoom {
   }
 
   public readonly terminateGameRoom = (): void => {
+    if (this.isTerminating) {
+      return;
+    }
     console.log(`GameRoom.terminateGameRoom called and is terminating room with roomID = ${this.roomID}.`);
+    this.isTerminating = true;
     this.ioServer.of(this.roomID).disconnectSockets(true);
     this.ioServer.of(this.roomID).removeAllListeners();
     if (this.gameController !== null) {
