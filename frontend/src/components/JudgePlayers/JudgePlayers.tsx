@@ -114,7 +114,10 @@ export default function JudgePlayers() {
         w="100%"
       >
         <MatchSettingsModalButton buttonText="Start New Game" variant="filled" />
-        <MatchStageProgress />
+        <MatchStageProgress 
+          withCountdownText={true}
+          countdownText="Terminating room in"
+        />
       </Flex>
     </Flex>
   );

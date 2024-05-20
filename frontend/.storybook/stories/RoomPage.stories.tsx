@@ -52,7 +52,7 @@ const promoQuestion: Client_StandardQuestion | null = {
 
 const SHOWING_QUESTION_COUNTDOWN_TIME = 10000;
 const SHOWING_ANSWER_COUNTDOWN_TIME = 5000;
-const JUDGING_PLAYERS_COUNTDOWN_TIME = 180000;
+const JUDGING_PLAYERS_COUNTDOWN_TIME = 30000;
 
 export const NotYetJoined: Story = {
   args: {

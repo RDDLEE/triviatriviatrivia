@@ -10,7 +10,7 @@ export default class GameRoom {
   private readonly players: Map<SocketID, Player>;
   // TODO: Terminate old GameRooms.
   private readonly creationTime: number;
-  private readonly gameController: GameController;
+  private gameController: GameController | null;
 
   constructor(roomID: RoomID, ioServer: Server) {
     this.roomID = roomID;
@@ -33,6 +33,9 @@ export default class GameRoom {
 
       // Core player ingress.
       socket.on(SocketEvents.GR_CLIENT_JOIN_GAME, (payload: GRJoinGame_Payload) => {
+        if (this.gameController === null) {
+          return;
+        }
         // FIXME: Validate vanity.
         const player = this.players.get(socket.id);
         if (!player) {
@@ -50,7 +53,9 @@ export default class GameRoom {
         // console.log(`GameRoom.DISCONNECT called and socket.id = ${socket.id}, reason = ${reason}.`);
         const player = this.players.get(socket.id);
         if (player) {
-          this.gameController.onRemovePlayer(player.playerID);
+          if (this.gameController !== null) {
+            this.gameController.onRemovePlayer(player.playerID);
+          }
           this.players.delete(socket.id);
         } else {
           // FIXME: Log.
@@ -71,9 +76,10 @@ export default class GameRoom {
     console.log(`GameRoom.terminateGameRoom called and is terminating room with roomID = ${this.roomID}.`);
     this.ioServer.of(this.roomID).disconnectSockets(true);
     this.ioServer.of(this.roomID).removeAllListeners();
-    this.gameController.onGameRoomTermination();
-    // @ts-expect-error Delete GameController before deleting GameRoom.
-    delete this.gameController;
+    if (this.gameController !== null) {
+      this.gameController.onGameRoomTermination();
+    }
+    this.gameController = null;
     const wasSuccessful = RoomManager.deleteRoom(this.roomID);
     if (!wasSuccessful) {
       // TODO: Handle failure.

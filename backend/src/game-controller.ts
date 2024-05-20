@@ -160,8 +160,6 @@ export default class GameController {
 
   public readonly onGameRoomTermination = (): void => {
     clearTimeout(this.stageTimer);
-    // @ts-expect-error Delete MatchState before deleting GameController.
-    delete this.matchState;
   };
 
   private readonly broadcastMatchState = (): void => {
