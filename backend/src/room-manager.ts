@@ -12,6 +12,14 @@ export default class RoomManager {
     return roomID;
   };
 
+  public static readonly checkIfRoomExistsByRoomID = (roomID: RoomID): boolean => {
+    const room = this.gameRooms.get(roomID);
+    if (room === undefined) {
+      return false;
+    }
+    return true;
+  };
+
   public static readonly deleteRoom = (roomID: RoomID): boolean => {
     return RoomManager.gameRooms.delete(roomID);
   };

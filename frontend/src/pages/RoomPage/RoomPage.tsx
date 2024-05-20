@@ -18,6 +18,7 @@ import { RouteComponentProps, useLocation } from "wouter";
 import JoinGameForm from "../../components/JoinGameForm/JoinGameForm";
 import MatchSettingsModalButton from "../../components/MatchSettingsModalButton/MatchSettingsModalButton";
 import MatchSettingsModal from "../../components/MatchSettingsModal/MatchSettingsModal";
+import APIUtils from "../../lib/APIUtils";
 
 // FIXME: Extract.
 export const SocketContext = createContext<Socket | null>(null);
@@ -35,6 +36,7 @@ export const MatchSettingsModalContext = createContext<MatchSettingsModalContext
 interface RoomPageProps {
   // NOTE: Props only used to support Storybook.
   // - There probably is a better way to do this.
+  // FIXME: Extract to some Storybook Context.
   isStoryBook?: boolean;
   didJoinGame?: boolean;
 }
@@ -62,12 +64,24 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
   };
   const socketRef = useRef<Socket>(initSocket());
 
+  const connectToGameRoom = async (): Promise<void> => {
+    // TODO: Display a loading indicator while request is in progress.
+    const wasFound = await APIUtils.getRoomByRoomID(window.location.pathname);
+    if (wasFound) {
+      const socket = socketRef.current;
+      socket.connect();
+    } else {
+      // TODO: Display a room does not exist message.
+      setLocation("/");
+    }
+  };
+
   useEffect(() => {
     if (props.isStoryBook === true) {
       return;
     }
     const socket = socketRef.current;
-    socket.connect();
+    connectToGameRoom();
     return () => {
       socket.disconnect();
     };
@@ -281,9 +295,7 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
             open: settingsModalCallbacks.open,
             toggle: settingsModalCallbacks.toggle,
           }}>
-            <Box
-              className={classes["left-section"]}
-            >
+            <Box className={classes["left-section"]}>
               {renderMatchSettingsModalButton()}
               <MatchSettingsModal />
               <PlayerInfoBar />

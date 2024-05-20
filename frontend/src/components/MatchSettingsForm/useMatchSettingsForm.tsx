@@ -11,7 +11,7 @@ export interface useMatchSettingsForm_Return {
 const useMatchSettingsForm = (): useMatchSettingsForm_Return => {
   // TODO: Implement QuestionProviders.
   const [questionProvider, _setQuestionProvider] = useState<QuestionProvider>(QuestionProvider.OPENTDB);
-  const [category, setCategory] = useState<string>(OTDB_CATEGORY_ANY_ID);
+  const [category, setCategory] = useState<number>(OTDB_CATEGORY_ANY_ID);
   const [pointsOnCorrect, setPointsOnCorrect] = useState<number>(MATCH_SETTINGS_POINTS_ON_CORRECT_DEFAULT);
   const [pointsOnIncorrect, setPointsOnIncorrect] = useState<number>(MATCH_SETTINGS_POINTS_ON_INCORRECT_DEFAULT);
   const [pointsOnNoAnswer, setPointsOnNoAnswer] = useState<number>(MATCH_SETTINGS_POINTS_ON_NO_ANSWER_DEFAULT);

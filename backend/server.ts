@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import http from "http";
 import cors from "cors";
 import path from "path";
-import { CreateRoomReturn } from "trivia-shared";
+import { CreateRoomReturn, GetRoomReturn } from "trivia-shared";
 import RoomManager from "./src/room-manager";
 import EnvUtils from "./src/lib/EnvUtils";
 
@@ -40,6 +40,15 @@ app.post(API_PREFIX + "/room/create", (_req, res) => {
   const roomID = RoomManager.createRoom(io);
   // FIXME: Handle response errors/codes.
   res.json({ roomID: roomID } satisfies CreateRoomReturn);
+});
+
+app.get(API_PREFIX + "/room/:roomID", (req, res) => {
+  const roomID = req.params["roomID"];
+  if (roomID === undefined) {
+    return;
+  }
+  const wasFound = RoomManager.checkIfRoomExistsByRoomID(roomID);
+  res.json({ wasFound: wasFound } satisfies GetRoomReturn);
 });
 
 app.get("*", (_req, res) => {

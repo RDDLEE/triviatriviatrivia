@@ -7,11 +7,10 @@ import {
 } from "trivia-shared";
 import StyleUtils from "../../lib/StyleUtils";
 
-// TODO: Question Provider.
 export interface MatchSettingsForm_Props {
   questionProvider: QuestionProvider;
-  category: string;
-  setCategory: React.Dispatch<React.SetStateAction<string>>;
+  category: number;
+  setCategory: React.Dispatch<React.SetStateAction<number>>;
   pointsOnCorrect: number;
   setPointsOnCorrect: React.Dispatch<React.SetStateAction<number>>;
   pointsOnIncorrect: number;
@@ -33,9 +32,13 @@ export default function MatchSettingsForm(props: MatchSettingsForm_Props) {
     props.setPointsOnNoAnswer(Number(value));
   }, [props]);
 
+  const onChange_RadioGroup = useCallback((value: string): void => {
+    props.setCategory(Number(value));
+  }, [props]);
+
   const renderOTDBCategory = (category: OTDBCategory): JSX.Element => {
     return (
-      <Radio key={category.id} value={category.id} label={category.name} size="xs" />
+      <Radio key={category.id} value={category.id.toString()} label={category.name} size="xs" />
     );
   };
 
@@ -45,7 +48,7 @@ export default function MatchSettingsForm(props: MatchSettingsForm_Props) {
         <React.Fragment>
           <Radio.Group
             value={props.category.toString()}
-            onChange={props.setCategory}
+            onChange={onChange_RadioGroup}
             label="Category"
             description="Please select a category."
             styles={{ label: { color: StyleUtils.THEME_CONFIG.textColor } }}
