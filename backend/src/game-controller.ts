@@ -28,7 +28,7 @@ export default class GameController {
   // Time (millis) for server to reveal answers to players.
   private static readonly JUDGING_ANSWERS_COUNTDOWN = 5 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for server to wait for a new match before self-termination.
-  private static readonly IDLE_TERMINATION_COUNTDOWN = 180 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
+  private static readonly IDLE_TERMINATION_COUNTDOWN = 30 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
 
   constructor(gameRoom: GameRoom, roomID: string, ioServer: Server) {
     this.gameRoom = gameRoom;
