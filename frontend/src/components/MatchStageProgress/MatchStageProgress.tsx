@@ -1,13 +1,18 @@
 import { useCallback, useContext, useEffect, useState } from "react";
-import { Box, Progress } from "@mantine/core";
+import { Box, Flex, Progress, Text } from "@mantine/core";
 import { useInterval } from "@mantine/hooks";
 import { MatchStateContext } from "../MatchStateProvider/MatchStateProvider";
 import { MatchStateStages } from "trivia-shared";
 
-export default function MatchStageProgress() {
+interface MatchStageProgress_Props {
+  withCountdownText?: boolean;
+  countdownText?: string;
+}
+
+export default function MatchStageProgress(props: MatchStageProgress_Props) {
   const matchStateContext = useContext(MatchStateContext);
 
-  const INTERVAL_PERIOD = 25;
+  const INTERVAL_PERIOD_MS = 25;
 
   const calcTimeRemaining = useCallback((): number => {
     if (matchStateContext === null) {
@@ -37,7 +42,7 @@ export default function MatchStageProgress() {
     // but component will soon be unmounted anyway.
   }, [calcTimeRemainingPercent]);
 
-  const interval = useInterval(onInterval, INTERVAL_PERIOD);
+  const interval = useInterval(onInterval, INTERVAL_PERIOD_MS);
 
   useEffect(() => {
     interval.start();
@@ -64,15 +69,40 @@ export default function MatchStageProgress() {
     return timeRemainingPercent;
   };
 
+  const renderCountdownText = (): JSX.Element | null => {
+    if (props.withCountdownText === undefined) {
+      return null;
+    }
+    if (props.withCountdownText === false) {
+      return null;
+    }
+    return (
+      <Text c="dimmed" size="xs">
+        {`${props.countdownText}: ${Math.round(calcTimeRemaining() / 1000)}.`}
+      </Text>
+    );
+  };
+
   return (
-    <Box w="100%">
-      <Progress
-        color={getProgressColor()}
-        size="sm"
-        radius="xs"
-        value={getProgressValue()}
-        transitionDuration={INTERVAL_PERIOD}
-      />
-    </Box>
+    <Flex
+      gap="xs"
+      justify="flex-start"
+      align="flex-start"
+      direction="column"
+      wrap="wrap"
+      w="100%"
+    >
+      <Box w="100%">
+        <Progress
+          color={getProgressColor()}
+          size="sm"
+          radius="xs"
+          value={getProgressValue()}
+          transitionDuration={INTERVAL_PERIOD_MS}
+        />
+      </Box>
+
+      {renderCountdownText()}
+    </Flex>
   );
 }
