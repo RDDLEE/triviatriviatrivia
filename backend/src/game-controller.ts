@@ -15,7 +15,7 @@ export default class GameController {
   private readonly gameRoom: GameRoom;
   private readonly roomID: string;
   private readonly ioServer: Server;
-  private readonly matchState: MatchState;
+  private matchState: MatchState;
   private stageTimer: NodeJS.Timeout | undefined = undefined;
 
   // TODO: Extract countdowns to shared.
@@ -36,7 +36,7 @@ export default class GameController {
     this.roomID = roomID;
     this.ioServer = ioServer;
     this.matchState = new MatchState();
-    this.startNewTimer(this.terminateGameRoom, GameController.IDLE_TERMINATION_COUNTDOWN);
+    this.startNewTimer(this.gameRoom.terminateGameRoom, GameController.IDLE_TERMINATION_COUNTDOWN);
   }
 
   public readonly onNewPlayer = (socket: Socket, playerID: PlayerID): void => {
@@ -155,11 +155,13 @@ export default class GameController {
       } satisfies GCJudgingPlayers_Payload
     );
     // FIXME: Idle on JudgePlayers screen until countdown.
-    this.startNewTimer(this.terminateGameRoom, GameController.IDLE_TERMINATION_COUNTDOWN);
+    this.startNewTimer(this.gameRoom.terminateGameRoom, GameController.IDLE_TERMINATION_COUNTDOWN);
   };
 
-  private readonly terminateGameRoom = (): void => {
-    this.gameRoom.terminateGameRoom();
+  public readonly onGameRoomTermination = (): void => {
+    clearTimeout(this.stageTimer);
+    // @ts-expect-error Delete MatchState before deleting GameController.
+    delete this.matchState;
   };
 
   private readonly broadcastMatchState = (): void => {
@@ -170,8 +172,8 @@ export default class GameController {
 
   private readonly fetchOpenTDBQuestions = async (providerSettings?: ProviderSettings | undefined): Promise<boolean> => {
     let category = providerSettings?.category;
-    if (category === undefined || category === OTDB_CATEGORY_ANY_ID) {
-      category = "any";
+    if (category === undefined) {
+      category = OTDB_CATEGORY_ANY_ID;
     }
     try {
       // TODO: Keep track of when server requests API calls to prevent timeouts.

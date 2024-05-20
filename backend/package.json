@@ -18,7 +18,7 @@
     "he": "^1.2.0",
     "helmet": "^7.1.0",
     "socket.io": "^4.7.5",
-    "trivia-shared": "file:../shared/dist/trivia-shared-1.0.48.tgz"
+    "trivia-shared": "file:../shared/dist/trivia-shared-1.0.52.tgz"
   },
   "devDependencies": {
     "@eslint/js": "^9.2.0",

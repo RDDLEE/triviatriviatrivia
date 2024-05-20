@@ -69,11 +69,16 @@ export default class GameRoom {
 
   public readonly terminateGameRoom = (): void => {
     console.log(`GameRoom.terminateGameRoom called and is terminating room with roomID = ${this.roomID}.`);
+    this.ioServer.of(this.roomID).disconnectSockets(true);
+    this.ioServer.of(this.roomID).removeAllListeners();
+    this.gameController.onGameRoomTermination();
+    // @ts-expect-error Delete GameController before deleting GameRoom.
+    delete this.gameController;
     const wasSuccessful = RoomManager.deleteRoom(this.roomID);
     if (!wasSuccessful) {
       // TODO: Handle failure.
+      console.error(`GameRoom.terminateGameRoom called and failed to terminate room with roomID = ${this.roomID}.`);
     }
-    this.ioServer.of(this.roomID).disconnectSockets(true);
   };
 
   // TODO: Implement vanity changes.
