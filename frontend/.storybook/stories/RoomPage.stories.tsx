@@ -24,8 +24,8 @@ const vanities: Client_PlayerVanity[] = [
 ];
 
 const promoVanities: Client_PlayerVanity[] = [
-  { playerID: "0", displayName: "Ryanis" },
-  { playerID: "1", displayName: "geniustrev" },
+  { playerID: "0", displayName: "vans" },
+  { playerID: "1", displayName: "Jak" },
   { playerID: "2", displayName: "Rocky" },
   { playerID: "3", displayName: "aphe" },
 ];
