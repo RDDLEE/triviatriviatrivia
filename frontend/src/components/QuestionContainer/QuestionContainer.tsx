@@ -6,7 +6,7 @@ import AnswerChoice from "../AnswerChoice/AnswerChoice";
 import MatchStageProgress from "../MatchStageProgress/MatchStageProgress";
 import { useWindowEvent } from "@mantine/hooks";
 import MatchStateUtils from "../../lib/MatchStateUtils";
-import { SocketContext } from "../../pages/RoomPage/RoomPage";
+import { SocketContext } from "../SocketContext/SocketContext";
 
 export default function QuestionContainer() {
   const matchStateContext = useContext(MatchStateContext);

@@ -1,7 +1,7 @@
 import { useCallback, useContext } from "react";
 import { Modal } from "@mantine/core";
 import useMatchSettingsForm from "../MatchSettingsForm/useMatchSettingsForm";
-import { MatchSettingsModalContext } from "../../pages/RoomPage/RoomPage";
+import { MatchSettingsModalContext } from "../MatchSettingsModalContext/MatchSettingsModalContext";
 
 export default function MatchSettingsModal() {
   const settingsModalContext = useContext(MatchSettingsModalContext);

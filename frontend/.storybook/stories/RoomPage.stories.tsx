@@ -57,7 +57,7 @@ const JUDGING_PLAYERS_COUNTDOWN_TIME = 30000;
 export const NotYetJoined: Story = {
   args: {
     params: {},
-    isStoryBook: true,
+    // @ts-expect-error
     didJoinGame: false,
   },
 };
@@ -65,9 +65,8 @@ export const NotYetJoined: Story = {
 export const WaitingForMatchStart: Story = {
   args: {
     params: {},
-    isStoryBook: true,
-    didJoinGame: true,
     // @ts-expect-error
+    didJoinGame: true,
     matchStage: MatchStateStages.WAITING_FOR_MATCH_START,
     playerVanities: vanities,
   },
@@ -76,9 +75,8 @@ export const WaitingForMatchStart: Story = {
 export const PreparingMatchStart: Story = {
   args: {
     params: {},
-    isStoryBook: true,
-    didJoinGame: true,
     // @ts-expect-error
+    didJoinGame: true,
     matchStage: MatchStateStages.PREPARING_MATCH_START,
     playerVanities: vanities,
   },
@@ -87,9 +85,8 @@ export const PreparingMatchStart: Story = {
 export const ShowingQuestion: Story = {
   args: {
     params: {},
-    isStoryBook: true,
-    didJoinGame: true,
     // @ts-expect-error
+    didJoinGame: true,
     round: 0,
     totalQuestionCount: 10,
     matchStage: MatchStateStages.SHOWING_QUESTION,
@@ -112,9 +109,8 @@ export const ShowingQuestion: Story = {
 export const ShowingQuestionSelected: Story = {
   args: {
     params: {},
-    isStoryBook: true,
-    didJoinGame: true,
     // @ts-expect-error
+    didJoinGame: true,
     matchStage: MatchStateStages.SHOWING_QUESTION,
     round: 1,
     totalQuestionCount: 10,
@@ -137,9 +133,8 @@ export const ShowingQuestionSelected: Story = {
 export const Promo_ShowingQuestionSelected: Story = {
   args: {
     params: {},
-    isStoryBook: true,
-    didJoinGame: true,
     // @ts-expect-error
+    didJoinGame: true,
     round: 0,
     totalQuestionCount: 10,
     matchStage: MatchStateStages.SHOWING_QUESTION,
@@ -162,9 +157,8 @@ export const Promo_ShowingQuestionSelected: Story = {
 export const JudgingAnswers: Story = {
   args: {
     params: {},
-    isStoryBook: true,
-    didJoinGame: true,
     // @ts-expect-error
+    didJoinGame: true,
     matchStage: MatchStateStages.JUDGING_ANSWERS,
     round: 1,
     totalQuestionCount: 10,
@@ -189,9 +183,8 @@ export const JudgingAnswers: Story = {
 export const Promo_JudgingAnswers: Story = {
   args: {
     params: {},
-    isStoryBook: true,
-    didJoinGame: true,
     // @ts-expect-error
+    didJoinGame: true,
     round: 0,
     totalQuestionCount: 10,
     matchStage: MatchStateStages.JUDGING_ANSWERS,
@@ -216,9 +209,8 @@ export const Promo_JudgingAnswers: Story = {
 export const JudgingPlayers: Story = {
   args: {
     params: {},
-    isStoryBook: true,
-    didJoinGame: true,
     // @ts-expect-error
+    didJoinGame: true,
     matchStage: MatchStateStages.JUDING_PLAYERS,
     matchStageTimeFrame: {
       terminationTime: Date.now() + JUDGING_PLAYERS_COUNTDOWN_TIME,
@@ -259,9 +251,8 @@ export const JudgingPlayers: Story = {
 export const Promo_JudgingPlayers: Story = {
   args: {
     params: {},
-    isStoryBook: true,
-    didJoinGame: true,
     // @ts-expect-error
+    didJoinGame: true,
     matchStage: MatchStateStages.JUDING_PLAYERS,
     matchStageTimeFrame: {
       terminationTime: Date.now() + JUDGING_PLAYERS_COUNTDOWN_TIME,

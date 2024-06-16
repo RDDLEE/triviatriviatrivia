@@ -6,8 +6,9 @@ import { io } from "socket.io-client";
 import { MATCH_STAGE_COUNTDOWN_TIME_INDEFINITE, MATCH_STAGE_TERMINATION_TIME_INDEFINITE, MatchStateStages } from "trivia-shared";
 import "./../src/App.css";
 import { MatchStateContext, MatchStateContextSchema } from "./../src/components/MatchStateProvider/MatchStateProvider";
-import { SocketContext } from "./../src/pages/RoomPage/RoomPage";
+import { SocketContext } from "./../src/components/SocketContext/SocketContext";
 import theme from "./../src/theme/theme";
+import { StorybookContext, StorybookContextSchema } from "../src/components/StorybookContext/StorybookContext";
 
 
 const preview: Preview = {
@@ -50,11 +51,17 @@ const preview: Preview = {
         setAnswerJudgments: () => { },
         setPlayerJudgments: () => { },
       }
+      const didJoinGame = storyContext.args["didJoinGame"];
+      const storybookState: StorybookContextSchema = {
+        didJoinGame: didJoinGame
+      }
       return (
         <MantineProvider defaultColorScheme="dark" theme={theme}>
           <MatchStateContext.Provider value={matchState}>
             <SocketContext.Provider value={io({ autoConnect: false })}>
-              <Story />
+              <StorybookContext.Provider value={storybookState}>
+                <Story />
+              </StorybookContext.Provider>
             </SocketContext.Provider>
           </MatchStateContext.Provider>
         </MantineProvider>
