@@ -1,8 +1,9 @@
 import { useCallback, useContext } from "react";
 import { Button } from "@mantine/core";
 import { GCReqestStartMatch_Payload, MatchSettings, SocketEvents } from "trivia-shared";
-import { MatchSettingsModalContext, SocketContext } from "../../pages/RoomPage/RoomPage";
 import StyleUtils from "../../lib/StyleUtils";
+import { SocketContext } from "../SocketContext/SocketContext";
+import { MatchSettingsModalContext } from "../MatchSettingsModalContext/MatchSettingsModalContext";
 
 export interface StartGameButton_Props {
   matchSettings: MatchSettings;

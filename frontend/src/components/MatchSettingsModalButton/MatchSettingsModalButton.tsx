@@ -1,8 +1,8 @@
 import { useContext } from "react";
 import { Button } from "@mantine/core";
-import { MatchSettingsModalContext } from "../../pages/RoomPage/RoomPage";
 import settingsIcon from "./../../assets/settings.svg";
 import StyleUtils from "../../lib/StyleUtils";
+import { MatchSettingsModalContext } from "../MatchSettingsModalContext/MatchSettingsModalContext";
 
 export interface MatchSettingsModalButton_Props {
   buttonText?: string;

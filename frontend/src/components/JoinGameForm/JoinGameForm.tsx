@@ -1,8 +1,8 @@
 import { Button, Flex, TextInput } from "@mantine/core";
 import { useContext, useCallback, useState } from "react";
 import { Server_PlayerVanity, SocketEvents, GRJoinGame_Payload } from "trivia-shared";
-import { SocketContext } from "../../pages/RoomPage/RoomPage";
 import StyleUtils from "../../lib/StyleUtils";
+import { SocketContext } from "../SocketContext/SocketContext";
 
 export default function JoinGameForm() {
   const socket = useContext(SocketContext);

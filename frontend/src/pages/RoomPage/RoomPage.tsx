@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import { produce } from "immer";
 import { Box, Card, Flex } from "@mantine/core";
@@ -19,36 +19,24 @@ import JoinGameForm from "../../components/JoinGameForm/JoinGameForm";
 import MatchSettingsModalButton from "../../components/MatchSettingsModalButton/MatchSettingsModalButton";
 import MatchSettingsModal from "../../components/MatchSettingsModal/MatchSettingsModal";
 import APIUtils from "../../lib/APIUtils";
+import { StorybookContext } from "../../components/StorybookContext/StorybookContext";
+import { SocketContext } from "../../components/SocketContext/SocketContext";
+import { MatchSettingsModalContext } from "../../components/MatchSettingsModalContext/MatchSettingsModalContext";
 
-// FIXME: Extract.
-export const SocketContext = createContext<Socket | null>(null);
+interface RoomPageProps {}
 
-// FIXME: Extract.
-export interface MatchSettingsModalContextSchema {
-  isOpen: boolean;
-  open: () => void;
-  close: () => void;
-  toggle: () => void;
-}
-
-export const MatchSettingsModalContext = createContext<MatchSettingsModalContextSchema | null>(null);
-
-interface RoomPageProps {
-  // NOTE: Props only used to support Storybook.
-  // - There probably is a better way to do this.
-  // FIXME: Extract to some Storybook Context.
-  isStoryBook?: boolean;
-  didJoinGame?: boolean;
-}
-
-export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
+export default function RoomPage(_props: RoomPageProps & RouteComponentProps) {
   const matchStateContext = useContext(MatchStateContext);
+  const storybookContext = useContext(StorybookContext);
 
   const initDidJoinGame = (): boolean => {
-    if (props.didJoinGame === undefined) {
+    if (storybookContext === null) {
       return false;
     }
-    return props.didJoinGame;
+    if (storybookContext.didJoinGame === undefined) {
+      return false;
+    }
+    return storybookContext.didJoinGame;
   };
   const [didJoinGame, setDidJoinGame] = useState<boolean>(initDidJoinGame());
 
@@ -77,7 +65,7 @@ export default function RoomPage(props: RoomPageProps & RouteComponentProps) {
   };
 
   useEffect(() => {
-    if (props.isStoryBook === true) {
+    if (storybookContext) {
       return;
     }
     const socket = socketRef.current;
