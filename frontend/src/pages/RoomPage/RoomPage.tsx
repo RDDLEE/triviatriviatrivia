@@ -1,266 +1,51 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { io, Socket } from "socket.io-client";
-import { produce } from "immer";
+import { useContext } from "react";
 import { Box, Card, Flex } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import {
-  GRUpdatePlayerVanities_Payload, SocketEvents, GCReceivePlayerID_Payload, GCAnswerSubmitted_Payload,
-  GCReceiveMatchStage_Payload, MatchStateStages, GCWaitingForMatchStart_Payload, GCPreparingMatch_Payload, GCJudgingAnswers_Payload,
-  GCShowingQuestion_Payload, GCJudgingPlayers_Payload,
-} from "trivia-shared";
+import { MatchStateStages } from "trivia-shared";
 import classes from "./RoomPage.module.css";
 import { MatchStateContext } from "../../components/MatchStateProvider/MatchStateProvider";
-import MatchStateUtils from "../../lib/MatchStateUtils";
 import PlayerInfoBar from "../../components/PlayerInfoBar/PlayerInfoBar";
 import GameComponentRouter from "../../components/GameComponentRouter/GameComponentRouter";
 import TriviaShell from "../../components/TriviaShell/TriviaShell";
-import { RouteComponentProps, useLocation } from "wouter";
+import { RouteComponentProps } from "wouter";
 import JoinGameForm from "../../components/JoinGameForm/JoinGameForm";
 import MatchSettingsModalButton from "../../components/MatchSettingsModalButton/MatchSettingsModalButton";
 import MatchSettingsModal from "../../components/MatchSettingsModal/MatchSettingsModal";
-import APIUtils from "../../lib/APIUtils";
-import { StorybookContext } from "../../components/StorybookContext/StorybookContext";
 import { SocketContext } from "../../components/SocketContext/SocketContext";
 import { MatchSettingsModalContext } from "../../components/MatchSettingsModalContext/MatchSettingsModalContext";
+import useGameRoomSocket from "../../components/useGameRoomSocket";
 
-interface RoomPageProps {}
+interface RoomPageProps { }
 
 export default function RoomPage(_props: RoomPageProps & RouteComponentProps) {
   const matchStateContext = useContext(MatchStateContext);
-  const storybookContext = useContext(StorybookContext);
-
-  const initDidJoinGame = (): boolean => {
-    if (storybookContext === null) {
-      return false;
-    }
-    if (storybookContext.didJoinGame === undefined) {
-      return false;
-    }
-    return storybookContext.didJoinGame;
-  };
-  const [didJoinGame, setDidJoinGame] = useState<boolean>(initDidJoinGame());
-
-  const [_, setLocation] = useLocation();
 
   // NOTE: Could save match settings to localStorage.
   const [isSettingsModalOpened, settingsModalCallbacks] = useDisclosure(false);
 
-  // TODO: Extract socket to useSocket hook.
-  const initSocket = (): Socket => {
-    const socketURI = window.location.pathname;
-    return io(socketURI, { autoConnect: false });
-  };
-  const socketRef = useRef<Socket>(initSocket());
+  const roomID = window.location.pathname;
 
-  const connectToGameRoom = async (): Promise<void> => {
-    // TODO: Display a loading indicator while request is in progress.
-    const wasFound = await APIUtils.getRoomByRoomID(window.location.pathname);
-    if (wasFound) {
-      const socket = socketRef.current;
-      socket.connect();
-    } else {
-      // TODO: Display a room does not exist message.
-      setLocation("/");
+  const gameRoomSocket = useGameRoomSocket({ roomID: roomID });
+
+  const renderMain = (): JSX.Element | null => {
+    if (matchStateContext === null) {
+      return null;
     }
-  };
-
-  useEffect(() => {
-    if (storybookContext) {
-      return;
+    if (matchStateContext.clientPlayerID === null) {
+      return (<JoinGameForm />);
     }
-    const socket = socketRef.current;
-    connectToGameRoom();
-    return () => {
-      socket.disconnect();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const onConnect = useCallback((): void => {
-    // TODO: Show symbol to denote connection.
-  }, []);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-    socket.on(SocketEvents.CONNECT, onConnect);
-    return () => {
-      socket.off(SocketEvents.CONNECT, onConnect);
-    };
-  }, [onConnect]);
-
-  const onDisconnect = useCallback((): void => {
-    // TODO: Display a disconnect message.
-    setLocation("/");
-  }, [setLocation]);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-    socket.on(SocketEvents.DISCONNECT, onDisconnect);
-    return () => {
-      socket.off(SocketEvents.DISCONNECT, onDisconnect);
-    };
-  }, [onDisconnect]);
-
-  const onGCStageWaitingForMatchStart = useCallback((payload: GCWaitingForMatchStart_Payload): void => {
-    matchStateContext?.setMatchStage(MatchStateStages.WAITING_FOR_MATCH_START);
-    matchStateContext?.setMatchStageTimeFrame(payload.matchStageTimeFrame);
-  }, [matchStateContext]);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-    socket.on(SocketEvents.GC_SERVER_STAGE_WAITING_FOR_MATCH_START, onGCStageWaitingForMatchStart);
-    return () => {
-      socket.off(SocketEvents.GC_SERVER_STAGE_WAITING_FOR_MATCH_START, onGCStageWaitingForMatchStart);
-    };
-  }, [onGCStageWaitingForMatchStart]);
-
-  const onGCStagePreparingMatch = useCallback((payload: GCPreparingMatch_Payload): void => {
-    matchStateContext?.setMatchStage(MatchStateStages.PREPARING_MATCH_START);
-    matchStateContext?.setMatchStageTimeFrame(payload.matchStageTimeFrame);
-  }, [matchStateContext]);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-    socket.on(SocketEvents.GC_SERVER_STAGE_PREPARING_MATCH, onGCStagePreparingMatch);
-    return () => {
-      socket.off(SocketEvents.GC_SERVER_STAGE_PREPARING_MATCH, onGCStagePreparingMatch);
-    };
-  }, [onGCStagePreparingMatch]);
-
-  const onGCStageShowingQuestion = useCallback((payload: GCShowingQuestion_Payload): void => {
-    matchStateContext?.setMatchStage(MatchStateStages.SHOWING_QUESTION);
-    matchStateContext?.setRound(payload.round);
-    matchStateContext?.setTotalQuestionCount(payload.totalQuestionCount);
-    matchStateContext?.setMatchStageTimeFrame(payload.matchStageTimeFrame);
-    matchStateContext?.setQuestion(payload.question);
-    matchStateContext?.setPlayerAnswerStates(payload.playerAnswerStates);
-    matchStateContext?.setAnswerJudgments(null);
-  }, [matchStateContext]);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-    socket.on(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onGCStageShowingQuestion);
-    return () => {
-      socket.off(SocketEvents.GC_SERVER_STAGE_SHOWING_QUESTION, onGCStageShowingQuestion);
-    };
-  }, [onGCStageShowingQuestion]);
-
-  const onGCStageJudingAnswers = useCallback((payload: GCJudgingAnswers_Payload): void => {
-    matchStateContext?.setMatchStage(MatchStateStages.JUDGING_ANSWERS);
-    matchStateContext?.setMatchStageTimeFrame(payload.matchStageTimeFrame);
-    matchStateContext?.setPlayerAnswerStates([]);
-    matchStateContext?.setPlayersStats(payload.playersStats);
-    matchStateContext?.setAnswerJudgments(payload.judgmentResults);
-  }, [matchStateContext]);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-    socket.on(SocketEvents.GC_SERVER_STAGE_JUDGING_ANSWERS, onGCStageJudingAnswers);
-    return () => {
-      socket.off(SocketEvents.GC_SERVER_STAGE_JUDGING_ANSWERS, onGCStageJudingAnswers);
-    };
-  }, [onGCStageJudingAnswers]);
-
-  const onGCStageJudgingPlayers = useCallback((payload: GCJudgingPlayers_Payload): void => {
-    matchStateContext?.setMatchStage(MatchStateStages.JUDING_PLAYERS);
-    matchStateContext?.setMatchStageTimeFrame(payload.matchStageTimeFrame);
-    matchStateContext?.setPlayerJudgments(payload.playerJudgments);
-  }, [matchStateContext]);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-    socket.on(SocketEvents.GC_SERVER_STAGE_JUDGING_PLAYERS, onGCStageJudgingPlayers);
-    return () => {
-      socket.off(SocketEvents.GC_SERVER_STAGE_JUDGING_PLAYERS, onGCStageJudgingPlayers);
-    };
-  }, [onGCStageJudgingPlayers]);
-
-  const onGCReceivePlayerID = useCallback((payload: GCReceivePlayerID_Payload): void => {
-    setDidJoinGame(true);
-    matchStateContext?.setClientPlayerID(payload.playerID);
-  }, [matchStateContext]);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-    socket.on(SocketEvents.GC_SERVER_RECEIVE_PLAYER_ID, onGCReceivePlayerID);
-    return () => {
-      socket.off(SocketEvents.GC_SERVER_RECEIVE_PLAYER_ID, onGCReceivePlayerID);
-    };
-  }, [onGCReceivePlayerID]);
-
-  const onGCReceiveMatchStage = useCallback((payload: GCReceiveMatchStage_Payload): void => {
-    if (!matchStateContext) {
-      return;
-    }
-    const matchState = payload.matchState;
-    matchStateContext.setMatchStage(matchState.matchStage);
-    matchStateContext.setRound(matchState.round);
-    matchStateContext.setQuestion(matchState.question);
-    matchStateContext.setPlayerVanities(matchState.playerVanities);
-    matchStateContext.setPlayersStats(matchState.playersStats);
-    matchStateContext.setPlayerAnswerStates(matchState.playerAnswerStates);
-  }, [matchStateContext]);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-    socket.on(SocketEvents.GC_SERVER_RECEIVE_MATCH_STATE, onGCReceiveMatchStage);
-    return () => {
-      socket.off(SocketEvents.GC_SERVER_RECEIVE_MATCH_STATE, onGCReceiveMatchStage);
-    };
-  }, [onGCReceiveMatchStage]);
-
-  const onGRUpdatePlayerVanities = useCallback((payload: GRUpdatePlayerVanities_Payload): void => {
-    matchStateContext?.setPlayerVanities(payload.playerVanities);
-  }, [matchStateContext]);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-    socket.on(SocketEvents.GR_SERVER_UPDATE_PLAYER_VANITIES, onGRUpdatePlayerVanities);
-    return () => {
-      socket.off(SocketEvents.GR_SERVER_UPDATE_PLAYER_VANITIES, onGRUpdatePlayerVanities);
-    };
-  }, [onGRUpdatePlayerVanities]);
-
-  const onAnswerSubmitted = useCallback((payload: GCAnswerSubmitted_Payload): void => {
-    if (!matchStateContext) {
-      return;
-    }
-    const playerID = payload.answerState.playerID;
-    const index = MatchStateUtils.getIndexOfAnswerStateByPlayerID(matchStateContext, playerID);
-    if (index < 0) {
-      return;
-    }
-    matchStateContext.setPlayerAnswerStates(
-      produce(matchStateContext.playerAnswerStates, (draft): void => {
-        draft.splice(index, 1, { ...payload.answerState });
-      })
-    );
-  }, [matchStateContext]);
-
-  useEffect(() => {
-    const socket = socketRef.current;
-    socket.on(SocketEvents.GC_SERVER_ANSWER_SUBMITTED, onAnswerSubmitted);
-    return () => {
-      socket.off(SocketEvents.GC_SERVER_ANSWER_SUBMITTED, onAnswerSubmitted);
-    };
-  }, [onAnswerSubmitted]);
-
-  const renderMain = (): JSX.Element => {
-    if (!didJoinGame) {
-      return (
-        <JoinGameForm />
-      );
-    }
-    return (
-      <GameComponentRouter />
-    );
+    return (<GameComponentRouter />);
   };
 
   const renderMatchSettingsModalButton = (): JSX.Element | null => {
     if (matchStateContext === null) {
       return null;
     }
-    if (matchStateContext.matchStage === MatchStateStages.SHOWING_QUESTION || matchStateContext.matchStage === MatchStateStages.JUDGING_ANSWERS || matchStateContext.matchStage === MatchStateStages.JUDING_PLAYERS) {
+    if (
+      matchStateContext.matchStage === MatchStateStages.SHOWING_QUESTION ||
+      matchStateContext.matchStage === MatchStateStages.JUDGING_ANSWERS ||
+      matchStateContext.matchStage === MatchStateStages.JUDING_PLAYERS
+    ) {
       return (
         <MatchSettingsModalButton withIcon={true} />
       );
@@ -269,7 +54,7 @@ export default function RoomPage(_props: RoomPageProps & RouteComponentProps) {
   };
 
   return (
-    <SocketContext.Provider value={socketRef.current}>
+    <SocketContext.Provider value={gameRoomSocket.socket.current}>
       <TriviaShell>
         <Flex
           className={classes["core-container"]}
