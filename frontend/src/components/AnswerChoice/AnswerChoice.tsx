@@ -18,6 +18,9 @@ export default function AnswerChoice(props: AnswerChoice_Props) {
     if (!matchStateContext) {
       return null;
     }
+    if (matchStateContext.clientPlayerID === null) {
+      return null;
+    }
     const answerChoice = props.answerChoice;
     const answerID = answerChoice.answerID;
     const foundAnswerState = MatchStateUtils.getPlayerAnswerStateByPlayerID(matchStateContext, matchStateContext.clientPlayerID);

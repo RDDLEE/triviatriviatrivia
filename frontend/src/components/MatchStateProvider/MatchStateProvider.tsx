@@ -1,15 +1,15 @@
 import React, { createContext, useMemo, useState } from "react";
 import {
   MatchStateStages, Client_StandardQuestion, Client_MatchState, Client_PlayerVanity, Client_PlayerStats,
-  Client_PlayerAnswerState, PlayerID, PLAYER_ID_NONE, Client_AnswerJudgmentResults, Client_PlayerJudgment,
+  Client_PlayerAnswerState, PlayerID, Client_AnswerJudgmentResults, Client_PlayerJudgment,
   MatchStageTimeFrame,
   MATCH_STAGE_TERMINATION_TIME_INDEFINITE,
   MATCH_STAGE_COUNTDOWN_TIME_INDEFINITE,
 } from "trivia-shared";
 
 export interface MatchStateContextSchema extends Client_MatchState {
-  clientPlayerID: PlayerID;
-  setClientPlayerID: React.Dispatch<React.SetStateAction<string>>
+  clientPlayerID: PlayerID | null;
+  setClientPlayerID: React.Dispatch<React.SetStateAction<string | null>>
   setMatchStage: React.Dispatch<React.SetStateAction<MatchStateStages>>;
   setMatchStageTimeFrame: React.Dispatch<React.SetStateAction<MatchStageTimeFrame>>;
   setRound: React.Dispatch<React.SetStateAction<number>>;
@@ -27,7 +27,7 @@ export interface MatchStateContextSchema extends Client_MatchState {
 export const MatchStateContext = createContext<MatchStateContextSchema | null>(null);
 
 export default function MatchStateProvider({ children }: Readonly<{ children: React.ReactNode; }>) {
-  const [clientPlayerID, setClientPlayerID] = useState<PlayerID>(PLAYER_ID_NONE);
+  const [clientPlayerID, setClientPlayerID] = useState<PlayerID | null>(null);
   // Could use a Reducer.
   const [matchStage, setMatchStage] = useState<MatchStateStages>(MatchStateStages.NONE);
   const [matchStageTimeFrame, setMatchStageTimeFrame] = useState<MatchStageTimeFrame>({
