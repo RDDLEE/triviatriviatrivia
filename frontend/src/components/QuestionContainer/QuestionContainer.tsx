@@ -20,6 +20,9 @@ export default function QuestionContainer() {
       return;
     }
     const clientPlayerID = matchStateContext.clientPlayerID;
+    if (clientPlayerID === null) {
+      return;
+    }
     const clientAnswerState = MatchStateUtils.getPlayerAnswerStateByPlayerID(matchStateContext, clientPlayerID);
     if (!clientAnswerState) {
       return;

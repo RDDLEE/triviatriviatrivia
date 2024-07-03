@@ -10,7 +10,7 @@ import theme from "./theme/theme";
 
 
 export default function App() {
-  console.log("Welcome to TriviaTriviaTrivia (v0.0.3).");
+  console.log("Welcome to TriviaTriviaTrivia (v0.0.4).");
   return (
     <MantineProvider defaultColorScheme="dark" theme={theme}>
       <Switch>
