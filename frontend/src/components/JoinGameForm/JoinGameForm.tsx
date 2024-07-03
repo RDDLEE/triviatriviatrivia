@@ -13,7 +13,7 @@ export default function JoinGameForm() {
   const initDisplayName = (): string => {
     const foundDisplayName = localStorage.getItem(LOCAL_STORAGE_TRIVIA_DISPLAY_NAME_KEY);
     if (foundDisplayName === null) {
-      return "Player" + Date.now().toString();
+      return "Player";
     }
     return foundDisplayName;
   };

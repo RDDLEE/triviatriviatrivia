@@ -35,7 +35,6 @@ export default function MatchStateProvider({ children }: Readonly<{ children: Re
     countdownTime: MATCH_STAGE_COUNTDOWN_TIME_INDEFINITE
   });
   // FIXME: Make const default.
-  // Could use a Reducer.
   const [round, setRound] = useState<number>(0);
   const [totalQuestionCount, setTotalQuestionCount] = useState<number>(0);
   const [question, setQuestion] = useState<Client_StandardQuestion | null>(null);
@@ -70,7 +69,10 @@ export default function MatchStateProvider({ children }: Readonly<{ children: Re
       playerJudgments: playerJudgments,
       setPlayerJudgments: setPlayerJudgments,
     };
-  }, [clientPlayerID, matchStage, matchStageTimeFrame, round, totalQuestionCount, question, playerVanities, playersStats, playerAnswerStates, answerJudgments, playerJudgments]);
+  }, [
+    clientPlayerID, matchStage, matchStageTimeFrame, round, totalQuestionCount, question,
+    playerVanities, playersStats, playerAnswerStates, answerJudgments, playerJudgments,
+  ]);
 
   return (
     <MatchStateContext.Provider value={matchState}>

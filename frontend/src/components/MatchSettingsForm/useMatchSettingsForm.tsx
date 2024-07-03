@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { MATCH_SETTINGS_POINTS_ON_CORRECT_DEFAULT, MATCH_SETTINGS_POINTS_ON_INCORRECT_DEFAULT, MATCH_SETTINGS_POINTS_ON_NO_ANSWER_DEFAULT, MatchSettings, OTDB_CATEGORY_ANY_ID, QuestionProvider } from "trivia-shared";
 import MatchSettingsForm from "./MatchSettingsForm";
 import { Flex } from "@mantine/core";
@@ -16,7 +16,7 @@ const useMatchSettingsForm = (): useMatchSettingsForm_Return => {
   const [pointsOnIncorrect, setPointsOnIncorrect] = useState<number>(MATCH_SETTINGS_POINTS_ON_INCORRECT_DEFAULT);
   const [pointsOnNoAnswer, setPointsOnNoAnswer] = useState<number>(MATCH_SETTINGS_POINTS_ON_NO_ANSWER_DEFAULT);
 
-  const getMatchSettings = (): MatchSettings => {
+  const getMatchSettings = useCallback((): MatchSettings => {
     return {
       questionProvider: questionProvider,
       providerSettings: { category: category },
@@ -24,7 +24,7 @@ const useMatchSettingsForm = (): useMatchSettingsForm_Return => {
       pointsOnIncorrect: pointsOnIncorrect,
       pointsOnNoAnswer: pointsOnNoAnswer,
     };
-  };
+  }, [category, pointsOnCorrect, pointsOnIncorrect, pointsOnNoAnswer, questionProvider]);
 
   const renderForm = (): JSX.Element => {
     return (
