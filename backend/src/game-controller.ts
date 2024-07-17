@@ -18,17 +18,17 @@ export default class GameController {
   private matchState: MatchState;
   private stageTimer: NodeJS.Timeout | undefined = undefined;
 
+  // TODO: Make showing question countdown and judging answers countdown configurable in match settings.
   // TODO: Extract countdowns to shared.
   private static readonly COUNTDOWN_MULTIPLIER = EnvUtils.getCountdownMultiplier();
-  // TODO: IDLE to terminate countdown - Time spent waiting until forced room termination.
   // Time (millis) after question loading until first question. Not particularly necessary.
   private static readonly STARTING_MATCH_COUNTDOWN = 1 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for players to answer until answer reveal.
-  private static readonly SHOWING_QUESTION_COUNTDOWN = 15 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
+  private static readonly SHOWING_QUESTION_COUNTDOWN = 12.5 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for server to reveal answers to players.
-  private static readonly JUDGING_ANSWERS_COUNTDOWN = 5 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
+  private static readonly JUDGING_ANSWERS_COUNTDOWN = 3.5 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for server to wait for a new match before self-termination.
-  private static readonly IDLE_TERMINATION_COUNTDOWN = 60 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
+  private static readonly IDLE_TERMINATION_COUNTDOWN = 45 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
 
   constructor(gameRoom: GameRoom, roomID: string, ioServer: Server) {
     this.gameRoom = gameRoom;
@@ -79,6 +79,7 @@ export default class GameController {
           } satisfies GCAnswerSubmitted_Payload
         );
       }
+      // TODO: Maybe if all players have answered, skip immediately to judge answers?
     });
   };
 
@@ -87,7 +88,6 @@ export default class GameController {
     this.broadcastMatchState();
   };
 
-  // TODO: Perhaps do this definitively/statefully.
   private readonly showQuestion = (): void => {
     const question = this.matchState.getCurrentQuestion();
     if (question) {
