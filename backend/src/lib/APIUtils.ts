@@ -8,7 +8,9 @@ export default class APIUtils {
 
   public static readonly CREATE_ROOM_PATH = APIUtils.API_PREFIX + "/room/create";
 
-  public static readonly GET_ROOM_PATH = APIUtils.API_PREFIX + "/room/:roomID";
+  public static readonly ROOM_ID_PARAM = "roomID";
+
+  public static readonly GET_ROOM_PATH = APIUtils.API_PREFIX + `/room/:${APIUtils.ROOM_ID_PARAM}`;
 
   public static readonly configureCORS = (): cors.CorsOptions => {
     const environment = EnvUtils.getEnvironment();

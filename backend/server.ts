@@ -9,6 +9,8 @@ import RoomManager from "./src/room-manager";
 import EnvUtils from "./src/lib/EnvUtils";
 import APIUtils from "./src/lib/APIUtils";
 
+console.log("Server running 1.0.1.");
+
 // NOTE: Frontend directory name should match frontend/package.json build outDir.
 const FRONTEND_DIR_PATH = path.resolve(__dirname, "frontend-dist");
 console.log(`Using frontend directory from ${FRONTEND_DIR_PATH}.`);
@@ -37,16 +39,25 @@ app.post(APIUtils.CREATE_ROOM_PATH, (_req, res) => {
 });
 
 app.get(APIUtils.GET_ROOM_PATH, (req, res) => {
-  const roomID = req.params["roomID"];
+  const roomID = req.params[APIUtils.ROOM_ID_PARAM];
   if (roomID === undefined) {
+    // TODO: Handle.
     return;
   }
   const wasFound = RoomManager.checkIfRoomExistsByRoomID(roomID);
   res.json({ wasFound: wasFound } satisfies GetRoomReturn);
 });
 
-app.get("*", (_req, res) => {
+app.get("/", (_req, res) => {
   res.sendFile(FRONTEND_INDEX_PATH);
+});
+
+app.get("/:roomID", (_req, res) => {
+  res.sendFile(FRONTEND_INDEX_PATH);
+});
+
+app.get("*", (_req, res) => {
+  res.status(404).send("404: Page not found.");
 });
 
 server.listen(EnvUtils.getPort(), () => {

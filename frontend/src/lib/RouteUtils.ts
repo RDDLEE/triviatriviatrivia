@@ -1,3 +1,4 @@
+// TODO: Should remove to shared.
 export default class RouteUtils {
   public static readonly HOME_PATH = "/";
 
