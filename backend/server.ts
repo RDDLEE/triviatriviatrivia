@@ -19,7 +19,6 @@ console.log(`Serving frontend index.html from ${FRONTEND_INDEX_PATH}.`);
 const app: Express = express();
 
 const server = http.createServer(app);
-// TODO: Handle HTTPS.
 // TODO: Handle CORS.
 const io = new Server(server, {
   cors: {

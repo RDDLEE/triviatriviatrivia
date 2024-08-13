@@ -14,6 +14,7 @@ import { StorybookContext, StorybookContextSchema } from "../src/components/Stor
 const preview: Preview = {
   decorators: [
     (Story, storyContext) => {
+      // TODO: Make args const.
       let matchStage = storyContext.args["matchStage"];
       if (matchStage === undefined) {
         matchStage = MatchStateStages.NONE;

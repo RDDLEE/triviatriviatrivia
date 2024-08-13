@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default class EnvUtils {
-  // NOTE: This will be automatically set by Heroku.
   private static readonly PORT = process.env["PORT"];
 
   private static readonly COUNTDOWN_MULTIPLIER = process.env["COUNTDOWN_MULTIPLIER"];
