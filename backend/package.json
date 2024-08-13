@@ -5,7 +5,7 @@
   "scripts": {
     "build": "esbuild server.ts --platform=node --bundle --outfile=../dist/server.js",
     "start:staging": "npm run build && node --env-file=.env.staging ../dist/server.js",
-    "start:prod": "npm run build && node ../dist/server.js",
+    "start:prod": "npm run build && node ../dist/server.js NODE_ENV=production",
     "lint": "npx eslint ."
   },
   "author": "",
