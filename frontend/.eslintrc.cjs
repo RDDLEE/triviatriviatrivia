@@ -7,7 +7,7 @@ module.exports = {
     "plugin:react-hooks/recommended",
     "plugin:storybook/recommended"
   ],
-  ignorePatterns: ["dist", ".eslintrc.cjs", "postcss.config.cjs", "vite.config.ts"],
+  ignorePatterns: ["dist", ".eslintrc.cjs", "postcss.config.js", "vite.config.ts", "tailwind.config.js"],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: ['./tsconfig.json'],

@@ -6,7 +6,7 @@ import { Button, Flex } from "@mantine/core";
 import AnswerKBD from "../AnswerKBD/AnswerKBD";
 import StyleUtils from "../../lib/StyleUtils";
 
-export interface AnswerChoice_Props {
+interface AnswerChoice_Props {
   onClick_AnswerChoice: (answerID: AnswerID) => void;
   answerChoice: Client_StandardAnswerCoice;
 }

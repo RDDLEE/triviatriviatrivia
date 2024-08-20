@@ -1,14 +1,13 @@
-import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
-import TriviaShell from '../../src/components/TriviaShell/TriviaShell';
+import type { Meta, StoryObj } from "@storybook/react";
+import TriviaShell from "./TriviaShell";
 
 const meta = {
-  title: 'Trivia/TriviaShell',
+  title: "Trivia/TriviaShell",
   component: TriviaShell,
   parameters: {
-    layout: 'fullscreen',
+    layout: "fullscreen",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof TriviaShell>;

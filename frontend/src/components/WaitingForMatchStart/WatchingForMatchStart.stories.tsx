@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import WaitingForMatchStart from '../../src/components/WaitingForMatchStart/WaitingForMatchStart';
+import type { Meta, StoryObj } from "@storybook/react";
+import WaitingForMatchStart from "./WaitingForMatchStart";
 
 const meta = {
-  title: 'Trivia/WaitingForMatchStart',
+  title: "Trivia/WaitingForMatchStart",
   component: WaitingForMatchStart,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof WaitingForMatchStart>;

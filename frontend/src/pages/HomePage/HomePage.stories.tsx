@@ -1,13 +1,13 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import HomePage from '../../src/pages/HomePage/HomePage';
+import type { Meta, StoryObj } from "@storybook/react";
+import HomePage from "./HomePage";
 
 const meta = {
-  title: 'Trivia/HomePage',
+  title: "Trivia/HomePage",
   component: HomePage,
   parameters: {
-    layout: 'fullscreen',
+    layout: "fullscreen",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof HomePage>;

@@ -9,6 +9,7 @@ import { MatchStateContext, MatchStateContextSchema } from "./../src/components/
 import { SocketContext } from "./../src/components/SocketContext/SocketContext";
 import theme from "./../src/theme/theme";
 import { StorybookContext, StorybookContextSchema } from "../src/components/StorybookContext/StorybookContext";
+import "../src/index.css";
 
 
 const preview: Preview = {

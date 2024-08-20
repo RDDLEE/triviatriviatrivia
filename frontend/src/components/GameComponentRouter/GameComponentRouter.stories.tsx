@@ -1,14 +1,14 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { ANSWER_ID_NONE, Client_AnswerJudgmentResults, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, Client_PlayerVanity, Client_StandardQuestion, MatchStateStages } from 'trivia-shared';
-import GameComponentRouter from '../../src/components/GameComponentRouter/GameComponentRouter';
+import type { Meta, StoryObj } from "@storybook/react";
+import { ANSWER_ID_NONE, Client_AnswerJudgmentResults, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, Client_PlayerVanity, Client_StandardQuestion, MatchStateStages } from "trivia-shared";
+import GameComponentRouter from "./GameComponentRouter";
 
 const meta = {
-  title: 'Trivia/GameComponentRouter',
+  title: "Trivia/GameComponentRouter",
   component: GameComponentRouter,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof GameComponentRouter>;

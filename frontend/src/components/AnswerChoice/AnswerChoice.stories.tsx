@@ -1,14 +1,14 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { ANSWER_ID_NONE, ANSWER_STATE_ANSWER_TIME_NONE, Client_AnswerJudgmentResults, Client_PlayerAnswerState } from 'trivia-shared';
-import AnswerChoice from '../../src/components/AnswerChoice/AnswerChoice';
+import type { Meta, StoryObj } from "@storybook/react";
+import { ANSWER_ID_NONE, ANSWER_STATE_ANSWER_TIME_NONE, Client_AnswerJudgmentResults, Client_PlayerAnswerState } from "trivia-shared";
+import AnswerChoice from "./AnswerChoice";
 
 const meta = {
-  title: 'Trivia/AnswerChoice',
+  title: "Trivia/AnswerChoice",
   component: AnswerChoice,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof AnswerChoice>;

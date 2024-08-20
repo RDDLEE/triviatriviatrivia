@@ -1,14 +1,14 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { ANSWER_ID_NONE, Client_AnswerJudgmentResults, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, Client_PlayerVanity, Client_StandardQuestion, MatchStageTimeFrame, MatchStateStages } from 'trivia-shared';
-import RoomPage from '../../src/pages/RoomPage/RoomPage';
+import type { Meta, StoryObj } from "@storybook/react";
+import { ANSWER_ID_NONE, Client_AnswerJudgmentResults, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, Client_PlayerVanity, Client_StandardQuestion, MatchStageTimeFrame, MatchStateStages } from "trivia-shared";
+import RoomPage from "./RoomPage";
 
 const meta = {
-  title: 'Trivia/RoomPage',
+  title: "Trivia/RoomPage",
   component: RoomPage,
   parameters: {
-    layout: 'fullscreen',
+    layout: "fullscreen",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof RoomPage>;

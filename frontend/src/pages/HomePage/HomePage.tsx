@@ -9,8 +9,9 @@ import friendsIcon from "./../../assets/users.svg";
 import heartIcon from "./../../assets/heart.svg";
 import classes from "./HomePage.module.css";
 import StyleUtils from "../../lib/StyleUtils";
+import FloaterContainer from "../../components/FloaterContainer/FloaterContainer";
 
-interface featureItem {
+interface FeatureItem {
   icon: string;
   iconAlt: string;
   caption: string;
@@ -38,7 +39,7 @@ export default function HomePage() {
     return interval.stop;
   }, [interval]);
 
-  const features: featureItem[] = [
+  const features: FeatureItem[] = [
     {
       icon: friendsIcon,
       iconAlt: "friends",
@@ -85,7 +86,7 @@ export default function HomePage() {
 
   const renderTriviaTitle = (): JSX.Element => {
     return (
-      <Title className={classes["trivia-title"]} order={1} c={DEFAULT_FONT_COLOR}>
+      <Title className={classes["trivia-title"] + " z-20"} order={1} c={DEFAULT_FONT_COLOR}>
         {renderTriviaText(0, "violet", "cyan")}
         {renderTriviaText(1, "red", "grape")}
         {renderTriviaText(2, "green", "yellow")}
@@ -99,7 +100,7 @@ export default function HomePage() {
     setLocation(roomID);
   }, [setLocation]);
 
-  const renderFeature = (item: featureItem): JSX.Element => {
+  const renderFeature = (item: FeatureItem): JSX.Element => {
     return (
       <Flex
         key={item.iconAlt}
@@ -135,7 +136,7 @@ export default function HomePage() {
         pt="xl"
         pb="xl"
       >
-        {features.map((value: featureItem) => {
+        {features.map((value: FeatureItem) => {
           return renderFeature(value);
         })}
       </Flex>
@@ -175,7 +176,7 @@ export default function HomePage() {
   };
 
   return (
-    <Box>
+    <div>
       <Flex
         className={classes["home-page-header-background"]}
         gap={0}
@@ -186,7 +187,7 @@ export default function HomePage() {
         h="100vh"
       >
         {renderTriviaTitle()}
-        <Text c={HEADER_CONTENT_FONT_COLOR} ta="center" pl="xs" pr="xs">
+        <Text c={HEADER_CONTENT_FONT_COLOR} ta="center" pl="xs" pr="xs" className="z-20">
           Play Trivia by yourself or with your friends!
         </Text>
         <Box>
@@ -195,13 +196,15 @@ export default function HomePage() {
             variant="filled"
             mt="md"
             color={StyleUtils.DEFAULT_ACTION_BUTTON_COLOR}
+            className="z-20"
           >
             Play Now
           </Button>
         </Box>
+        <FloaterContainer />
       </Flex>
       {renderFeatures()}
       {renderThanks()}
-    </Box>
+    </div>
   );
 }

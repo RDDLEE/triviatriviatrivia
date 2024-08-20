@@ -1,10 +1,9 @@
-import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
-import { Client_PlayerJudgment, Client_PlayerStats, Client_PlayerVanity } from 'trivia-shared';
-import JudgePlayers from '../../src/components/JudgePlayers/JudgePlayers';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Client_PlayerJudgment, Client_PlayerStats, Client_PlayerVanity } from "trivia-shared";
+import JudgePlayers from "./JudgePlayers";
 
 const meta = {
-  title: 'Trivia/JudgePlayers',
+  title: "Trivia/JudgePlayers",
   component: JudgePlayers,
   decorators: [
     (Story) => {
@@ -16,9 +15,9 @@ const meta = {
     },
   ],
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof JudgePlayers>;

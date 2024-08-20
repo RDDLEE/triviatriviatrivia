@@ -1,15 +1,14 @@
-import type { Meta, StoryObj } from '@storybook/react';
-import { ANSWER_ID_NONE, ANSWER_STATE_ANSWER_TIME_NONE, Client_AnswerJudgmentResults, Client_PlayerAnswerState } from 'trivia-shared';
-import AnswerChoice from '../../src/components/AnswerChoice/AnswerChoice';
-import AnswerBadge from '../../src/components/AnswerBadge/AnswerBadge';
+import type { Meta, StoryObj } from "@storybook/react";
+import { ANSWER_ID_NONE } from "trivia-shared";
+import AnswerBadge from "./AnswerBadge";
 
 const meta = {
-  title: 'Trivia/AnswerBadge',
+  title: "Trivia/AnswerBadge",
   component: AnswerBadge,
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof AnswerBadge>;

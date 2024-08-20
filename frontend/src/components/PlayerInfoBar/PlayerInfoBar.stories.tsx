@@ -1,10 +1,9 @@
-import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
-import { Client_AnswerJudgmentResults, Client_PlayerAnswerState, Client_PlayerStats, Client_PlayerVanity, MatchStateStages } from 'trivia-shared';
-import PlayerInfoBar from '../../src/components/PlayerInfoBar/PlayerInfoBar';
+import type { Meta, StoryObj } from "@storybook/react";
+import { Client_AnswerJudgmentResults, Client_PlayerAnswerState, Client_PlayerStats, Client_PlayerVanity, MatchStateStages } from "trivia-shared";
+import PlayerInfoBar from "./PlayerInfoBar";
 
 const meta = {
-  title: 'Trivia/PlayerInfoBar',
+  title: "Trivia/PlayerInfoBar",
   component: PlayerInfoBar,
   decorators: [
     (Story) => {
@@ -16,9 +15,9 @@ const meta = {
     },
   ],
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof PlayerInfoBar>;

@@ -1,11 +1,9 @@
-import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
-import { ANSWER_ID_NONE, ANSWER_STATE_ANSWER_TIME_NONE, Client_AnswerJudgmentResults, Client_PlayerAnswerState, Client_StandardQuestion } from 'trivia-shared';
-import QuestionContainer from '../../src/components/QuestionContainer/QuestionContainer';
-
+import type { Meta, StoryObj } from "@storybook/react";
+import { ANSWER_ID_NONE, ANSWER_STATE_ANSWER_TIME_NONE, Client_AnswerJudgmentResults, Client_PlayerAnswerState, Client_StandardQuestion } from "trivia-shared";
+import QuestionContainer from "./QuestionContainer";
 
 const meta = {
-  title: 'Trivia/QuestionContainer',
+  title: "Trivia/QuestionContainer",
   component: QuestionContainer,
   decorators: [
     (Story) => {
@@ -17,9 +15,9 @@ const meta = {
     },
   ],
   parameters: {
-    layout: 'centered',
+    layout: "centered",
   },
-  tags: ['autodocs'],
+  tags: ["autodocs"],
   argTypes: {},
   args: {},
 } satisfies Meta<typeof QuestionContainer>;
