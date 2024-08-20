@@ -6,7 +6,7 @@ import cors from "cors";
 import path from "path";
 import { CreateRoomReturn, GetRoomReturn } from "trivia-shared";
 import RoomManager from "./src/room-manager";
-import EnvUtils from "./src/lib/EnvUtils";
+import EnvUtils, { EEnvironments } from "./src/lib/EnvUtils";
 import APIUtils from "./src/lib/APIUtils";
 
 console.log("Server running 1.0.1.");
@@ -19,14 +19,24 @@ console.log(`Serving frontend index.html from ${FRONTEND_INDEX_PATH}.`);
 
 const app: Express = express();
 
+app.enable("trust proxy");
+if (EnvUtils.getEnvironment() === EEnvironments.PRODUCTION) {
+  app.use((req, res, next) => {
+    if (req.header("x-forwarded-proto") !== "https") {
+      res.redirect(`https://${req.header("host")}${req.url}`);
+    } else {
+      next();
+    }
+  });
+}
+app.use(helmet());
+app.use(cors(APIUtils.configureCORS()));
+app.use(express.static(FRONTEND_DIR_PATH));
+
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: APIUtils.configureCORS(),
 });
-
-app.use(helmet());
-app.use(cors(APIUtils.configureCORS()));
-app.use(express.static(FRONTEND_DIR_PATH));
 
 app.get(APIUtils.HELLO_PATH, (_req: Request, res: Response) => {
   res.send("Hello.");
