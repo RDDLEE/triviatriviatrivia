@@ -4,6 +4,7 @@ dist
 
 # Environment Variables.
 .env
+.env.test
 .env.staging
 .env.development
 .env.production

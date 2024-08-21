@@ -6,7 +6,11 @@ import RoomUtils from "./lib/RoomUtils";
 export default class RoomManager {
   private static readonly gameRooms: Map<RoomID, GameRoom> = new Map();
 
-  public static readonly createRoom = (io: Server): RoomID => {
+  // FIXME: Use AppUtils.ioServer.
+  public static readonly createRoom = (io: Server | null): RoomID => {
+    if (io === null) {
+      throw new Error("Unable to create room. Invalid IO server.");
+    }
     const roomID = RoomUtils.generateRoomID();
     RoomManager.gameRooms.set(roomID, new GameRoom(roomID, io));
     return roomID;

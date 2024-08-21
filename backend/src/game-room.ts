@@ -79,7 +79,7 @@ export default class GameRoom {
     if (this.isTerminating) {
       return;
     }
-    console.log(`GameRoom.terminateGameRoom called and is terminating room with roomID = ${this.roomID}.`);
+    console.log(`Terminating room with roomID = ${this.roomID}.`);
     this.isTerminating = true;
     this.ioServer.of(this.roomID).disconnectSockets(true);
     this.ioServer.of(this.roomID).removeAllListeners();

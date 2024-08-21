@@ -15,6 +15,10 @@ export default class EnvUtils {
 
   private static readonly NODE_ENV = process.env["NODE_ENV"];
 
+  private static readonly REQUIRE_SSL = process.env["REQUIRE_SSL"];
+
+  private static readonly ENABLE_CORS = process.env["ENABLE_CORS"];
+
   private static readonly PROD_CORS_ORIGIN = process.env["CORS_ORIGIN"];
 
   public static readonly getEnvironment = (): EEnvironments => {
@@ -24,14 +28,7 @@ export default class EnvUtils {
     } else if (NODE_ENV === "production") {
       return EEnvironments.PRODUCTION;
     }
-    throw new Error(`NODE_ENV unknown. Received ${EnvUtils.NODE_ENV}.`);
-  };
-
-  public static readonly getProdCorsOrigin = (): string => {
-    if (EnvUtils.PROD_CORS_ORIGIN === undefined) {
-      throw new Error("PROD_CORS_ORIGIN undefined.");
-    }
-    return EnvUtils.PROD_CORS_ORIGIN;
+    throw new Error(`NODE_ENV unknown. Received (${EnvUtils.NODE_ENV}).`);
   };
 
   public static readonly getPort = (): string => {
@@ -51,6 +48,33 @@ export default class EnvUtils {
       return 1;
     }
     return Number(EnvUtils.COUNTDOWN_MULTIPLIER);
+  };
+
+  public static readonly getRequireSsl = (): boolean => {
+    if (EnvUtils.REQUIRE_SSL === undefined) {
+      return true;
+    }
+    if (EnvUtils.REQUIRE_SSL === "true") {
+      return true;
+    }
+    return false;
+  };
+
+  public static readonly getEnableCors = (): boolean => {
+    if (EnvUtils.ENABLE_CORS === undefined) {
+      return true;
+    }
+    if (EnvUtils.ENABLE_CORS === "true") {
+      return true;
+    }
+    return false;
+  };
+
+  public static readonly getProdCorsOrigin = (): string => {
+    if (EnvUtils.PROD_CORS_ORIGIN === undefined) {
+      throw new Error("PROD_CORS_ORIGIN undefined.");
+    }
+    return EnvUtils.PROD_CORS_ORIGIN;
   };
 
 }
