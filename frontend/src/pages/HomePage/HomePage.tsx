@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Box, Button, Text, Flex, Title, StyleProp, DefaultMantineColor, MantineGradient, Anchor } from "@mantine/core";
+import { Button, Text, Title, StyleProp, DefaultMantineColor, MantineGradient, Anchor } from "@mantine/core";
 import { useLocation } from "wouter";
 import { useInterval } from "@mantine/hooks";
 import APIUtils from "../../lib/APIUtils";
@@ -10,6 +10,8 @@ import heartIcon from "./../../assets/heart.svg";
 import classes from "./HomePage.module.css";
 import StyleUtils from "../../lib/StyleUtils";
 import FloaterContainer from "../../components/FloaterContainer/FloaterContainer";
+import { motion } from "framer-motion";
+import MotionUtils from "../../lib/MotionUtils";
 
 interface FeatureItem {
   icon: string;
@@ -17,6 +19,30 @@ interface FeatureItem {
   caption: string;
   description: string;
 }
+
+const features: FeatureItem[] = [
+  {
+    icon: friendsIcon,
+    iconAlt: "friends",
+    caption: "Play with Friends",
+    description: "Play with your friends in real time. Just create a room, and share the link!"
+  },
+  {
+    icon: databaseIcon,
+    iconAlt: "database",
+    caption: "Over 5,000 Questions",
+    description: "Over 5,000 trivia questions spanning a variety of categories."
+  },
+  {
+    icon: slidersIcon,
+    iconAlt: "slliders",
+    caption: "Customizable Settings",
+    description: "Customize your trivia game to specify the number of questions, points, and more!"
+  },
+];
+
+const DEFAULT_FONT_COLOR = StyleUtils.THEME_CONFIG.textColor;
+const HEADER_CONTENT_FONT_COLOR = "white";
 
 export default function HomePage() {
   const [_, setLocation] = useLocation();
@@ -31,34 +57,10 @@ export default function HomePage() {
     });
   }, 1500);
 
-  const DEFAULT_FONT_COLOR = StyleUtils.THEME_CONFIG.textColor;
-  const HEADER_CONTENT_FONT_COLOR = "white";
-
   useEffect(() => {
     interval.start();
     return interval.stop;
   }, [interval]);
-
-  const features: FeatureItem[] = [
-    {
-      icon: friendsIcon,
-      iconAlt: "friends",
-      caption: "Play with Friends",
-      description: "Play with your friends in real time. Just create a room, and share the link!"
-    },
-    {
-      icon: databaseIcon,
-      iconAlt: "database",
-      caption: "Over 5,000 Questions",
-      description: "Over 5,000 trivia questions spanning a variety of categories."
-    },
-    {
-      icon: slidersIcon,
-      iconAlt: "slliders",
-      caption: "Customizable Settings",
-      description: "Customize your trivia game to specify the number of questions, points, and more!"
-    },
-  ];
 
   const renderTriviaText = (index: number, color1: string, color2: string): JSX.Element => {
     let iColor: StyleProp<DefaultMantineColor> | undefined = HEADER_CONTENT_FONT_COLOR;
@@ -102,95 +104,77 @@ export default function HomePage() {
 
   const renderFeature = (item: FeatureItem): JSX.Element => {
     return (
-      <Flex
+      <motion.div
         key={item.iconAlt}
-        className={classes["sub-detail-item"]}
-        gap={0}
-        justify="center"
-        align="center"
-        direction="column"
-        wrap="wrap"
-        w="200px"
-        ml="md"
-        mr="md"
+        className={`
+          ${classes["sub-detail-item"]} flex flex-col items-center justify-center flex-wrap gap-0 w-[200px] mx-4`
+        }
+        variants={MotionUtils.featureContainer_Feature}
       >
-        <img src={item.icon} alt={item.iconAlt} />
+        <motion.img
+          src={item.icon} alt={item.iconAlt}
+          variants={MotionUtils.featureContainer_FeatureIcon}
+        />
         <Text c="dimmed" ta="center">
           {item.caption}
         </Text>
         <Text ta="center" c={DEFAULT_FONT_COLOR}>
           {item.description}
         </Text>
-      </Flex>
+      </motion.div>
     );
   };
 
   const renderFeatures = (): JSX.Element => {
     return (
-      <Flex
-        gap={0}
-        justify="center"
-        align="baseline"
-        direction="row"
-        wrap="wrap"
-        pt="xl"
-        pb="xl"
+      <div
+        className="flex flex-row justify-center items-baseline flex-wrap gap-0 pt-8 pb-4"
       >
         {features.map((value: FeatureItem) => {
           return renderFeature(value);
         })}
-      </Flex>
+      </div>
     );
   };
 
   const renderThanks = (): JSX.Element => {
     return (
-      <Flex
-        gap={0}
-        justify="center"
-        align="center"
-        direction="column"
-        wrap="wrap"
-        pb="xl"
-        pl="md"
-        pr="md"
+      <motion.div
+        className={"flex flex-col items-center justify-center flex-wrap gap-0 px-8 pb-8"}
+        variants={MotionUtils.featureContainer_Feature}
       >
-        <Box mb="xs">
-          <img src={heartIcon} alt="heart" />
-        </Box>
-
-        <Box>
-          <Text ta="center">
+        <div className="mb-4">
+          <motion.img
+            src={heartIcon} alt="heart"
+            variants={MotionUtils.featureContainer_FeatureIcon}
+          />
+        </div>
+        <div>
+          <p className="text-center">
             Special thanks to the individuals at Open Trivia Database for providing the trivia questions.
-          </Text>
-          <Text ta="center">
+          </p>
+          <p className="text-center">
             {/* eslint-disable-next-line quotes */}
             {`Open Trivia DB is created and maintained by the good folks at `}
             <Anchor href="https://www.pixeltailgames.com/" target="_blank" underline="always">
               PIXELTAIL GAMES LLC
             </Anchor>.
-          </Text>
-        </Box>
-      </Flex>
+          </p>
+        </div>
+      </motion.div>
     );
   };
 
-  return (
-    <div>
-      <Flex
-        className={classes["home-page-header-background"]}
-        gap={0}
-        justify="center"
-        align="center"
-        direction="column"
-        wrap="wrap"
-        h="100vh"
+  const renderMainTitle = (): JSX.Element => {
+    return (
+      <div
+        className={`${classes["home-page-header-background"]} flex flex-col justify-center items-center flex-wrap gap-0 h-screen`}
       >
         {renderTriviaTitle()}
         <Text c={HEADER_CONTENT_FONT_COLOR} ta="center" pl="xs" pr="xs" className="z-20">
           Play Trivia by yourself or with your friends!
         </Text>
-        <Box>
+        <div>
           <Button
             onClick={onClick_CreateRoomButton}
             variant="filled"
@@ -200,11 +184,28 @@ export default function HomePage() {
           >
             Play Now
           </Button>
-        </Box>
+        </div>
         <FloaterContainer />
-      </Flex>
-      {renderFeatures()}
-      {renderThanks()}
-    </div>
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      {renderMainTitle()}
+      <div
+        className="w-full h-10 bg-gradient-to-r from-floater-blue via-floater-red to-floater-yellow"
+      />
+      <motion.div
+        className="overflow-x-hidden overflow-y-hidden"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true }}
+        variants={MotionUtils.featureContainer}
+      >
+        {renderFeatures()}
+        {renderThanks()}
+      </motion.div>
+    </div >
   );
 }

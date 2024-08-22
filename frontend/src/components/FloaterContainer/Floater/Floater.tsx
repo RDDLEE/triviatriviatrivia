@@ -4,6 +4,7 @@ import { LuDiamond } from "react-icons/lu";
 import { IconType } from "react-icons";
 
 import classes from "./Floater.module.css";
+import StyleUtils from "../../../lib/StyleUtils";
 
 const floaterIcons: IconType[] = [FaRegCircle, FaRegSquare, LuDiamond];
 
@@ -16,7 +17,9 @@ interface Floater_Props {
 
 export default function Floater(props: Floater_Props) {
   const generateRandomColor = (): string => {
-    const colors = ["#8379DE", "#DE8379", "#79DE83"];
+    const colors = [
+      StyleUtils.FLOATER_COLOR_BLUE, StyleUtils.FLOATER_COLOR_RED, StyleUtils.FLOATER_COLOR_YELLOW
+    ];
     const randIndx = Math.floor(Math.random() * colors.length);
     const color = colors[randIndx];
     if (color === undefined) {

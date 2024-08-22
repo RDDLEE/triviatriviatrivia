@@ -29,6 +29,10 @@ export default class StyleUtils {
   public static readonly ANSWER_CHOICE_SELECTED_COLOR = "cyan.7";
   public static readonly ANSWER_CHOICE_CORRECT_COLOR = "green.7";
 
+  public static readonly FLOATER_COLOR_BLUE = "#8379DE";
+  public static readonly FLOATER_COLOR_RED = "#DE8379";
+  public static readonly FLOATER_COLOR_YELLOW = "#79DE83";
+
   public static readonly convertAnswerIDToText = (answerID: AnswerID): string => {
     if (answerID === ANSWER_ID_NONE) {
       return StyleUtils.ANSWER_ID_NONE_TEXT;

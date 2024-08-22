@@ -6,7 +6,13 @@ export default {
     "./.storybook/preview.tsx"
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "floater-blue": "#8379DE",
+        "floater-red": "#DE8379",
+        "floater-yellow": "#79DE83",
+      },
+    },
   },
   plugins: [],
 }
