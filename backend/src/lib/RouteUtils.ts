@@ -11,6 +11,6 @@ export default class RouteUtils {
 
   public static readonly HOME_PAGE_PATH = "/";
 
-  public static readonly ROOM_PAGE_PATH = `/:${RouteUtils.ROOM_ID_PARAM}`;
+  public static readonly ROOM_PAGE_PATH = `/r/:${RouteUtils.ROOM_ID_PARAM}`;
 
 }

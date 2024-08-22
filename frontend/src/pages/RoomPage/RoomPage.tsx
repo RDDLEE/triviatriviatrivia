@@ -23,7 +23,8 @@ export default function RoomPage(_props: RoomPageProps & RouteComponentProps) {
   // NOTE: Could save match settings to localStorage.
   const [isSettingsModalOpened, settingsModalCallbacks] = useDisclosure(false);
 
-  const roomID = window.location.pathname;
+  // FIXME: Create helper in APIUtils.
+  const roomID = window.location.pathname.replace(/^\/r/, "");
 
   const gameRoomSocket = useGameRoomSocket({ roomID: roomID });
 

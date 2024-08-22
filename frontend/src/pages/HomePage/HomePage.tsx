@@ -98,8 +98,10 @@ export default function HomePage() {
 
   const onClick_CreateRoomButton = useCallback(async (): Promise<void> => {
     // FIXME: Use Tanstack Query.
+    // NOTE: RoomID is /RoomID (prefixed with /).
     const roomID = await APIUtils.createRoom();
-    setLocation(roomID);
+    // FIXME: Create helper in APIUtils.
+    setLocation(`/r${roomID}`);
   }, [setLocation]);
 
   const renderFeature = (item: FeatureItem): JSX.Element => {

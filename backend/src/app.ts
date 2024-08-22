@@ -48,27 +48,16 @@ app.get(RouteUtils.GET_ROOM_PATH, (req, res) => {
   res.json({ wasFound: wasFound } satisfies GetRoomReturn);
 });
 
-// FIXME: Make const in PageUtils.
 app.get(RouteUtils.HOME_PAGE_PATH, (_req, res) => {
-  res.sendFile(
-    AppUtils.FRONTEND_INDEX_PATH,
-    () => {
-      res.sendStatus(500);
-    }
-  );
+  res.sendFile(AppUtils.FRONTEND_INDEX_PATH);
 });
 
 app.get(RouteUtils.ROOM_PAGE_PATH, (_req, res) => {
-  res.sendFile(
-    AppUtils.FRONTEND_INDEX_PATH,
-    () => {
-      res.sendStatus(500);
-    }
-  );
+  res.sendFile(AppUtils.FRONTEND_INDEX_PATH);
 });
 
 app.get("*", (_req, res) => {
-  res.status(404).send("404: Page not found.");
+  res.sendStatus(404);
 });
 
 export default app;
