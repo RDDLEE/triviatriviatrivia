@@ -3,7 +3,8 @@ import dotenv from "dotenv";
 export enum EEnvironments {
   NONE = "None",
   STAGING = "Staging",
-  PRODUCTION = "Production"
+  PRODUCTION = "Production",
+  TEST = "Test"
 }
 
 dotenv.config();
@@ -27,6 +28,8 @@ export default class EnvUtils {
       return EEnvironments.STAGING;
     } else if (NODE_ENV === "production") {
       return EEnvironments.PRODUCTION;
+    } else if (NODE_ENV === "test") {
+      return EEnvironments.TEST;
     }
     throw new Error(`NODE_ENV unknown. Received (${EnvUtils.NODE_ENV}).`);
   };

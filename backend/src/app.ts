@@ -2,13 +2,23 @@ import { Request, Response } from "express";
 import express, { Express } from "express";
 import helmet from "helmet";
 import cors from "cors";
-import EnvUtils from "../src/lib/EnvUtils";
+import EnvUtils, { EEnvironments } from "../src/lib/EnvUtils";
 import AppUtils from "./lib/AppUtils";
 import { CreateRoomReturn, GetRoomReturn } from "trivia-shared";
 import RoomManager from "../src/room-manager";
 import RouteUtils from "./lib/RouteUtils";
+import fs from "fs";
 
 const app: Express = express();
+
+console.log(`Serving index.html at ${AppUtils.FRONTEND_INDEX_PATH}.`);
+if (!fs.existsSync(AppUtils.FRONTEND_INDEX_PATH)) {
+  if (EnvUtils.getEnvironment() === EEnvironments.TEST) {
+    console.error("Failed to locate index.html.");
+  } else {
+    throw "Failed to locate index.html.";
+  }
+}
 
 app.enable("trust proxy");
 if (EnvUtils.getRequireSsl()) {
@@ -57,6 +67,7 @@ app.get(RouteUtils.ROOM_PAGE_PATH, (_req, res) => {
 });
 
 app.get("*", (_req, res) => {
+  // TODO: Make 404 page.
   res.sendStatus(404);
 });
 

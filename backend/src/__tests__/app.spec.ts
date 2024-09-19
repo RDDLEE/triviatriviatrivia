@@ -17,17 +17,5 @@ describe("App Routes", () => {
     expect(response.body).toEqual({ wasFound: false });
   });
 
-  test("Route: HOME_PAGE_PATH.", async () => {
-    const response = await request(app)
-      .get(RouteUtils.HOME_PAGE_PATH);
-    // NOTE: 500 is okay in development as frontend is still seperated. No point in mocking.
-    expect(response.status).toBe(500);
-  });
-
-  test("Route: ROOM_PAGE_PATH.", async () => {
-    const response = await request(app)
-      .get("/123");
-    // NOTE: 500 is okay in development as frontend is still seperated. No point in mocking.
-    expect(response.status).toBe(500);
-  });
+  // TODO: Test page paths. Need to pass in the paths to AppUtils since serving from different dir.
 });

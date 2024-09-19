@@ -6,9 +6,7 @@ import cors from "cors";
 export default class AppUtils {
   // NOTE: Frontend directory name should match frontend/package.json build outDir.
   public static readonly FRONTEND_DIR_PATH = path.resolve(__dirname, "frontend-dist");
-  // console.log(`Using frontend directory from ${FRONTEND_DIR_PATH}.`);
   public static readonly FRONTEND_INDEX_PATH = path.resolve(AppUtils.FRONTEND_DIR_PATH, "index.html");
-  //console.log(`Serving frontend index.html from ${ FRONTEND_INDEX_PATH }.`);
 
   private static ioServer: Server | null = null;
 

@@ -3,7 +3,7 @@ import { Server, Socket } from "socket.io";
 import {
   GCAnswerSubmitted_Payload, GCAttemptSubmitAnswer_Payload, GCJudgingAnswers_Payload, GCJudgingPlayers_Payload,
   GCPreparingMatch_Payload, GCReceiveMatchStage_Payload, GCReceivePlayerID_Payload, GCReqestStartMatch_Payload,
-  GCShowingQuestion_Payload, OTDB_CATEGORY_ANY_ID, PlayerID, ProviderSettings, SocketEvents
+  GCShowingQuestion_Payload, MatchStateStages, OTDB_CATEGORY_ANY_ID, PlayerID, ProviderSettings, SocketEvents
 } from "trivia-shared";
 import OTDBUtils, { OTDBResponse, OTDBResponseCodes } from "./lib/OTDBUtils";
 import MatchState from "./match-state";
@@ -26,7 +26,7 @@ export default class GameController {
   // Time (millis) for players to answer until answer reveal.
   private static readonly SHOWING_QUESTION_COUNTDOWN = 12.5 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for server to reveal answers to players.
-  private static readonly JUDGING_ANSWERS_COUNTDOWN = 3.5 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
+  private static readonly JUDGING_ANSWERS_COUNTDOWN = 3 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
   // Time (millis) for server to wait for a new match before self-termination.
   private static readonly IDLE_TERMINATION_COUNTDOWN = 45 * 1000 * GameController.COUNTDOWN_MULTIPLIER;
 
@@ -79,7 +79,13 @@ export default class GameController {
           } satisfies GCAnswerSubmitted_Payload
         );
       }
-      // TODO: Maybe if all players have answered, skip immediately to judge answers?
+      if (this.matchState.didAllPlayersAnswer()) {
+        // Premptively end showQuestion stage.
+        if (this.matchState.getMatchStage() === MatchStateStages.SHOWING_QUESTION) {
+          clearTimeout(this.stageTimer);
+          this.judgeAnswers();
+        }
+      }
     });
   };
 
@@ -142,7 +148,7 @@ export default class GameController {
   };
 
   private readonly judgePlayers = (): void => {
-    const timeFrame =  {
+    const timeFrame = {
       terminationTime: Date.now() + GameController.IDLE_TERMINATION_COUNTDOWN,
       countdownTime: GameController.IDLE_TERMINATION_COUNTDOWN,
     };
@@ -200,4 +206,5 @@ export default class GameController {
     clearTimeout(this.stageTimer);
     this.stageTimer = setTimeout(callback, ms);
   };
+
 }

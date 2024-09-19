@@ -9,6 +9,7 @@ export default class GameRoom {
   private readonly ioServer: Server;
   private readonly players: Map<SocketID, Player>;
   // TODO: Terminate old GameRooms.
+  // @ts-expect-error Not yet utilized.
   private readonly creationTime: number;
   private isTerminating: boolean;
   private gameController: GameController | null;
@@ -95,6 +96,7 @@ export default class GameRoom {
   };
 
   // TODO: Implement vanity changes.
+  // @ts-expect-error Not yet implemented.
   private readonly updatePlayerVanities = (): void => {
     const vanities = this.makeClientPlayerVanities();
     this.ioServer.of(this.roomID).emit(SocketEvents.GR_SERVER_UPDATE_PLAYER_VANITIES, {

@@ -1,4 +1,4 @@
-import { ANSWER_ID_NONE, AnswerID, Client_MatchState, Client_PlayerAnswerJudgment, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, MatchSettings, MatchStageTimeFrame, MatchStateStages, PlayerID, Server_PlayerAnswerJudgment, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
+import { ANSWER_ID_NONE, AnswerID, Client_MatchState, Client_PlayerAnswerJudgment, Client_PlayerAnswerState, Client_PlayerJudgment, Client_PlayerStats, MatchSettings, MatchStage, MatchStageTimeFrame, MatchStateStages, PlayerID, Server_PlayerAnswerJudgment, Server_PlayerAnswerState, Server_PlayerStats } from "trivia-shared";
 import { StandardQuestion } from "./lib/QuestionUtils";
 import MatchStateUtils from "./lib/MatchStateUtils";
 import GameRoom from "./game-room";
@@ -22,6 +22,7 @@ export default class MatchState {
   private round: number;
   private matchSettings: MatchSettings;
   // TODO: Implement matchHistory.
+  // @ts-expect-error Not yet implemented.
   private matchHistory: unknown[];
   private readonly playersStats: Map<PlayerID, Server_PlayerStats>;
   private readonly playerAnswerStates: Map<PlayerID, Server_PlayerAnswerState>;
@@ -144,6 +145,16 @@ export default class MatchState {
       answerTime: Date.now(),
     });
     return true;
+  };
+
+  public readonly didAllPlayersAnswer = (): boolean => {
+    let didAllAnswer = true;
+    this.playerAnswerStates.forEach((answerState: Server_PlayerAnswerState): void => {
+      if (answerState.didSelectAnswer === false) {
+        didAllAnswer = false;
+      }
+    });
+    return didAllAnswer;
   };
 
   public readonly produceAnswerJudgments = (): Map<PlayerID, Server_PlayerAnswerJudgment> | null => {
@@ -369,4 +380,8 @@ export default class MatchState {
     }
     return null;
   };
+
+  public readonly getMatchStage = (): MatchStateStages => {
+    return this.matchStage;
+  }
 }
